@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int            @id @default(autoincrement())
+  email            String         @unique @db.VarChar(255)
+  password         String         @db.VarChar(128)
+  is_administrator Boolean
+  userQuestions    UserQuestion[]
+  userMaterials    UserMaterial[]
+  presets          Preset[]
+}
+
+model Image {
+  id         Int                @id @default(autoincrement())
+  image      Bytes
+  name       String             @db.VarChar(256)
+  created_at DateTime
+  questions  Question[]
+  materials  MaterialHasImage[]
+}
+
+model Question {
+  id                Int                   @id @default(autoincrement())
+  content           String                @db.Text
+  imageId           Int?
+  image             Image?                @relation(fields: [imageId], references: [id])
+  alternatives      Alternative[]
+  userQuestions     UserQuestion[]
+  questionMaterials QuestionHasMaterial[]
+}
+
+model Alternative {
+  id          Int      @id @default(autoincrement())
+  content     String   @db.VarChar(45)
+  is_correct  Boolean
+  questionsId Int
+  question    Question @relation(fields: [questionsId], references: [id])
+}
+
+model Material {
+  id                Int                   @id @default(autoincrement())
+  content           String                @db.Text
+  created_at        DateTime
+  userMaterials     UserMaterial[]
+  questionMaterials QuestionHasMaterial[]
+  materialImages    MaterialHasImage[]
+}
+
+model Preset {
+  id         Int      @id @default(autoincrement())
+  content    Json
+  created_at DateTime
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model UserQuestion {
+  id          Int      @id @default(autoincrement())
+  completed   Boolean
+  userId      Int
+  questionsId Int
+  user        User     @relation(fields: [userId], references: [id])
+  question    Question @relation(fields: [questionsId], references: [id])
+}
+
+model UserMaterial {
+  id          Int      @id @default(autoincrement())
+  completed   Boolean
+  userId      Int
+  materialsId Int
+  user        User     @relation(fields: [userId], references: [id])
+  material    Material @relation(fields: [materialsId], references: [id])
+}
+
+model QuestionHasMaterial {
+  questionId Int
+  materialId Int
+  question   Question @relation(fields: [questionId], references: [id])
+  material   Material @relation(fields: [materialId], references: [id])
+
+  @@id([questionId, materialId])
+}
+
+model MaterialHasImage {
+  materialId Int
+  imageId    Int
+  material   Material @relation(fields: [materialId], references: [id])
+  image      Image    @relation(fields: [imageId], references: [id])
+
+  @@id([materialId, imageId])
+}

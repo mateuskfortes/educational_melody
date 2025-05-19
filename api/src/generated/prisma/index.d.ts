@@ -15,7 +15,9 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 /**
  * Model User
- * 
+ * create user 'prisma_user'@'localhost' identified by '123456';
+ * grant all privileges on *.* to 'prisma_user'@'localhost';
+ * create database educational_melody;
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**

@@ -5,12 +5,17 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 // .env 
-// **  DATABASE_URL="mysql://prisma_user:123456@localhost:3306/educational_melody"
+/*
+DATABASE_URL=mysql://prisma_user:123456@localhost:3306/educational_melody
+*/
 
 // mysql
-// **  create user 'prisma_user'@'localhost' identified by '123456';
-// **  grant all privileges on educational_melody.* to 'prisma_user'@'localhost';
-// **  create database educational_melody;
+/*
+create user 'prisma_user'@'localhost' identified by '123456';
+grant all privileges on *.* to 'prisma_user'@'localhost';
+create database educational_melody;
+*/
+
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"

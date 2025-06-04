@@ -27,4 +27,21 @@ export const createUser = async (
     // Handle unexpected errors
     return { user: null, error: "Erro inesperado ao criar usuário" };
   }
-};
+}
+
+export const getUserByEmail = async (
+  email: string
+): Promise<{ user: any; error_msg: any }> => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+    if (!user) {
+      return { user: null, error_msg: "User not found" };
+    }
+    return { user, error_msg: null };
+  } catch (error) {
+    // Handle unexpected errors
+    return { user: null, error_msg: "Erro inesperado ao buscar usuário" };
+  }
+}

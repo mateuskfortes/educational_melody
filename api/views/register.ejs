@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registrar Usuário</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 50px auto;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    label, input {
+      margin-bottom: 10px;
+    }
+    input[type="submit"] {
+      padding: 8px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .error {
+      color: red;
+      margin-bottom: 15px;
+    }
+    .success {
+      color: green;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Registrar Usuário</h1>
+
+  <form action="/register" method="POST">
+    <label for="email">Email:</label>
+    <input id="email" name="email" type="email" required />
+
+    <label for="password">Senha:</label>
+    <input id="password" name="password" type="password" required />
+
+    <input type="submit" value="Registrar" />
+  </form>
+
+  <p>Já tem uma conta? <a href="/login">Faça login</a></p>
+</body>
+</html>

@@ -35,6 +35,13 @@
     <label for="password">Senha:</label>
     <input id="password" name="password" type="password" required />
 
+    <% if (administrator_checkbox) { %>
+      <lable>
+        <input id="is_administrator" name="is_administrator" type="checkbox" />
+O novo usuário é um administrador?
+      </lable>
+    <% } %>
+
     <input type="submit" value="Registrar" />
   </form>
 

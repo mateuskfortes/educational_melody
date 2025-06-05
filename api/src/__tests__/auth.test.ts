@@ -1,12 +1,29 @@
 import request from "supertest";
 import App from "../app";
+import { Prisma } from "@prisma/client";
 
 const testUser = {
   email: 'test@test.com',
   password: 'test',
   is_administrator: false,
 };
-import { Prisma } from "@prisma/client";
+const adminUser1 = {
+  email: 'admin1@test.com',
+  password: 'test',
+  is_administrator: true,
+}
+const adminUser2 = {
+  email: 'admin2@test.com',
+  password: 'test',
+  is_administrator: true,
+}
+const requestAdminUser2 = {
+  email: adminUser2.email,
+  password: adminUser2.password,
+  is_administrator: 'on'
+}
+
+const app = new App().app
 
 const mockDB: any[] = [];
 
@@ -62,11 +79,11 @@ describe('Auth', () => {
     findUniqueUserPrisma.mockClear();
   })
   it('should get create a user page', async () => {
-    const res = await request(new App().app).get('/register');
+    const res = await request(app).get('/register');
     expect(res.statusCode).toEqual(200);
   });
   it('should create a user', async () => {
-    const res = await request(new App().app).post('/register').send({
+    const res = await request(app).post('/register').send({
       email: testUser.email,
       password: testUser.password,
     });
@@ -81,9 +98,18 @@ describe('Auth', () => {
     expect(createUserPrisma).toHaveBeenCalledTimes(1);
     expect(res.text).toContain(`User created with email: ${testUser.email}`);
   });
+  it('should not create a user if email or password is missing', async () => {
+    const res = await request(app).post('/register').send({
+      email: '',
+      password: '',
+    });
+    expect(res.statusCode).toEqual(400);
+    expect(res.text).toContain('Email and password are required');
+    expect(createUserPrisma).toHaveBeenCalledTimes(0);
+  })
   it('should not create a user if email already exists', async () => {
     mockDB.push(testUser);
-    const res = await request(new App().app).post('/register').send({
+    const res = await request(app).post('/register').send({
       email: testUser.email,
       password: testUser.password,
     });
@@ -99,12 +125,12 @@ describe('Auth', () => {
     expect(res.text).toContain('This email is already in use');
   });
   it('should get login a user page', async () => {
-    const res = await request(new App().app).get('/login');
+    const res = await request(app).get('/login');
     expect(res.statusCode).toEqual(200);
   });
   it('should login a user', async () => {
     mockDB.push(testUser);
-    const res = await request(new App().app).post('/login').send({
+    const res = await request(app).post('/login').send({
       email: testUser.email,
       password: testUser.password,
     });
@@ -119,7 +145,7 @@ describe('Auth', () => {
   });
   it('should not login a user with invalid password', async () => {
     mockDB.push(testUser);
-    const res = await request(new App().app).post('/login').send({
+    const res = await request(app).post('/login').send({
       email: testUser.email,
       password: 'wrongpassword',
     });
@@ -133,11 +159,11 @@ describe('Auth', () => {
     expect(res.text).toContain('Invalid password');
   });
   it('should not login a user with non-existing email', async () => {
-    const res = await request(new App().app).post('/login').send({
+    const res = await request(app).post('/login').send({
       email: 'nonexisting@test.com',
       password: 'test',
     });
-    expect(res.statusCode).toEqual(400);
+    expect(res.statusCode).toEqual(404);
     expect(findUniqueUserPrisma).toHaveBeenCalledWith({
       where: {
         email: 'nonexisting@test.com',
@@ -145,5 +171,42 @@ describe('Auth', () => {
     })
     expect(findUniqueUserPrisma).toHaveBeenCalledTimes(1);
     expect(res.text).toContain('User not found');
+  })
+  it('should be able to create a administrator user if the user is an administrator', async () => {
+    mockDB.push({
+      email: 'admin1@test.com',
+      password: 'test',
+      is_administrator: true,
+    });
+    
+    // login the admin user and get the session cookie
+    const resLogin = await request(app).post('/login').send(adminUser1);
+    const session = resLogin.headers['set-cookie'][0].match(/connect\.sid=[^;]+/) || ['']
+
+    expect(session[0]).not.toBe('');
+    expect(resLogin.statusCode).toEqual(201);
+    const res = await request(app).post('/register').send(requestAdminUser2).set('Cookie', session[0]);
+    expect(res.statusCode).toEqual(201);
+    expect(createUserPrisma).toHaveBeenCalledWith({
+      data: adminUser2
+    })
+    expect(createUserPrisma).toHaveBeenCalledTimes(1);
+  })
+  it('should not be able to create a administrator user if the user is not an administrator', async () => {
+    mockDB.push({
+      email: 'admin1@test.com',
+      password: 'test',
+      is_administrator: false,
+    });
+
+    // login the admin user and get the session cookie
+    const resLogin = await request(app).post('/login').send(adminUser1);
+    const session = resLogin.headers['set-cookie'][0].match(/connect\.sid=[^;]+/) || ['']
+    expect(session[0]).not.toBe('');
+    expect(resLogin.statusCode).toEqual(201);
+    const res = await request(app).post('/register').send(requestAdminUser2).set('Cookie', session[0]);
+    expect(res.statusCode).toEqual(403);
+    expect(createUserPrisma).toHaveBeenCalledTimes(0);
+    expect(res.text).toContain('You are not authorized to create an administrator user');
   })
 })

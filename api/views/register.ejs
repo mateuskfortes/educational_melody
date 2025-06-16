@@ -28,6 +28,10 @@
 <body>
   <h1>Registrar Usuário</h1>
 
+  <p>
+    <%= error_msg %>
+  </p>
+
   <form action="/register" method="POST">
     <label for="username">Username:</label>
     <input id="username" name="username" type="text" required />

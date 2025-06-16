@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
+import { render } from '../utils';
 
 export const getHome = (req: Request, res: Response) => {
-  res.render('index.ejs', {title: "test", message: "message"})
+  render(req, res, 'index.ejs', { title: 'Home', message: 'Hello World!' })
 }

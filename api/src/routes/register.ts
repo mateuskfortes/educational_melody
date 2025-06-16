@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { createUser } from '../database/auth';
+import { render } from '../utils';
 
 export const getRegister = (req: Request, res: Response) => {
-  const currentUserIsAdministrator = req.session.user?.is_administrator || false
-  res.render('register.ejs', { administrator_checkbox: currentUserIsAdministrator })
+  render(req, res, 'register.ejs', {})
 }
 
 export const postRegister = async (req: Request, res: Response): Promise<any> => {
@@ -12,7 +12,9 @@ export const postRegister = async (req: Request, res: Response): Promise<any> =>
   const password = req.body.password;
 
   if (!username || !email || !password) {
-    return res.status(400).send('Email and password are required');
+    return render(req, res.status(400), 'register.ejs', {
+      error_msg: 'Username, email and password are required',
+    })
   }
   
   // Get the is_administrator flag from the request body, defaulting to false
@@ -20,12 +22,20 @@ export const postRegister = async (req: Request, res: Response): Promise<any> =>
   
   // If the user is not an administrator, they cannot create an administrator user
   if (!req.session.user?.is_administrator && is_administrator) {
-    return res.status(403).send('You are not authorized to create an administrator user');
+    return render(req, res.status(403), 'register.ejs', {
+      error_msg: 'You are not authorized to create an administrator user',
+    })
   } 
 
-  const { user, error_msg } = await createUser(username, email, password,  is_administrator)
+  const { user, error_msg } = await createUser(username, email, password, is_administrator)
   if (error_msg) {
-    return res.status(400).send(error_msg);
+    return render(
+      req, 
+      res.status(400), 
+      'register.ejs', { 
+        error_msg,
+      }
+    )
   }
 
   if(user) {

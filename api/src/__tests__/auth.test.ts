@@ -111,7 +111,7 @@ describe('Auth', () => {
       password: '',
     });
     expect(res.statusCode).toEqual(400);
-    expect(res.text).toContain('Email and password are required');
+    expect(res.text).toContain('Username, email and password are required');
     expect(createUserPrisma).toHaveBeenCalledTimes(0);
   })
   it('should not create a user if email already exists', async () => {

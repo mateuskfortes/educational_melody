@@ -23,7 +23,7 @@ const requestAdminUser2 = {
   is_administrator: 'on'
 }
 
-const app = new App().app
+const app = new App({ mysqlStore: false }).app
 
 const mockDB: any[] = [];
 

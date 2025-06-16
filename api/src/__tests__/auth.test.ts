@@ -3,21 +3,25 @@ import App from "../app";
 import { Prisma } from "@prisma/client";
 
 const testUser = {
+  username: 'test',
   email: 'test@test.com',
   password: 'test',
   is_administrator: false,
 };
 const adminUser1 = {
+  username: 'test',
   email: 'admin1@test.com',
   password: 'test',
   is_administrator: true,
 }
 const adminUser2 = {
+  username: 'test',
   email: 'admin2@test.com',
   password: 'test',
   is_administrator: true,
 }
 const requestAdminUser2 = {
+  username: 'test',
   email: adminUser2.email,
   password: adminUser2.password,
   is_administrator: 'on'
@@ -84,12 +88,14 @@ describe('Auth', () => {
   });
   it('should create a user', async () => {
     const res = await request(app).post('/register').send({
+      username: testUser.username,
       email: testUser.email,
       password: testUser.password,
     });
     expect(res.statusCode).toEqual(201);
     expect(createUserPrisma).toHaveBeenCalledWith({
       data: {
+        username: testUser.username,
         email: testUser.email,
         password: testUser.password,
         is_administrator: testUser.is_administrator,
@@ -98,8 +104,9 @@ describe('Auth', () => {
     expect(createUserPrisma).toHaveBeenCalledTimes(1);
     expect(res.text).toContain(`User created with email: ${testUser.email}`);
   });
-  it('should not create a user if email or password is missing', async () => {
+  it('should not create a user if username, email or password is missing', async () => {
     const res = await request(app).post('/register').send({
+      username: '',
       email: '',
       password: '',
     });
@@ -110,12 +117,14 @@ describe('Auth', () => {
   it('should not create a user if email already exists', async () => {
     mockDB.push(testUser);
     const res = await request(app).post('/register').send({
+      username: testUser.username,
       email: testUser.email,
       password: testUser.password,
     });
     expect(res.statusCode).toEqual(400);
     expect(createUserPrisma).toHaveBeenCalledWith({
       data: {
+        username: testUser.username,
         email: testUser.email,
         password: testUser.password,
         is_administrator: testUser.is_administrator,

@@ -4,6 +4,7 @@ import { UserTemplate } from "../types/authTemplate";
 const prisma = new PrismaClient();
 
 export const createUser = async (
+  username: string,
   email: string,
   password: string,
   is_administrator: boolean
@@ -11,6 +12,7 @@ export const createUser = async (
   try {
     const user = await prisma.user.create({
       data: {
+        username,
         email,
         password,
         is_administrator,

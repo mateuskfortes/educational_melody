@@ -28,6 +28,7 @@ generator client {
 
 model User {
   id              Int            @id @default(autoincrement())
+  username        String         @db.VarChar(255)
   email           String         @unique @db.VarChar(255)
   password        String         @db.VarChar(128)
   is_administrator Boolean

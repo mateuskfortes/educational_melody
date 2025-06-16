@@ -7,10 +7,11 @@ export const getRegister = (req: Request, res: Response) => {
 }
 
 export const postRegister = async (req: Request, res: Response): Promise<any> => {
+  const username = req.body.username
   const email = req.body.email;
   const password = req.body.password;
 
-  if (!email || !password) {
+  if (!username || !email || !password) {
     return res.status(400).send('Email and password are required');
   }
   
@@ -22,7 +23,7 @@ export const postRegister = async (req: Request, res: Response): Promise<any> =>
     return res.status(403).send('You are not authorized to create an administrator user');
   } 
 
-  const { user, error_msg } = await createUser(email, password,  is_administrator)
+  const { user, error_msg } = await createUser(username, email, password,  is_administrator)
   if (error_msg) {
     return res.status(400).send(error_msg);
   }

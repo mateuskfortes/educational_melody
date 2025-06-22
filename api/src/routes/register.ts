@@ -10,6 +10,14 @@ export const postRegister = async (req: Request, res: Response): Promise<any> =>
   const username = req.body.username
   const email = req.body.email;
   const password = req.body.password;
+  const terms_of_service = req.body.terms_of_service === 'on' || false;
+
+  if (!terms_of_service) {
+    console.log('User did not agree to the terms of service');
+    return render(req, res.status(400), 'register.ejs', {
+      error_msg: 'You must agree to the terms of service',
+    })
+  }
 
   if (!username || !email || !password) {
     return render(req, res.status(400), 'register.ejs', {

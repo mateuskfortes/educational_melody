@@ -8,11 +8,13 @@ const testUser = {
   password: 'test',
   is_administrator: false,
 };
+
 const adminUser1 = {
   username: 'test',
   email: 'admin1@test.com',
   password: 'test',
   is_administrator: true,
+  terms_of_service: 'on'
 }
 const adminUser2 = {
   username: 'test',
@@ -24,7 +26,8 @@ const requestAdminUser2 = {
   username: 'test',
   email: adminUser2.email,
   password: adminUser2.password,
-  is_administrator: 'on'
+  is_administrator: 'on',
+  terms_of_service: 'on'
 }
 
 const app = new App({ mysqlStore: false }).app
@@ -91,6 +94,7 @@ describe('Auth', () => {
       username: testUser.username,
       email: testUser.email,
       password: testUser.password,
+      terms_of_service: 'on'
     });
     expect(res.statusCode).toEqual(201);
     expect(createUserPrisma).toHaveBeenCalledWith({
@@ -104,11 +108,23 @@ describe('Auth', () => {
     expect(createUserPrisma).toHaveBeenCalledTimes(1);
     expect(res.text).toContain(`User created with email: ${testUser.email}`);
   });
+  it('should not create a user if terms of service is not accepted', async () => {
+    const res = await request(app).post('/register').send({
+      username: testUser.username,
+      email: testUser.email,
+      password: testUser.password,
+      terms_of_service: '',
+    });
+    expect(res.statusCode).toEqual(400);
+    expect(res.text).toContain('You must agree to the terms of service');
+    expect(createUserPrisma).toHaveBeenCalledTimes(0);
+  })
   it('should not create a user if username, email or password is missing', async () => {
     const res = await request(app).post('/register').send({
       username: '',
       email: '',
       password: '',
+      terms_of_service: 'on'
     });
     expect(res.statusCode).toEqual(400);
     expect(res.text).toContain('Username, email and password are required');
@@ -120,6 +136,7 @@ describe('Auth', () => {
       username: testUser.username,
       email: testUser.email,
       password: testUser.password,
+      terms_of_service: 'on'
     });
     expect(res.statusCode).toEqual(400);
     expect(createUserPrisma).toHaveBeenCalledWith({

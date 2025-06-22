@@ -1,0 +1,48 @@
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 32px;
+	background-color: white;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.logo {
+	font-size: 1.4rem;
+	font-weight: bold;
+}
+
+.nav ul {
+	list-style: none;
+	display: flex;
+	gap: 20px;
+	align-items: center;
+}
+
+.nav li {
+	display: inline;
+}
+
+.nav a {
+	text-decoration: none;
+	color: #333;
+	font-weight: 500;
+	padding: 6px 10px;
+	border-radius: 6px;
+	transition: background-color 0.2s;
+}
+
+.nav-link.active {
+	background-color: #f2f2f2;
+}
+
+.nav a:hover {
+	background-color: #eee;
+}
+
+.login-button {
+	background-color: #f15c4b;
+	color: white;
+	font-weight: 600;
+}

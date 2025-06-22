@@ -1,47 +1,44 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>Registrar Usuário</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 400px;
-      margin: 50px auto;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-    }
-    label, input {
-      margin-bottom: 10px;
-    }
-    input[type="submit"] {
-      padding: 8px;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-  </style>
+	<meta charset="UTF-8" />
+	<title>Login</title>
+	<link rel="stylesheet" href="/css/form.css">
+	<link rel="stylesheet" href="/css/header.css">
 </head>
+
 <body>
-  <h1>logar Usuário</h1>
+	<%- include('./components/header') %>
+	<main class="form-container">
+		<h1>Login</h1>
+		<p class="subtitle">Realize o Login para acessar a sua conta!</p>
 
-  <p>
-    <%= error_msg %>
-  </p>
+        <%= error_msg %>
 
-  <form action="/login" method="POST">
-    <label for="email">Email:</label>
-    <input id="email" name="email" type="email" required />
+		<p>
+			<%= error_msg %>
+		</p>
 
-    <label for="password">Senha:</label>
-    <input id="password" name="password" type="password" required />
+		<form action="/login" method="POST">
+			<label for="email">Email</label>
+			<input id="email" name="email" type="email" placeholder="Digite seu Email" required />
 
-    <input type="submit" value="Registrar" />
-  </form>
+			<label for="password">Senha</label>
+			<input id="password" name="password" type="password" placeholder="Digite sua Senha" required />
 
-  <p>Ainda não tem uma conta? <a href="/register">Crie sua conta</a></p>
+			<label class="checkbox-label">
+				<input id="remember" name="remember" type="checkbox" />
+				Lembrar do Login
+			</label>
+
+			<input type="submit" value="Sign Up" />
+		</form>
+
+		<div class="separator">OU</div>
+
+		<p class="bottom-text">Ainda não possui uma conta? <a href="/register">Cadastre-se</a></p>
+	</main>
 </body>
+
 </html>

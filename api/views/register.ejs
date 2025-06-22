@@ -1,57 +1,50 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>Registrar Usuário</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 400px;
-      margin: 50px auto;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-    }
-    label, input {
-      margin-bottom: 10px;
-    }
-    input[type="submit"] {
-      padding: 8px;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <title>Registrar Usuário</title>
+    <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/header.css">
 </head>
+
 <body>
-  <h1>Registrar Usuário</h1>
+    <%- include('./components/header') %>
+    <main class="form-container">
+        <h1>Cadastre-se</h1>
+        <p class="subtitle">Crie uma Conta</p>
 
-  <p>
-    <%= error_msg %>
-  </p>
+        <%= error_msg %>
 
-  <form action="/register" method="POST">
-    <label for="username">Username:</label>
-    <input id="username" name="username" type="text" required />
+        <form action="/register" method="POST">
+            <label for="username">Nome</label>
+            <input id="username" name="username" type="text" placeholder="Digite seu nome" required />
 
-    <label for="email">Email:</label>
-    <input id="email" name="email" type="email" required />
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="Digite seu Email" required />
 
-    <label for="password">Senha:</label>
-    <input id="password" name="password" type="password" required />
+            <label for="password">Senha</label>
+            <input id="password" name="password" type="password" placeholder="Digite sua Senha" required />
 
-    <% if (administrator_checkbox) { %>
-      <lable>
-        <input id="is_administrator" name="is_administrator" type="checkbox" />
-O novo usuário é um administrador?
-      </lable>
-    <% } %>
+            <% if (administrator_checkbox) { %>
+                <label class="checkbox-label">
+                    <input id="is_administrator" name="is_administrator" type="checkbox" />
+                    O novo usuário é um administrador?
+                </label>
+            <% } %>
 
-    <input type="submit" value="Registrar" />
-  </form>
 
-  <p>Já tem uma conta? <a href="/login">Faça login</a></p>
+            <div class="terms">
+                <input type="checkbox" required /> Eu concordo com os <a href="#">Termos de Uso</a>
+            </div>
+
+            <input type="submit" value="Sign Up" />
+        </form>
+
+        <div class="separator">OU</div>
+
+        <p class="bottom-text">Já possui uma conta? <a href="/login">Login</a></p>
+    </main>
 </body>
+
 </html>

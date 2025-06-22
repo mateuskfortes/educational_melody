@@ -7,8 +7,14 @@ export const getLogin = (req: Request, res: Response) => {
 }
 
 export const postLogin = async (req: Request, res: Response): Promise<any> => {
-  const { email, password } = req.body;
+  const { email, password, remember } = req.body;
   const { user, error_msg } = await getUserByEmail(email);
+  if (remember === 'on') {
+    req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 365;
+  }
+  else {
+    delete req.session.cookie.maxAge;
+  }
   if (!user && !error_msg) {
     return render(req, res.status(404), 'login.ejs', { error_msg: 'User not found' })
   }

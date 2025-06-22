@@ -73,6 +73,10 @@ class App {
 		this.app.post('/login', postLogin)
 
 		this.app.post('/logout', postLogout);
+
+		this.app.get('/test', (req, res) => {
+			res.send(req.session);
+		});
 	}
 
 	listen(port = this.port) {

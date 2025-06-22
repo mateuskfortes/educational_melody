@@ -235,4 +235,37 @@ describe('Auth', () => {
     expect(createUserPrisma).toHaveBeenCalledTimes(0);
     expect(res.text).toContain('You are not authorized to create an administrator user');
   })
+  it('should set persistent cookie if remember is on', async () => {
+    mockDB.push(testUser);
+    const res = await request(app)
+      .post('/login')
+      .send({ email: testUser.email, password: testUser.password, remember: 'on' })
+
+    expect(res.status).toBe(201)
+
+    const cookies = res.headers['set-cookie']
+    expect(cookies).toBeDefined()
+
+    // Check if the cookie has the "Expires" attribute
+    const cookiesArray = Array.isArray(cookies) ? cookies : [cookies];
+    const sessionCookie = cookiesArray.find(c => c.startsWith('connect.sid='))
+    expect(sessionCookie).toMatch(/Expires=/)
+  })
+
+  it('should set session cookie if remember is missing', async () => {
+    mockDB.push(testUser);
+    const res = await request(app)
+      .post('/login')
+      .send({ email: testUser.email, password: testUser.password })
+
+    expect(res.status).toBe(201)
+
+    const cookies = res.headers['set-cookie']
+    expect(cookies).toBeDefined()
+
+    // Check if the cookie has not the "Expires" attribute
+    const cookiesArray = Array.isArray(cookies) ? cookies : [cookies];
+    const sessionCookie = cookiesArray.find(c => c.startsWith('connect.sid='))
+    expect(sessionCookie).not.toMatch(/Expires=/)
+  })
 })

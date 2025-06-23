@@ -1,18 +1,71 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <link rel="stylesheet" href="/css/main.css">
-    <script async defer src="/js/main.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Melodia Educacional</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
 </head>
+
 <body>
-    <h1><%= message %></h1>
-    <a href="/login">Login</a>
-    <a href="/register">Registrar</a>
-    <form action="/logout" method="post"><button type="submit">Logout</button></form>
-    <img src="/img/test.png" alt="">
+    <%- include('components/header') %>
+
+    <div class="hero">
+        <section class="white-board">
+            <h1><span class="highlight">Melodia Educacional:</span><br>A linguagem da música ao seu alcance</h1>
+        </section>
+        <p class="subtitle">
+            Website com intuito de ensinar de teoria musical<br>
+            <strong>com prática e acessibilidade.</strong>
+        </p>
+        <p class="note">
+            Criado por estudantes do Instituto Federal Catarinense Campus Camboriú<br>
+            <small>*O Melodia Educacional é um projeto independente, criado com o objetivo de incentivar o ensino de
+                teoria musical. Não somos especialistas. Saiba mais.</small>
+        </p>
+        <div class="cta-buttons">
+            <a href="#" class="btn red">Iniciar</a>
+            <a href="register" class="btn outline">Cadastrar-se</a>
+        </div>
+        <img src="https://cdn-icons-png.flaticon.com/512/7028/7028531.png" alt="Ilustração músico" class="hero-image" />
+    </div>
+
+    <section class="features">
+        <h2>Características do Melodia Musical</h2>
+        <a href="#" class="view-all">Olhar Lista Completa</a>
+
+        <div class="feature-box">
+            <div class="number">01</div>
+            <div class="content">
+                <h3>Acessibilidade:</h3>
+                <p>Plataforma adaptada para pessoas com deficiência visual, garantindo inclusão no ensino de música.</p>
+            </div>
+            <span class="arrow">↗</span>
+        </div>
+
+        <div class="feature-box">
+            <div class="number">02</div>
+            <div class="content">
+                <h3>Inclusão de Diferentes Faixas Etárias:</h3>
+                <p>Conteúdos pensados para crianças, jovens e adultos, respeitando diferentes ritmos de aprendizado.</p>
+            </div>
+            <span class="arrow">↗</span>
+        </div>
+
+        <div class="feature-box">
+            <div class="number">03</div>
+            <div class="content">
+                <h3>Exercícios Interativos:</h3>
+                <p>Atividades práticas com feedback imediato, como questões de múltipla escolha e reconhecimento sonoro.
+                </p>
+            </div>
+            <span class="arrow">↗</span>
+        </div>
+    </section>
 </body>
+
 </html>

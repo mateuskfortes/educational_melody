@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
+import { render } from '../utils';
 
 export const postLogout = (req: Request, res: Response) => {
   req.session.destroy((err) => {
     if (err) {
-      return res.status(500).send('Could not log out');
+      console.log(err)
+      return res.status(500).send('');
     }
     res.clearCookie('connect.sid'); // Clear the session cookie
-    return res.status(200).send('Logged out successfully');
+    return render(req, res.status(200), 'index.ejs', {})
   });
 }

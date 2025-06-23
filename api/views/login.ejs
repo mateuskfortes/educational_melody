@@ -13,14 +13,12 @@
 	<main class="form-container">
 		<h1>Login</h1>
 		<p class="subtitle">Realize o Login para acessar a sua conta!</p>
-
-        <%= error_msg %>
-
+		
 		<p>
 			<%= error_msg %>
 		</p>
 
-		<form action="/login" method="POST">
+		<form class="form-component" action="/login" method="POST">
 			<label for="email">Email</label>
 			<input id="email" name="email" type="email" placeholder="Digite seu Email" required />
 

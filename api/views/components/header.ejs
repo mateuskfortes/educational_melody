@@ -3,10 +3,22 @@
     <a href="/" class="logo">Melodia Educacional</a>
     <nav class="nav">
         <ul>
-            <li><a href="register" class="nav-link active">Cadastro</a></li>
+            <li>
+                <% if (!is_logged_in) { %>
+                    <a href="register" class="nav-link active">Cadastro</a>
+                <% } %>
+            </li>
             <li><a href="#">Tutorial</a></li>
             <li><a href="#">Quem somos</a></li>
-            <li><a href="/login" class="login-button">Login</a></li>
+            <li>
+                <% if (is_logged_in) { %>
+                    <form action="logout" method="POST">
+                        <button type="submit" href="/logout" class="login-button">Logout</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login" class="login-button">Login</a>
+                <% } %>
+            </li>
         </ul>
     </nav>
 </header>

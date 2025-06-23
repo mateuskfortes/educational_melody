@@ -27,7 +27,11 @@
 	display: inline;
 }
 
-.nav a {
+.nav form button {
+	border: none;
+}
+
+.nav a, .nav button {
 	text-decoration: none;
 	color: #333;
 	font-weight: 500;

@@ -31,12 +31,12 @@ const Measure: FC<Props> = ({ measure, ref, duration }) => (
 					let offset = 0;
 
 					// Calculate the top position for the note based on its type
-					if (note instanceof Whole) offset = -4
-					else if (note instanceof Half) offset = 35
-					else if (note instanceof Quarter) offset = 15
-					else if (note instanceof Eighth) offset = 38
+					if (note instanceof Whole) offset = 4
+					else if (note instanceof Half) offset = -35
+					else if (note instanceof Quarter) offset = -38
+					else if (note instanceof Eighth) offset = -38
 
-					const top = `${topDistance - offset}%`;
+					const top = `${topDistance + offset}%`;
 					const width = `${note.beatDuration / duration * 100}%`;
 
 					const [isTop, extraDistance] = getExtraDistance(note);

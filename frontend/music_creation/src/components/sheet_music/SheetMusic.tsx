@@ -126,8 +126,8 @@ const SheetMusic = () => {
 			const percentage = measureRef.current.offsetHeight / 100
 
 			sheetMusicRef.current.style.rowGap = `${(maxExtraDistanceBottom + maxExtraDistanceTop) * percentage + 32}px`;
-			sheetMusicRef.current.style.marginTop = `${maxExtraDistanceTop * percentage}px`;
-			sheetMusicRef.current.style.marginBottom = `${maxExtraDistanceBottom * percentage}px`;
+			sheetMusicRef.current.style.marginTop = `${maxExtraDistanceTop * percentage + 32}px`;
+			sheetMusicRef.current.style.marginBottom = `${maxExtraDistanceBottom * percentage + 32}px`;
 		}})
 	}, [music]);
 

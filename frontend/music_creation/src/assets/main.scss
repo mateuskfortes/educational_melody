@@ -1,6 +1,6 @@
 $measure-margin: 3rem 0;
 
-$measure-height: 6rem;
+$measure-height: 3rem;
 $measure-width: 20rem;
 
 $line-height: 2px;
@@ -74,26 +74,26 @@ $barline-height: $measure-height + 2rem;
 
                 .quarter_note {
                     @extend .note;
-                    width: calc($measure-height / 1.8);
-                    height: calc($measure-height / 1.8);
+                    width: $measure-height;
+                    height: $measure-height;
                 }
 
                 .half_note {
                     @extend .note;
-                    width: calc($measure-height);
-                    height: calc($measure-height);
+                    width: $measure-height;
+                    height: $measure-height;
                 }
 
                 .eighth_note {
                     @extend .note;
-                    width: calc($measure-height);
-                    height: calc($measure-height);
+                    width: $measure-height;
+                    height: $measure-height;
                 }
 
                 .note_line {
                     position: absolute;
                     left: 50%;
-                    width: calc($measure-height / 3);
+                    width: calc($measure-height / 2.7);
                     height: $line-height;
                     background-color: black;
                     transform: translate(-50%, -50%);

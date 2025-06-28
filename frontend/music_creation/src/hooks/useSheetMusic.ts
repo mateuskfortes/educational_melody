@@ -59,6 +59,10 @@ export class Eighth extends NoteBase implements NoteTemplate {
   beatDuration = 1 / 2
 }
 
+export class Sixteenth extends NoteBase implements NoteTemplate {
+  beatDuration = 1 / 4
+}
+
 class RestBase implements RestTemplate {
   beatDuration = 0;
 
@@ -81,6 +85,10 @@ export class QuarterRest extends RestBase implements RestTemplate {
 
 export class EighthRest extends RestBase implements RestTemplate {
   beatDuration = 1 / 2;
+}
+
+export class SixteenthRest extends RestBase implements RestTemplate {
+  beatDuration = 1 / 4;
 }
 
 const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {

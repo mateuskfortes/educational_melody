@@ -1,6 +1,6 @@
 import { MusicTemplate } from "../../types/templates";
 import Measure from "./Measure"
-import useSheetMusic, { Eighth, Half, HalfRest, Quarter, QuarterRest, WholeRest, Whole, EighthRest } from "../../hooks/useSheetMusic";
+import useSheetMusic, { Eighth, Half, Quarter, Whole, EighthRest } from "../../hooks/useSheetMusic";
 import { useEffect, useRef, useState } from "react";
 import { getExtraDistance } from "../../utils";
 

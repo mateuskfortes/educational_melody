@@ -2,7 +2,7 @@
 import { FC } from "react";
 import { MeasureTemplate } from "../../types/templates";
 import { getExtraDistance, getTopDistance } from "../../utils";
-import { Eighth, Half, HalfRest, Quarter, Whole, WholeRest } from "../../hooks/useSheetMusic";
+import { Eighth, Half, HalfRest, Quarter, Sixteenth, Whole, WholeRest } from "../../hooks/useSheetMusic";
 
 type Props = {
 	measure: MeasureTemplate;
@@ -35,6 +35,7 @@ const Measure: FC<Props> = ({ measure, ref, duration }) => (
 					else if (note instanceof Half) offset = -35
 					else if (note instanceof Quarter) offset = -38
 					else if (note instanceof Eighth) offset = -38
+					else if (note instanceof Sixteenth) offset = -38
 
 					const top = `${topDistance + offset}%`;
 					const width = `${note.beatDuration / duration * 100}%`;

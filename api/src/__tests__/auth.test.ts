@@ -160,14 +160,14 @@ describe('Auth', () => {
       email: testUser.email,
       password: testUser.password,
     });
-    expect(res.statusCode).toEqual(201);
+    expect(res.statusCode).toEqual(200);
     expect(findUniqueUserPrisma).toHaveBeenCalledWith({
       where: {
         email: testUser.email,
       }
     })
     expect(findUniqueUserPrisma).toHaveBeenCalledTimes(1);
-    expect(res.text).toContain(`User login with email: ${testUser.email}`);
+    expect(res.text).toContain(`Melodia Educacional`);
   });
   it('should not login a user with invalid password', async () => {
     mockDB.push(testUser);
@@ -210,7 +210,7 @@ describe('Auth', () => {
     const session = resLogin.headers['set-cookie'][0].match(/connect\.sid=[^;]+/) || ['']
 
     expect(session[0]).not.toBe('');
-    expect(resLogin.statusCode).toEqual(201);
+    expect(resLogin.statusCode).toEqual(200);
     const res = await request(app).post('/register').send(requestAdminUser2).set('Cookie', session[0]);
     expect(res.statusCode).toEqual(201);
     expect(createUserPrisma).toHaveBeenCalledWith({
@@ -229,7 +229,7 @@ describe('Auth', () => {
     const resLogin = await request(app).post('/login').send(adminUser1);
     const session = resLogin.headers['set-cookie'][0].match(/connect\.sid=[^;]+/) || ['']
     expect(session[0]).not.toBe('');
-    expect(resLogin.statusCode).toEqual(201);
+    expect(resLogin.statusCode).toEqual(200);
     const res = await request(app).post('/register').send(requestAdminUser2).set('Cookie', session[0]);
     expect(res.statusCode).toEqual(403);
     expect(createUserPrisma).toHaveBeenCalledTimes(0);
@@ -241,7 +241,7 @@ describe('Auth', () => {
       .post('/login')
       .send({ email: testUser.email, password: testUser.password, remember: 'on' })
 
-    expect(res.status).toBe(201)
+    expect(res.status).toBe(200)
 
     const cookies = res.headers['set-cookie']
     expect(cookies).toBeDefined()
@@ -258,7 +258,7 @@ describe('Auth', () => {
       .post('/login')
       .send({ email: testUser.email, password: testUser.password })
 
-    expect(res.status).toBe(201)
+    expect(res.status).toBe(200)
 
     const cookies = res.headers['set-cookie']
     expect(cookies).toBeDefined()

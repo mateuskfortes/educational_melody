@@ -1,102 +1,105 @@
 import { useReducer } from "react"
-import { ChordTemplate, CleanNoteType, MeasureTemplate, MusicAction, MusicTemplate, NoteConstructorType, NoteTemplate, OctaveType, RestTemplate } from "../types/templates"
+import { ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RestTemplate } from "../types/templates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
+import { getMaxFittingNote, getMaxFittingRest, getMeasureDuration } from "../utils";
+import { NoteBase, RestBase } from "../components/sheet_music/notes";
 
-type NoteConstructor = new (note: CleanNoteType, octave: OctaveType, isSharp: boolean) => NoteBase;
+export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
+  const measureDuration = getMeasureDuration(prevState.meter.top, prevState.meter.bottom)
 
-export class NoteBase implements NoteTemplate {
-  note: CleanNoteType;
-  octave: OctaveType;
-  isSharp: boolean;
-  beatDuration: number;
-
-  constructor(note: CleanNoteType, octave: OctaveType, isSharp: boolean) {
-    this.note = note
-    this.octave = octave
-    this.isSharp = isSharp
-    this.beatDuration = 0
+  // Get the current measure duration
+  function getCurrentMsDr(measure: MeasureTemplate): number {
+    return measure.notes.reduce((acc, note) => acc + note.beatDuration, 0)
   }
 
-  getMusicalNote() {
-    return this.note + (this.isSharp ? '#' : '') + this.octave;
+  // Fills the current measure with rests until it reaches the full duration.
+  // If a note doesn't fit, it's moved (or split) to the next measure.
+  function normalizeMeasure(state: MusicTemplate, measure: MeasureTemplate, nextMeasure: MeasureTemplate | undefined) {
+    // Returns if the measure is normalized
+    if (getCurrentMsDr(measure) <= measureDuration) return
+
+    const popNote = measure.notes.pop() as NoteTemplate;
+    let nextMeasureNeededDuration = popNote.beatDuration - (measureDuration - getCurrentMsDr(measure));
+
+    // If the note fits exactly in the current measure, move it to the next
+    if (getCurrentMsDr(measure) >= measureDuration) {
+      if (nextMeasure) {
+        nextMeasure.notes.unshift(popNote);
+      } else {
+        // If the removed note is a rest, move it to the next measure
+        if (popNote instanceof RestBase) return normalizeMeasure(state, measure, nextMeasure)
+
+        // If the removed note is a note, create a new measure and add it
+        const newMs: MeasureTemplate = { notes: [popNote] }
+        while (getCurrentMsDr(newMs) < measureDuration) {
+          const newMsRestConstructor = getMaxFittingRest(measureDuration - getCurrentMsDr(newMs))
+          newMs.notes.push(new newMsRestConstructor())
+        }
+        state.measures.push(newMs)
+      }
+    }
+
+    // If the note needs to be split across measures
+    else {
+      const getMaxFitting = popNote instanceof NoteBase
+        ? getMaxFittingNote
+        : getMaxFittingRest;
+
+      // Replace popNote with a shorter note that fits
+      const noteConstructor = getMaxFitting(measureDuration - getCurrentMsDr(measure));
+      const newNote = new noteConstructor(popNote.note, popNote.octave, popNote.isSharp);
+      measure.notes.push(newNote);
+
+      // Fill the remaining space in the current measure with rests
+      while (measureDuration > getCurrentMsDr(measure)) {
+        const newRestConstructor = getMaxFittingRest(nextMeasureNeededDuration);
+        const newRest = new newRestConstructor();
+        measure.notes.push(newRest);
+      }
+      // If there's no next measure, stop processing
+      if (!nextMeasure) return normalizeMeasure(state, measure, nextMeasure);
+
+      // Add the remaining duration as rests to the next measure
+      while (nextMeasureNeededDuration) {
+        const newRestConstructor = getMaxFittingRest(nextMeasureNeededDuration);
+        const newRest = new newRestConstructor();
+        nextMeasure.notes.unshift(newRest);
+        nextMeasureNeededDuration -= newRest.beatDuration;
+      }
+    }
+
+    // If it's not normalized yet, recursively call the function
+    normalizeMeasure(state, measure, nextMeasure)
   }
 
-
-  play(sampler: Sampler, now: number, beat: number) {
-    sampler.triggerAttack(this.getMusicalNote(), now);
-    sampler.triggerRelease(this.getMusicalNote(), now + this.beatDuration * beat)
-  }
-}
-
-export class Chord implements ChordTemplate {
-  notes: NoteTemplate[]
-  beatDuration: number;
-
-  constructor(note: NoteConstructorType[], noteType: NoteConstructor) {
-    this.notes = note.map((nt: NoteConstructorType) => new noteType(nt[0], nt[1], nt[2]))
-    this.beatDuration = new noteType('C', 4, false).beatDuration
-  }
-
-  play(sampler: Sampler, now: number, beat: number) {
-    this.notes.forEach((note: NoteTemplate) => note.play(sampler, now, beat));
-  }
-}
-
-export class Whole extends NoteBase implements NoteTemplate {
-  beatDuration = 4
-}
-
-export class Half extends NoteBase implements NoteTemplate {
-  beatDuration = 2
-}
-
-export class Quarter extends NoteBase implements NoteTemplate {
-  beatDuration = 1
-}
-
-export class Eighth extends NoteBase implements NoteTemplate {
-  beatDuration = 1 / 2
-}
-
-export class Sixteenth extends NoteBase implements NoteTemplate {
-  beatDuration = 1 / 4
-}
-
-class RestBase implements RestTemplate {
-  beatDuration = 0;
-
-  play(..._: any) {
-    return
-  }
-}
-
-export class WholeRest extends RestBase implements RestTemplate {
-  beatDuration = 4;
-}
-
-export class HalfRest extends RestBase implements RestTemplate {
-  beatDuration = 2;
-}
-
-export class QuarterRest extends RestBase implements RestTemplate {
-  beatDuration = 1;
-}
-
-export class EighthRest extends RestBase implements RestTemplate {
-  beatDuration = 1 / 2;
-}
-
-export class SixteenthRest extends RestBase implements RestTemplate {
-  beatDuration = 1 / 4;
-}
-
-const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
   switch (action.type) {
     case 'ADD_NOTE':
-      return {
-        ...prevState,
-      };
+      const finalState = { ...prevState }
+      const { note, measureIndex, noteIndex } = action.payload
+
+      const measureSpace = measureDuration / note.beatDuration // How many notes can fit in the measure
+      if (
+        !finalState.measures[measureIndex] // If there is no measure at the index
+        || measureSpace < note.beatDuration // If there is not enough space in the measure
+        || measureSpace < noteIndex + 1 // If there is not enough space in the measure
+      ) {
+        return prevState
+      }
+
+      // Add the note to the measure
+      finalState.measures[measureIndex].notes.splice(noteIndex, 0, note)
+
+      let mi = measureIndex
+      while (true) {
+        const currentMs = finalState.measures[mi];
+        if (!currentMs) break;
+        normalizeMeasure(finalState, currentMs, finalState.measures[mi + 1])
+        mi++;
+      }
+
+      return finalState
+
     default:
       return prevState;
   }
@@ -134,7 +137,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
       })
     })
 
-    await new  Promise(resolve => setTimeout(resolve, (now - Tone.now()) * 1000));
+    await new Promise(resolve => setTimeout(resolve, (now - Tone.now()) * 1000));
     running = false
   }
 
@@ -143,7 +146,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
   });
 
 
-  return [ run, music, dispatch ] as const
+  return { run, music, dispatch } as const
 }
 
 export default useSheetMusic

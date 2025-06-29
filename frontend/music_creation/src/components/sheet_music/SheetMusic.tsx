@@ -1,8 +1,9 @@
 import { MusicTemplate } from "../../types/templates";
 import Measure from "./Measure"
-import useSheetMusic, { Eighth, Half, Quarter, Whole, EighthRest } from "../../hooks/useSheetMusic";
+import { Eighth, Quarter, EighthRest } from "../../components/sheet_music/notes";
 import { useEffect, useRef, useState } from "react";
-import { getExtraDistance } from "../../utils";
+import { getExtraDistance, getMeasureDuration } from "../../utils";
+import useSheetMusic from "../../hooks/useSheetMusic";
 
 const musicDefault: MusicTemplate = {
 	meter: {
@@ -75,30 +76,14 @@ const musicDefault: MusicTemplate = {
 }
 
 const SheetMusic = () => {
-	const [ run, music ] = useSheetMusic(musicDefault)
+	const { run, music } = useSheetMusic(musicDefault)
 	const [ measureDuration, setMeasureDuration ] = useState(0)
 
 	const measureRef = useRef<HTMLDivElement>(null);
 	const sheetMusicRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		let noteType = Quarter
-		switch (music.meter.bottom) {
-			case 1:
-				noteType = Whole
-				break;
-			case 2:
-				noteType = Half
-				break;
-			case 4:
-				noteType = Quarter
-				break;
-			case 8:
-				noteType = Eighth
-				break;
-		}
-
-		setMeasureDuration(music.meter.top * new noteType('C', 4, false).beatDuration)
+		setMeasureDuration(getMeasureDuration(music.meter.top, music.meter.bottom))
 	}, [music])
 
 	// Adjusts vertical spacing (margin and row gap) of the music sheet dynamically,

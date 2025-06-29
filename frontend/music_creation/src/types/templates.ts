@@ -6,6 +6,10 @@ export type MusicalNoteType = `${'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B'}${'' | 
 
 export type NoteConstructorType = [CleanNoteType, OctaveType, boolean]
 
+export type NoteConstructorTemplate = new (note: CleanNoteType, octave: OctaveType, isSharp: boolean) => NoteTemplate;
+
+export type RestConstructorTemplate = new () => RestTemplate;
+
 export interface NoteTemplate {
     note: CleanNoteType; 
     octave: OctaveType;
@@ -42,4 +46,16 @@ export interface GlobalTemplate {
     music: MusicTemplate
 }
 
-export type MusicAction = { type: 'ADD_NOTE'; note: NoteTemplate };
+
+export type AddNotePayload = {
+    note: NoteTemplate
+    measureIndex: number
+    noteIndex: number
+}
+
+export type AddNoteAction = {
+    type: 'ADD_NOTE'
+    payload: AddNotePayload
+}
+
+export type MusicAction = AddNoteAction;

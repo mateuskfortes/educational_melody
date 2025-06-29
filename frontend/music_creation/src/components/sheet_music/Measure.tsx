@@ -2,7 +2,7 @@
 import { FC } from "react";
 import { MeasureTemplate } from "../../types/templates";
 import { getExtraDistance, getTopDistance } from "../../utils";
-import { Eighth, Half, HalfRest, Quarter, Sixteenth, Whole, WholeRest } from "../../hooks/useSheetMusic";
+import { Eighth, Half, HalfRest, Quarter, Sixteenth, Whole, WholeRest } from "../../components/sheet_music/notes";
 
 type Props = {
 	measure: MeasureTemplate;

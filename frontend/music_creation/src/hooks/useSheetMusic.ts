@@ -2,71 +2,54 @@ import { useReducer } from "react"
 import { ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RestTemplate } from "../types/templates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
-import { getMaxFittingNote, getMaxFittingRest, getMeasureDuration } from "../utils";
+import { getMsNotesDr, getMeasureDurationByMeter, fillBdWithNote, fillBdWithRests } from "../utils";
 import { NoteBase, RestBase } from "../components/sheet_music/notes";
 
 export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
-  const measureDuration = getMeasureDuration(prevState.meter.top, prevState.meter.bottom)
-
-  // Get the current measure duration
-  function getCurrentMsDr(measure: MeasureTemplate): number {
-    return measure.notes.reduce((acc, note) => acc + note.beatDuration, 0)
-  }
+  const measureDuration = getMeasureDurationByMeter(prevState.meter.top, prevState.meter.bottom)
 
   // Fills the current measure with rests until it reaches the full duration.
   // If a note doesn't fit, it's moved (or split) to the next measure.
   function normalizeMeasure(state: MusicTemplate, measure: MeasureTemplate, nextMeasure: MeasureTemplate | undefined) {
     // Returns if the measure is normalized
-    if (getCurrentMsDr(measure) <= measureDuration) return
+    if (getMsNotesDr(measure.notes) <= measureDuration) return
 
     const popNote = measure.notes.pop() as NoteTemplate;
-    let nextMeasureNeededDuration = popNote.beatDuration - (measureDuration - getCurrentMsDr(measure));
+    let nextMeasureNeededDuration = popNote.beatDuration - (measureDuration - getMsNotesDr(measure.notes));
 
     // If the note fits exactly in the current measure, move it to the next
-    if (getCurrentMsDr(measure) >= measureDuration) {
+    if (getMsNotesDr(measure.notes) >= measureDuration) {
+      // If there is a next measure, add the note to it
       if (nextMeasure) {
         nextMeasure.notes.unshift(popNote);
       } else {
-        // If the removed note is a rest, move it to the next measure
+        // If the removed note is a rest, and there is no next measure, ignore it
         if (popNote instanceof RestBase) return normalizeMeasure(state, measure, nextMeasure)
 
-        // If the removed note is a note, create a new measure and add it
-        const newMs: MeasureTemplate = { notes: [popNote] }
-        while (getCurrentMsDr(newMs) < measureDuration) {
-          const newMsRestConstructor = getMaxFittingRest(measureDuration - getCurrentMsDr(newMs))
-          newMs.notes.push(new newMsRestConstructor())
-        }
+        // Creates a new measure with the remaning note.
+        const newMs: MeasureTemplate = { notes: fillBdWithNote(measureDuration, popNote.note, popNote.octave, popNote.isSharp) }
         state.measures.push(newMs)
       }
     }
 
     // If the note needs to be split across measures
     else {
-      const getMaxFitting = popNote instanceof NoteBase
-        ? getMaxFittingNote
-        : getMaxFittingRest;
+      // Remaining duration in the current measure
+      const crMsDr = measureDuration - getMsNotesDr(measure.notes)
 
-      // Replace popNote with a shorter note that fits
-      const noteConstructor = getMaxFitting(measureDuration - getCurrentMsDr(measure));
-      const newNote = new noteConstructor(popNote.note, popNote.octave, popNote.isSharp);
-      measure.notes.push(newNote);
+      // Get the notes that fit in the current measure
+      const crMsNotes = popNote instanceof NoteBase
+        ? fillBdWithNote(crMsDr, popNote.note, popNote.octave, popNote.isSharp)
+        : fillBdWithRests(crMsDr)
 
-      // Fill the remaining space in the current measure with rests
-      while (measureDuration > getCurrentMsDr(measure)) {
-        const newRestConstructor = getMaxFittingRest(nextMeasureNeededDuration);
-        const newRest = new newRestConstructor();
-        measure.notes.push(newRest);
-      }
+      // Add the notes to the current measure
+      measure.notes.push(...crMsNotes);
+
       // If there's no next measure, stop processing
       if (!nextMeasure) return normalizeMeasure(state, measure, nextMeasure);
 
       // Add the remaining duration as rests to the next measure
-      while (nextMeasureNeededDuration) {
-        const newRestConstructor = getMaxFittingRest(nextMeasureNeededDuration);
-        const newRest = new newRestConstructor();
-        nextMeasure.notes.unshift(newRest);
-        nextMeasureNeededDuration -= newRest.beatDuration;
-      }
+      nextMeasure.notes.unshift(...fillBdWithRests(nextMeasureNeededDuration))
     }
 
     // If it's not normalized yet, recursively call the function
@@ -90,6 +73,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
       // Add the note to the measure
       finalState.measures[measureIndex].notes.splice(noteIndex, 0, note)
 
+      // Normalize the measures
       let mi = measureIndex
       while (true) {
         const currentMs = finalState.measures[mi];

@@ -29,8 +29,10 @@ export interface RestTemplate {
     play: (...args: any) => void
 }
 
+export type NotesTemplate = NoteTemplate | ChordTemplate | RestTemplate
+
 export interface MeasureTemplate {
-    notes: (NoteTemplate | ChordTemplate | RestTemplate)[]
+    notes: NotesTemplate[]
 }
 
 export interface MusicTemplate {

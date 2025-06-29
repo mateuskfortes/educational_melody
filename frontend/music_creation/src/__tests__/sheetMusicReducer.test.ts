@@ -1,7 +1,7 @@
 import { describe, it, assert } from 'vitest'
 import { AddNoteAction, MusicTemplate } from '../types/templates'
 import { sheetMusicReducer } from '../hooks/useSheetMusic'
-import { Eighth, EighthRest, Quarter } from '../components/sheet_music/notes'
+import { Eighth, EighthRest, HalfRest, Quarter, QuarterRest } from '../components/sheet_music/notes'
 
 const prevMusic: MusicTemplate = {
 	meter: {
@@ -19,10 +19,7 @@ const prevMusic: MusicTemplate = {
 		},
 		{
 			notes: [
-				new Eighth('C', 5, false),
-				new Eighth('D', 5, false),
-				new Eighth('E', 5, false),
-				new Eighth('F', 5, false),
+				new HalfRest(),
 			],
 		},
 		{
@@ -64,14 +61,12 @@ describe('useSheetMusic hook', () => {
 					notes: [
 						new EighthRest(),
 						new Eighth('E', 5, false),
-						new Eighth('C', 5, false),
-						new Eighth('D', 5, false),
+						new QuarterRest(),
 					],
 				},
 				{
 					notes: [
-						new Eighth('E', 5, false),
-						new Eighth('F', 5, false),
+						new QuarterRest(),
 						new Eighth('C', 5, false),
 						new Eighth('D', 5, false),
 					]

@@ -31,7 +31,7 @@ const Measure: FC<Props> = ({ measure, ref, duration }) => (
 					let offset = 0;
 
 					// Calculate the top position for the note based on its type
-					if (note instanceof Whole) offset = 4
+					if (note instanceof Whole) offset = 3
 					else if (note instanceof Half) offset = -35
 					else if (note instanceof Quarter) offset = -38
 					else if (note instanceof Eighth) offset = -38

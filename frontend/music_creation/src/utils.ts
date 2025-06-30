@@ -1,4 +1,4 @@
-import { Eighth, EighthRest, Half, HalfRest, Quarter, QuarterRest, Sixteenth, SixteenthRest, Whole, WholeRest } from "./components/sheet_music/notes";
+import { Eighth, EighthRest, Half, HalfRest, Quarter, QuarterRest, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "./components/sheet_music/notes";
 import { CleanNoteType, NoteConstructorTemplate, NotesTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "./types/templates";
 
 // List of note names used for vertical positioning
@@ -63,13 +63,18 @@ export const getMaxFittingNote = (
   octave: OctaveType,
   isSharp: boolean
 ): NoteTemplate => {
-  const candidates: NoteConstructorTemplate[] = [Whole, Half, Quarter, Eighth, Sixteenth];
+  const candidates: NoteConstructorTemplate[] = [Whole, Half, Quarter, Eighth, Sixteenth, Thirtysecond];
 
   for (const NoteClass of candidates) {
-
     // Checking if the note's beatDuration is less than or equal to the given beatDuration
-    const instance = new NoteClass(note, octave, isSharp);
+    let instance = new NoteClass(note, octave, isSharp)
     if (instance.beatDuration <= beatDuration) {
+      for (let dots = 1; dots <= instance.dotsLimit; dots++) {
+        const instanceWithDots = new NoteClass(note, octave, isSharp, dots);
+        if (instanceWithDots.beatDuration <= beatDuration) {
+          instance = instanceWithDots;
+        }
+      }
       return instance;
     }
   }
@@ -79,7 +84,7 @@ export const getMaxFittingNote = (
 
 // Returns the biggest fitting rest that can fit in the given duration.
 export const getMaxFittingRest = (beatDuration: number): RestTemplate => {
-  const candidates: RestConstructorTemplate[] = [WholeRest, HalfRest, QuarterRest, EighthRest, SixteenthRest];
+  const candidates: RestConstructorTemplate[] = [WholeRest, HalfRest, QuarterRest, EighthRest, SixteenthRest, ThirtysecondRest];
 
   for (const RestClass of candidates) {
 

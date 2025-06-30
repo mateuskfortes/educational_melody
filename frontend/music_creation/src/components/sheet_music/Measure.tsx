@@ -2,7 +2,7 @@
 import { FC } from "react";
 import { MeasureTemplate } from "../../types/templates";
 import { getExtraDistance, getTopDistance } from "../../utils";
-import { Eighth, Half, HalfRest, Quarter, Sixteenth, Whole, WholeRest } from "../../components/sheet_music/notes";
+import { Eighth, Half, HalfRest, NoteBase, Quarter, RestBase, Sixteenth, Thirtysecond, Whole, WholeRest } from "../../components/sheet_music/notes";
 
 type Props = {
 	measure: MeasureTemplate;
@@ -25,7 +25,7 @@ const Measure: FC<Props> = ({ measure, ref, duration }) => (
 		{/* Note rendering area */}
 		<div className="notes_area">
 			{measure.notes.map((note, index) => {
-				if ("note" in note) {
+				if (note instanceof NoteBase) {
 					const topDistance = getTopDistance(note);
 
 					let offset = 0;
@@ -36,6 +36,7 @@ const Measure: FC<Props> = ({ measure, ref, duration }) => (
 					else if (note instanceof Quarter) offset = -38
 					else if (note instanceof Eighth) offset = -38
 					else if (note instanceof Sixteenth) offset = -38
+					else if (note instanceof Thirtysecond) offset = -36
 
 					const top = `${topDistance + offset}%`;
 					const width = `${note.beatDuration / duration * 100}%`;
@@ -51,11 +52,18 @@ const Measure: FC<Props> = ({ measure, ref, duration }) => (
 							style={{ width }}
 						>
 							{/* Render the note at the calculated top position */}
-							<img
-								src={`public/static/img/${note.constructor.name}Note.svg`}
-								className={`${note.constructor.name.toLowerCase()}_note`}
+							<div
+								className="note"
 								style={{ top }}
-							/>
+							>
+								<img
+									src={`public/static/img/${note.constructor.name}Note.svg`}
+									className={`${note.constructor.name.toLowerCase()}_note`}
+								/>
+								{[...Array(note.dots)].map((_, i) =>
+									<img key={i} style={{ marginTop: 'auto' }} src="public/static/img/dot.svg" alt="" />
+								)}
+							</div>
 
 							{/* Render ledger lines, if needed */}
 							{isTop ?
@@ -77,7 +85,7 @@ const Measure: FC<Props> = ({ measure, ref, duration }) => (
 					);
 				}
 
-				if ('beatDuration' in note) {
+				if (note instanceof RestBase) {
 					const width = `${note.beatDuration / duration * 100}%`;
 
 					let offset = 0;

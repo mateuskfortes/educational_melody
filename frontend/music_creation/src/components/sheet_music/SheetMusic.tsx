@@ -15,61 +15,61 @@ const musicDefault: MusicTemplate = {
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth('C', 5, false),
-				new Eighth('D', 5, false),
-				new Eighth('E', 5, false),
+				new Eighth('C', 5),
+				new Eighth('D', 5),
+				new Eighth('E', 5),
 			],
 		},
 		{
 			notes: [
-				new Quarter('F', 5, false),
-				new Eighth('F', 5, false),
-				new Eighth('F', 5, false),
+				new Quarter('F', 5),
+				new Eighth('F', 5),
+				new Eighth('F', 5),
 			],
 		},
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth('C', 5, false),
-				new Eighth('D', 5, false),
-				new Eighth('C', 5, false),
+				new Eighth('C', 5),
+				new Eighth('D', 5),
+				new Eighth('C', 5),
 			]
 		},
 		{
 			notes: [
-				new Quarter('D', 5, false),
-				new Eighth('D', 5, false),
-				new Eighth('D', 5, false),
+				new Quarter('D', 5),
+				new Eighth('D', 5),
+				new Eighth('D', 5),
 			]
 		},
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth('C', 5, false),
-				new Eighth('G', 5, false),
-				new Eighth('F', 5, false),
+				new Eighth('C', 5),
+				new Eighth('G', 5),
+				new Eighth('F', 5),
 			],
 		},
 		{
 			notes: [
-				new Quarter('E', 5, false),
-				new Eighth('E', 5, false),
-				new Eighth('E', 5, false),
+				new Quarter('E', 5),
+				new Eighth('E', 5),
+				new Eighth('E', 5),
 			],
 		},
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth('C', 5, false),
-				new Eighth('D', 5, false),
-				new Eighth('E', 5, false),
+				new Eighth('C', 5),
+				new Eighth('D', 5),
+				new Eighth('E', 5),
 			],
 		},
 		{
 			notes: [
-				new Quarter('F', 5, false),
-				new Eighth('F', 5, false),
-				new Eighth('F', 5, false),
+				new Quarter('F', 5),
+				new Eighth('F', 5),
+				new Eighth('F', 5),
 			],
 		},
 	],

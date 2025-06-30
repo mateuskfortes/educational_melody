@@ -4,17 +4,19 @@ export type CleanNoteType = 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B';
 
 export type MusicalNoteType = `${'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B'}${'' | '#'}${1 | 2 | 3 | 4 | 5 | 6 | 7}`;
 
-export type NoteConstructorType = [CleanNoteType, OctaveType, boolean]
-
-export type NoteConstructorTemplate = new (note: CleanNoteType, octave: OctaveType, isSharp: boolean) => NoteTemplate;
+export type NoteConstructorTemplate = new (note: CleanNoteType, octave: OctaveType, isSharp?: boolean, dots?: number) => NoteTemplate;
 
 export type RestConstructorTemplate = new () => RestTemplate;
+
+export type NoteConstructorArgsTemplate = [CleanNoteType, OctaveType, boolean?, number?];
 
 export interface NoteTemplate {
     note: CleanNoteType; 
     octave: OctaveType;
     isSharp: boolean;
     beatDuration: number;
+    dots: number; // Number of dots
+    dotsLimit: number // Max number of dots
     play: (sampler: any, now: number, beat: number) => void
 }
 

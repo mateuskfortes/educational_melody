@@ -1,5 +1,5 @@
 import { useReducer } from "react"
-import { ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RestTemplate } from "../types/templates"
+import { ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RestTemplate } from "../types/templates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { getMsNotesDr, getMeasureDurationByMeter, fillBdWithNote, fillBdWithRests } from "../utils";
@@ -7,6 +7,31 @@ import { NoteBase, RestBase } from "../components/sheet_music/notes";
 
 export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
   const measureDuration = getMeasureDurationByMeter(prevState.meter.top, prevState.meter.bottom)
+
+  // Split's a noge between the two given measures.
+  function splitNote(
+    note: NotesTemplate,
+    firstMeasure: MeasureTemplate, 
+    secondMeasure: MeasureTemplate | undefined, 
+    secondMeasureNeededDuration: number // Duration overflow
+  ) {
+    // Remaining duration in the first measure
+    const crMsDr = measureDuration - getMsNotesDr(firstMeasure.notes)
+
+    // Get the notes that fit in the first measure
+    const crMsNotes = note instanceof NoteBase
+      ? fillBdWithNote(crMsDr, note.note, note.octave, note.isSharp)
+      : fillBdWithRests(crMsDr)
+
+    // Add the notes to the first measure
+    firstMeasure.notes.push(...crMsNotes);
+
+    // If there's no second measure,  
+    if (!secondMeasure) return 
+
+    // Add the remaining duration as rests to the second measure
+    secondMeasure.notes.unshift(...fillBdWithRests(secondMeasureNeededDuration))
+  }
 
   // Fills the current measure with rests until it reaches the full duration.
   // If a note doesn't fit, it's moved (or split) to the next measure.
@@ -34,22 +59,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
 
     // If the note needs to be split across measures
     else {
-      // Remaining duration in the current measure
-      const crMsDr = measureDuration - getMsNotesDr(measure.notes)
-
-      // Get the notes that fit in the current measure
-      const crMsNotes = popNote instanceof NoteBase
-        ? fillBdWithNote(crMsDr, popNote.note, popNote.octave, popNote.isSharp)
-        : fillBdWithRests(crMsDr)
-
-      // Add the notes to the current measure
-      measure.notes.push(...crMsNotes);
-
-      // If there's no next measure, stop processing
-      if (!nextMeasure) return normalizeMeasure(state, measure, nextMeasure);
-
-      // Add the remaining duration as rests to the next measure
-      nextMeasure.notes.unshift(...fillBdWithRests(nextMeasureNeededDuration))
+      splitNote(popNote, measure, nextMeasure, nextMeasureNeededDuration)
     }
 
     // If it's not normalized yet, recursively call the function

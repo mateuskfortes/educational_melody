@@ -1,0 +1,70 @@
+import { FC } from "react";
+import { Eighth, Half, Quarter, Sixteenth, Thirtysecond, Whole } from "./notes";
+import { getExtraDistance, getTopDistance } from "../../utils";
+import { NoteTemplate } from "../../types/templates";
+
+type Props = {
+  note: NoteTemplate;
+  duration: number;
+}
+
+const Note: FC<Props> = ({ note, duration }) => {
+  const topDistance = getTopDistance(note);
+
+  let offset = 0;
+
+  // Calculate the top position for the note based on its type
+  if (note instanceof Whole) offset = 3
+  else if (note instanceof Half) offset = -35
+  else if (note instanceof Quarter) offset = -38
+  else if (note instanceof Eighth) offset = -38
+  else if (note instanceof Sixteenth) offset = -38
+  else if (note instanceof Thirtysecond) offset = -36
+
+  const top = `${topDistance + offset}%`;
+  const width = `${note.beatDuration / duration * 100}%`;
+
+  const [isTop, extraDistance] = getExtraDistance(note);
+
+  const extraLines = Math.floor(extraDistance / 25);
+
+  return (
+    <div
+      className="note_container"
+      style={{ width }}
+    >
+      {/* Render the note at the calculated top position */}
+      <div
+        className="note"
+        style={{ top }}
+      >
+        <img
+          src={`public/static/img/${note.constructor.name}Note.svg`}
+          className={`${note.constructor.name.toLowerCase()}_note`}
+        />
+        {[...Array(note.dots)].map((_, i) =>
+          <img key={i} style={{ marginTop: 'auto' }} src="public/static/img/dot.svg" alt="" />
+        )}
+      </div>
+
+      {/* Render ledger lines, if needed */}
+      {isTop ?
+        [...Array(extraLines)].map((_, i) => (
+          <div
+            key={i}
+            className="note_line"
+            style={{ top: `${-25 - i * 25}%` }}
+          />
+        ))
+        : [...Array(extraLines)].map((_, i) => (
+          <div
+            key={i}
+            className="note_line"
+            style={{ top: `${125 + i * 25}%` }}
+          />
+        ))}
+    </div>
+  );
+}
+
+export default Note;

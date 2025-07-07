@@ -1,137 +1,101 @@
-import { Eighth, EighthRest, Half, HalfRest, Quarter, QuarterRest, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "./components/sheet_music/notes";
-import { CleanNoteType, NoteConstructorTemplate, NotesTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "./types/templates";
+import { Eighth, Half, Quarter, Sixteenth, Whole } from "./components/sheet_music/notes";
+import { NoteTemplate } from "./types/templates";
 
-// List of note names used for vertical positioning
+// List of note names used for vertical positioning calculations.
+// These represent the natural musical notes in ascending order.
 const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
-// Calculates the vertical distance percentage of the note
+/**
+ * Calculates the vertical distance (in percentage or pixels) from a reference point
+ * for a given note, based on its octave and note name.
+ * 
+ * This is used for positioning notes vertically in a music sheet UI.
+ * 
+ * Formula explanation:
+ * - Starts from a base offset (475).
+ * - Subtracts an amount based on the octave (each octave shifts by 87.5).
+ * - Subtracts an amount based on the note position within the octave (each note shifts by 12.5).
+ * 
+ * @param note - The note object containing `note` (name) and `octave`.
+ * @returns The calculated vertical top distance for the note.
+ */
 export const getTopDistance = (note: NoteTemplate) => {
   const topDistance = 475 - note.octave * 87.5 - notes.indexOf(note.note) * 12.5;
-  return topDistance
+  return topDistance;
 };
 
-// Returns a tuple indicating if the note exceeds top or bottom bounds, and the distance value.
-// [isTop, distance]
-// isTop = true if the note is above, false if the note in under.
-// distance = how much it exceeds.
+/**
+ * Determines if a note's vertical position exceeds the visible bounds (top or bottom)
+ * of the music sheet, and by how much.
+ * 
+ * Returns a tuple:
+ * - isTop: boolean indicating if the note is above the top bound (true) or below the bottom bound (false).
+ * - distance: the absolute distance by which the note exceeds the bound.
+ * 
+ * Logic:
+ * - If `topDistance` is negative, the note is above the visible area.
+ * - If `topDistance - 100` is positive, the note is below the bottom visible bound.
+ * - Otherwise, the note is within bounds.
+ * 
+ * @param note - The note object containing `note` (name) and `octave`.
+ * @returns A tuple [isTop, distance] indicating if the note exceeds bounds and by how much.
+ */
 export const getExtraDistance = (note: NoteTemplate): [boolean, number] => {
   const topDistance = 475 - note.octave * 87.5 - notes.indexOf(note.note) * 12.5;
 
   if (topDistance < 0) {
+    // Note is above the top visible boundary
     return [true, -topDistance];
   }
 
   if (topDistance - 100 > 0) {
+    // Note is below the bottom visible boundary
     return [false, topDistance - 100];
   }
 
+  // Note is within visible vertical bounds
   return [false, 0];
 };
 
-// Calculates the duration of a measure based on the top and bottom values of the meter.
+/**
+ * Calculates the total duration (in beats) of a measure based on the time signature's
+ * numerator (top) and denominator (bottom).
+ * 
+ * Explanation:
+ * - The `top` number indicates how many beats are in a measure.
+ * - The `bottom` number indicates the note value that represents one beat.
+ * - Different bottom values correspond to different note types (whole, half, quarter, etc).
+ * 
+ * The function:
+ * - Maps the bottom number to the corresponding note class.
+ * - Multiplies the number of beats (`top`) by the beat duration of that note.
+ * 
+ * @param top - The numerator of the time signature (number of beats per measure).
+ * @param bottom - The denominator of the time signature (note value that represents one beat).
+ * @returns The total duration of the measure in beats.
+ */
 export const getMeasureDurationByMeter = (top: number, bottom: number): number => {
-  let noteType = Quarter
+  let noteType = Quarter; // default note type
+
   switch (bottom) {
     case 1:
-      noteType = Whole
+      noteType = Whole;
       break;
     case 2:
-      noteType = Half
+      noteType = Half;
       break;
     case 4:
-      noteType = Quarter
+      noteType = Quarter;
       break;
     case 8:
-      noteType = Eighth
+      noteType = Eighth;
       break;
     case 16:
-      noteType = Sixteenth
+      noteType = Sixteenth;
       break;
+    // Could add more cases if needed
   }
-  return top * new noteType('C', 4, false).beatDuration
+
+  // Calculate measure duration: number of beats * beat duration of one beat note
+  return top * new noteType('C', 4, false).beatDuration;
 };
-
-// Returns the duration of the measure notes.
-export const getMsNotesDr = (notes: NotesTemplate[]): number => {
-  return notes.reduce((acc, note) => acc + note.beatDuration, 0)
-}
-
-// Returns the biggest fitting note that can fit in the given duration.
-export const getMaxFittingNote = (
-  beatDuration: number,
-  note: CleanNoteType,
-  octave: OctaveType,
-  isSharp: boolean
-): NoteTemplate => {
-  const candidates: NoteConstructorTemplate[] = [Whole, Half, Quarter, Eighth, Sixteenth, Thirtysecond];
-
-  for (const NoteClass of candidates) {
-    // Checking if the note's beatDuration is less than or equal to the given beatDuration
-    let instance = new NoteClass(note, octave, isSharp)
-    if (instance.beatDuration <= beatDuration) {
-      for (let dots = 1; dots <= instance.dotsLimit; dots++) {
-        const instanceWithDots = new NoteClass(note, octave, isSharp, dots);
-        if (instanceWithDots.beatDuration <= beatDuration) {
-          instance = instanceWithDots;
-        }
-      }
-      return instance;
-    }
-  }
-
-  throw new Error('No fitting note found');
-}
-
-// Returns the biggest fitting rest that can fit in the given duration.
-export const getMaxFittingRest = (beatDuration: number): RestTemplate => {
-  const candidates: RestConstructorTemplate[] = [WholeRest, HalfRest, QuarterRest, EighthRest, SixteenthRest, ThirtysecondRest];
-
-  for (const RestClass of candidates) {
-
-    // Checking if the rest's beatDuration is less than or equal to the given beatDuration
-    const instance = new RestClass();
-    if (instance.beatDuration <= beatDuration) {
-      return instance;
-    }
-  }
-
-  throw new Error('No fitting rest found');
-}
-
-// Returns a list of notes and rests that fit in the given duration, starting with the given note.
-export const fillBdWithNote = (
-  beatDuration: number,
-  note: CleanNoteType,
-  octave: OctaveType,
-  isSharp: boolean
-): (NoteTemplate | RestTemplate)[] => {
-  const notes: (NoteTemplate | RestTemplate)[] = []
-
-  // Get the biggest note that can fit in the given duration
-  const firstNote = getMaxFittingNote(beatDuration, note, octave, isSharp)
-  notes.push(firstNote);
-  beatDuration -= firstNote.beatDuration;
-
-  // Fill the remaining space with rests
-  while (beatDuration > 0) {
-    const newRest = getMaxFittingRest(beatDuration)
-    notes.push(newRest);
-    beatDuration -= newRest.beatDuration;
-  }
-
-  return notes
-}
-
-// Returns a list of rests that fit in the given duration.
-export const fillBdWithRests = (beatDuration: number): (NoteTemplate | RestTemplate)[] => {
-  const notes: (NoteTemplate | RestTemplate)[] = []
-
-  // Fill the space with rests
-  while (beatDuration > 0) {
-    const newRest = getMaxFittingRest(beatDuration)
-    notes.push(newRest);
-    beatDuration -= newRest.beatDuration;
-  }
-
-  return notes
-}

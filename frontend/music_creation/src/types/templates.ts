@@ -62,4 +62,14 @@ export type AddNoteAction = {
     payload: AddNotePayload
 }
 
-export type MusicAction = AddNoteAction;
+export type RemoveNotePayload = {
+    measureIndex: number
+    noteIndex: number
+}
+
+export type RemoveNoteAction = {
+    type: 'REMOVE_NOTE'
+    payload: RemoveNotePayload
+}
+
+export type MusicAction = AddNoteAction | RemoveNoteAction;

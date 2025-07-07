@@ -1,99 +1,68 @@
 import { useReducer } from "react"
-import { ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RestTemplate } from "../types/templates"
+import { AddNoteAction, AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RemoveNotePayload, RestTemplate } from "../types/templates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
-import { getMsNotesDr, getMeasureDurationByMeter, fillBdWithNote, fillBdWithRests } from "../utils";
-import { NoteBase, RestBase } from "../components/sheet_music/notes";
+import { getMeasureDurationByMeter } from "../utils";
+import { normalizeMeasure } from "./useSheetMusicFunctions";
 
 export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
   const measureDuration = getMeasureDurationByMeter(prevState.meter.top, prevState.meter.bottom)
 
-  // Split's a noge between the two given measures.
-  function splitNote(
-    note: NotesTemplate,
-    firstMeasure: MeasureTemplate, 
-    secondMeasure: MeasureTemplate | undefined, 
-    secondMeasureNeededDuration: number // Duration overflow
-  ) {
-    // Remaining duration in the first measure
-    const crMsDr = measureDuration - getMsNotesDr(firstMeasure.notes)
+  function addNote() {
+    const finalState = { ...prevState }
+    const { note, measureIndex, noteIndex } = action.payload as AddNotePayload
 
-    // Get the notes that fit in the first measure
-    const crMsNotes = note instanceof NoteBase
-      ? fillBdWithNote(crMsDr, note.note, note.octave, note.isSharp)
-      : fillBdWithRests(crMsDr)
+    const measureSpace = measureDuration / note.beatDuration // How many notes can fit in the measure
+    if (
+      !finalState.measures[measureIndex] // If there is no measure at the index
+      || measureSpace < note.beatDuration // If there is not enough space in the measure
+      || measureSpace < noteIndex + 1 // If there is not enough space in the measure
+    ) {
+      return prevState
+    }
 
-    // Add the notes to the first measure
-    firstMeasure.notes.push(...crMsNotes);
+    // Add the note to the measure
+    finalState.measures[measureIndex].notes.splice(noteIndex, 0, note)
 
-    // If there's no second measure,  
-    if (!secondMeasure) return 
+    // Normalize the measures
+    let mi = measureIndex
+    while (true) {
+      const currentMs = finalState.measures[mi];
+      if (!currentMs) break;
+      normalizeMeasure(finalState.measures, currentMs, finalState.measures[mi + 1], measureDuration)
+      mi++;
+    }
 
-    // Add the remaining duration as rests to the second measure
-    secondMeasure.notes.unshift(...fillBdWithRests(secondMeasureNeededDuration))
+    return finalState
   }
 
-  // Fills the current measure with rests until it reaches the full duration.
-  // If a note doesn't fit, it's moved (or split) to the next measure.
-  function normalizeMeasure(state: MusicTemplate, measure: MeasureTemplate, nextMeasure: MeasureTemplate | undefined) {
-    // Returns if the measure is normalized
-    if (getMsNotesDr(measure.notes) <= measureDuration) return
+  function removeNote() {
+    const finalState = { ...prevState }
+    const { measureIndex, noteIndex } = action.payload as RemoveNotePayload
 
-    const popNote = measure.notes.pop() as NoteTemplate;
-    let nextMeasureNeededDuration = popNote.beatDuration - (measureDuration - getMsNotesDr(measure.notes));
+    if (
+      !finalState.measures[measureIndex]
+      || !finalState.measures[measureIndex].notes[noteIndex]
+    ) return prevState
 
-    // If the note fits exactly in the current measure, move it to the next
-    if (getMsNotesDr(measure.notes) >= measureDuration) {
-      // If there is a next measure, add the note to it
-      if (nextMeasure) {
-        nextMeasure.notes.unshift(popNote);
-      } else {
-        // If the removed note is a rest, and there is no next measure, ignore it
-        if (popNote instanceof RestBase) return normalizeMeasure(state, measure, nextMeasure)
+    /// Remove the note from the measure
+    finalState.measures[measureIndex].notes.splice(noteIndex, 1)
 
-        // Creates a new measure with the remaning note.
-        const newMs: MeasureTemplate = { notes: fillBdWithNote(measureDuration, popNote.note, popNote.octave, popNote.isSharp) }
-        state.measures.push(newMs)
-      }
+    // Normalize the measures
+    let mi = measureIndex
+    while (true) {
+      const currentMs = finalState.measures[mi];
+      if (!currentMs) break;
+      normalizeMeasure(finalState.measures, currentMs, finalState.measures[mi + 1], measureDuration)
+      mi++;
     }
 
-    // If the note needs to be split across measures
-    else {
-      splitNote(popNote, measure, nextMeasure, nextMeasureNeededDuration)
-    }
-
-    // If it's not normalized yet, recursively call the function
-    normalizeMeasure(state, measure, nextMeasure)
+    return finalState
   }
 
   switch (action.type) {
-    case 'ADD_NOTE':
-      const finalState = { ...prevState }
-      const { note, measureIndex, noteIndex } = action.payload
-
-      const measureSpace = measureDuration / note.beatDuration // How many notes can fit in the measure
-      if (
-        !finalState.measures[measureIndex] // If there is no measure at the index
-        || measureSpace < note.beatDuration // If there is not enough space in the measure
-        || measureSpace < noteIndex + 1 // If there is not enough space in the measure
-      ) {
-        return prevState
-      }
-
-      // Add the note to the measure
-      finalState.measures[measureIndex].notes.splice(noteIndex, 0, note)
-
-      // Normalize the measures
-      let mi = measureIndex
-      while (true) {
-        const currentMs = finalState.measures[mi];
-        if (!currentMs) break;
-        normalizeMeasure(finalState, currentMs, finalState.measures[mi + 1])
-        mi++;
-      }
-
-      return finalState
-
+    case 'ADD_NOTE': return addNote();
+    case 'REMOVE_NOTE': return removeNote();
     default:
       return prevState;
   }

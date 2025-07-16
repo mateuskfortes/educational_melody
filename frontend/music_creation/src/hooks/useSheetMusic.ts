@@ -1,9 +1,9 @@
 import { useReducer } from "react"
-import { AddNoteAction, AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RemoveNotePayload, RestTemplate } from "../types/templates"
+import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RemoveNotePayload, RestTemplate } from "../types/templates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { getMeasureDurationByMeter } from "../utils";
-import { normalizeMeasure } from "./useSheetMusicFunctions";
+import { normalizeMeasure } from "./functions/useSheetMusicFunctions";
 
 export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
   const measureDuration = getMeasureDurationByMeter(prevState.meter.top, prevState.meter.bottom)

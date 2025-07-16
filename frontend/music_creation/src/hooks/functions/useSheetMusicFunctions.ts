@@ -1,5 +1,5 @@
-import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../components/sheet_music/notes";
-import { CleanNoteType, MeasureTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../types/templates";
+import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../../components/sheet_music/notes";
+import { CleanNoteType, MeasureTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../../types/templates";
 
 // Returns the duration of the measure notes.
 export const getMsNotesDr = (notes: NotesTemplate[]): number => {

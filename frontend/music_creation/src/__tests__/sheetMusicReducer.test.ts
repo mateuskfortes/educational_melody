@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { sheetMusicReducer } from '../hooks/useSheetMusic'
 import { Whole, Quarter, QuarterRest, Half, HalfRest, RestBase, WholeRest } from '../components/sheet_music/notes'
 import type { MusicTemplate, NoteTemplate } from '../types/templates'
-import * as SheetMusicFunctions from '../hooks/useSheetMusicFunctions'
+import * as SheetMusicFunctions from '../hooks/functions/useSheetMusicFunctions'
 
 vi.spyOn(SheetMusicFunctions, 'normalizeMeasure')
 

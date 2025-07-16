@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Eighth, EighthRest, Half, HalfRest, Quarter, QuarterRest, RestBase, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../components/sheet_music/notes";
 import type { CleanNoteType, MeasureTemplate, NoteTemplate, OctaveType } from '../types/templates';
-import { fillBdWithNote, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, normalizeMeasure, splitNote } from '../hooks/useSheetMusicFunctions';
+import { fillBdWithNote, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, normalizeMeasure, splitNote } from '../hooks/functions/useSheetMusicFunctions';
 
 const note: CleanNoteType = 'C';
 const octave: OctaveType = 4;

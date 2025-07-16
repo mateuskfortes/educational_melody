@@ -35,6 +35,7 @@ export type NotesTemplate = NoteTemplate | ChordTemplate | RestTemplate
 
 export interface MeasureTemplate {
     notes: NotesTemplate[]
+    ties?: boolean[] // Indicates if the note at the index is tied with the next note
 }
 
 export interface MusicTemplate {

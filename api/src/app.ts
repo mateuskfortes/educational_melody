@@ -6,7 +6,9 @@ import { getRegister, postRegister } from "./routes/register";
 import { getLogin, postLogin } from "./routes/login";
 import { postLogout } from "./routes/logout";
 import { getHome } from "./routes/home";
-import connectMySQL from 'express-mysql-session'
+import connectMySQL from 'express-mysql-session';
+import { getQuestionsPage, getQuestionPage, postCreateQuestion, postUpdateQuestion, postDeleteQuestion } from "./routes/exercise";
+
 
 
 class App {
@@ -77,6 +79,12 @@ class App {
 		this.app.get('/test', (req, res) => {
 			res.send(req.session);
 		});
+
+		this.app.get("/exercises", getQuestionsPage);
+  		this.app.get("/exercises/:id", getQuestionPage);
+  		this.app.post("/exercises/create", postCreateQuestion);
+  		this.app.post("/exercises/update", postUpdateQuestion);
+  		this.app.post("/exercises/delete", postDeleteQuestion);
 	}
 
 	listen(port = this.port) {

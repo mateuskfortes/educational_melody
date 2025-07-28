@@ -11,6 +11,8 @@ export const render = (
     error_msg = "",
     title = "",
     message = "",
+    question = {},
+    questionList = [],
   }: EjsRenderArgsTemplate
 ) => {
 
@@ -22,5 +24,7 @@ export const render = (
     title,
     message,
     is_logged_in,
+    question,
+    questionList
   });
 };

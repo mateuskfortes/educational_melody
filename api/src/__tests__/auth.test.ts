@@ -57,7 +57,7 @@ const createUserPrisma = jest.fn((args) => {
 const findUniqueUserPrisma = jest.fn((data) => {
   const user = mockDB.find((user) => user.email === data.where.email)
   if (user) {
-    return Promise.resolve({ 
+    return Promise.resolve({
       email: user.email,
       password: user.password,
       is_administrator: user.is_administrator
@@ -70,11 +70,11 @@ jest.mock('@prisma/client', () => {
   return {
     __esModule: true,
     PrismaClient: jest.fn(() => ({
-    user: {
-      create: (data: any) => createUserPrisma(data),
-      findUnique: (data: any) => findUniqueUserPrisma(data),
-    },
-  })),
+      user: {
+        create: (data: any) => createUserPrisma(data),
+        findUnique: (data: any) => findUniqueUserPrisma(data),
+      },
+    })),
     Prisma: actualPrisma.Prisma,
   };
 });
@@ -96,7 +96,7 @@ describe('Auth', () => {
       password: testUser.password,
       terms_of_service: 'on'
     });
-    expect(res.statusCode).toEqual(201);
+    expect(res.statusCode).toEqual(302);
     expect(createUserPrisma).toHaveBeenCalledWith({
       data: {
         username: testUser.username,
@@ -106,7 +106,7 @@ describe('Auth', () => {
       }
     })
     expect(createUserPrisma).toHaveBeenCalledTimes(1);
-    expect(res.text).toContain(`User created with email: ${testUser.email}`);
+    expect(res.headers.location).toBe('/');
   });
   it('should not create a user if terms of service is not accepted', async () => {
     const res = await request(app).post('/register').send({
@@ -160,14 +160,14 @@ describe('Auth', () => {
       email: testUser.email,
       password: testUser.password,
     });
-    expect(res.statusCode).toEqual(200);
+    expect(res.statusCode).toEqual(302);
     expect(findUniqueUserPrisma).toHaveBeenCalledWith({
       where: {
         email: testUser.email,
       }
     })
     expect(findUniqueUserPrisma).toHaveBeenCalledTimes(1);
-    expect(res.text).toContain(`Melodia Educacional`);
+    expect(res.headers.location).toBe('/');
   });
   it('should not login a user with invalid password', async () => {
     mockDB.push(testUser);
@@ -204,13 +204,13 @@ describe('Auth', () => {
       password: 'test',
       is_administrator: true,
     });
-    
+
     // login the admin user and get the session cookie
     const resLogin = await request(app).post('/login').send(adminUser1);
     const session = resLogin.headers['set-cookie'][0].match(/connect\.sid=[^;]+/) || ['']
 
     expect(session[0]).not.toBe('');
-    expect(resLogin.statusCode).toEqual(200);
+    expect(resLogin.statusCode).toEqual(302);
     const res = await request(app).post('/register').send(requestAdminUser2).set('Cookie', session[0]);
     expect(res.statusCode).toEqual(201);
     expect(createUserPrisma).toHaveBeenCalledWith({
@@ -229,7 +229,7 @@ describe('Auth', () => {
     const resLogin = await request(app).post('/login').send(adminUser1);
     const session = resLogin.headers['set-cookie'][0].match(/connect\.sid=[^;]+/) || ['']
     expect(session[0]).not.toBe('');
-    expect(resLogin.statusCode).toEqual(200);
+    expect(resLogin.statusCode).toEqual(302);
     const res = await request(app).post('/register').send(requestAdminUser2).set('Cookie', session[0]);
     expect(res.statusCode).toEqual(403);
     expect(createUserPrisma).toHaveBeenCalledTimes(0);
@@ -241,7 +241,7 @@ describe('Auth', () => {
       .post('/login')
       .send({ email: testUser.email, password: testUser.password, remember: 'on' })
 
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(302)
 
     const cookies = res.headers['set-cookie']
     expect(cookies).toBeDefined()
@@ -258,7 +258,7 @@ describe('Auth', () => {
       .post('/login')
       .send({ email: testUser.email, password: testUser.password })
 
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(302)
 
     const cookies = res.headers['set-cookie']
     expect(cookies).toBeDefined()

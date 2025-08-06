@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/lesson.css" />
+    <link rel="stylesheet" href="/css/header.css">
+    <title>Lição</title>
+</head>
+
+<body>
+    <%- include('./components/header') %>
+    <% if (error_msg) { %>
+        <h2 style="color:red">
+            <%= error_msg %>
+        </h2>
+    <% } else if (lesson && lesson.id) { %>
+        <h1><%= lesson.title %></h1>
+        <p>
+            <%= lesson.content %>
+        </p>
+        <p><em>Criada em: <%= new Date(lesson.created_at).toLocaleString() %></em></p>
+    <% } else { %>
+        <p>Nenhuma lição encontrada.</p>
+    <% } %>
+</body>
+
+</html>

@@ -14,8 +14,11 @@ DATABASE_URL=mysql://prisma_user:123456@localhost:3306/educational_melody
 create user 'prisma_user'@'localhost' identified by '123456';
 grant all privileges on *.* to 'prisma_user'@'localhost';
 create database educational_melody;
+use educational_melody;
 */
 
+// After prisma db push run on mysql
+//insert into user (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);
 
 datasource db {
   provider = "mysql"
@@ -66,6 +69,7 @@ model Alternative {
 
 model Material {
   id                Int                    @id @default(autoincrement())
+  title             String                 @db.VarChar(255)
   content           String                 @db.Text
   created_at        DateTime
   userMaterials     UserMaterial[]

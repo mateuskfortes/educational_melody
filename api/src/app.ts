@@ -7,6 +7,7 @@ import { getLogin, postLogin } from "./routes/login";
 import { postLogout } from "./routes/logout";
 import { getHome } from "./routes/home";
 import connectMySQL from 'express-mysql-session'
+import { getCreateLesson, getLesson, getLessons, postCreateLesson } from "./routes/lesson";
 
 
 class App {
@@ -17,20 +18,22 @@ class App {
 	constructor({
 		mysqlStore=true, 
 		warningBypass=false,
-		port=DEFAULT_PORT
+		port=DEFAULT_PORT,
+		middleware=[]
 	}: {
 		mysqlStore?: boolean;
 		warningBypass?: boolean;
 		port?: number;
+		middleware?: any[]
 	}) {
 		this.warningBypass = warningBypass
 		this.port = port
 		this.app = express();
-		this.config(mysqlStore)
+		this.config(mysqlStore, middleware)
 		this.routes()
 	}
 	
-	config(mysqlStore: boolean = false) {
+	config(mysqlStore: boolean = false, middleware: any[]) {
 		this.app.set('view engine', 'ejs'); // Set EJS as the view engine to render dynamic templates
 		this.app.set('views', './views'); // Define the directory where the EJS template files are stored
 		
@@ -60,6 +63,8 @@ class App {
 			resave: false,
 			saveUninitialized: false,
 		}))
+
+		middleware.forEach(fn => this.app.use(fn))
 	}
 
 	routes() {
@@ -77,6 +82,11 @@ class App {
 		this.app.get('/test', (req, res) => {
 			res.send(req.session);
 		});
+
+		this.app.get('/lesson/view/:id', getLesson)
+		this.app.get('/lesson', getLessons)
+		this.app.get('/lesson/create', getCreateLesson)
+		this.app.post('/lesson/create', postCreateLesson)
 	}
 
 	listen(port = this.port) {

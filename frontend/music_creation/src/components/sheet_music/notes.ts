@@ -8,22 +8,25 @@ export class NoteBase implements NoteTemplate {
   note: CleanNoteType;
   octave: OctaveType;
   isSharp: boolean;
+  isTied: boolean;
   dots: number;
   beatDuration: number;
   dotsLimit: number;
 
   constructor(
-    defaultBeatDuration: number, 
+    defaultBeatDuration: number,
     dotsLimit: number,
-    note: CleanNoteType, 
-    octave: OctaveType, 
-    isSharp: boolean = false, 
+    note: CleanNoteType,
+    octave: OctaveType,
+    isSharp: boolean = false,
     dots: number = 0,
+    isTied: boolean = false
   ) {
     this.dotsLimit = dotsLimit;
     this.note = note
     this.octave = octave
     this.isSharp = isSharp
+    this.isTied = isTied;
     const validDots = Math.min(dots, this.dotsLimit);
     this.dots = validDots;
     this.beatDuration = getBeatDurationWithDots(defaultBeatDuration, dots);
@@ -99,7 +102,7 @@ export class Thirtysecond extends NoteBase implements NoteTemplate {
     const dotsLimit = 0;
     super(defaultBeatDuration, dotsLimit, ...args);
   }
-} 
+}
 
 export class RestBase implements RestTemplate {
   beatDuration = 0;

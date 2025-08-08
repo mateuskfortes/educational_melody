@@ -8,12 +8,13 @@ export type NoteConstructorTemplate = new (note: CleanNoteType, octave: OctaveTy
 
 export type RestConstructorTemplate = new () => RestTemplate;
 
-export type NoteConstructorArgsTemplate = [CleanNoteType, OctaveType, boolean?, number?];
+export type NoteConstructorArgsTemplate = [CleanNoteType, OctaveType, boolean?, number?, boolean?];
 
 export interface NoteTemplate {
-    note: CleanNoteType; 
+    note: CleanNoteType;
     octave: OctaveType;
     isSharp: boolean;
+    isTied: boolean; // If the note is tied with the next one
     beatDuration: number;
     dots: number; // Number of dots
     dotsLimit: number // Max number of dots
@@ -23,11 +24,13 @@ export interface NoteTemplate {
 export interface ChordTemplate {
     notes: NoteTemplate[]
     beatDuration: number;
+    isTied: boolean;
     play: (ampler: any, now: number, beat: number) => void
 }
 
 export interface RestTemplate {
     beatDuration: number;
+    isTied: boolean;
     play: (...args: any) => void
 }
 

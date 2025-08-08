@@ -15,14 +15,14 @@ const musicDefault: MusicTemplate = {
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth('C', 5),
+				new Eighth('C', 5, false, 0, true),
 				new Eighth('D', 5),
-				new Eighth('E', 5),
+				new Eighth('E', 5, false, 0, true),
 			],
 		},
 		{
 			notes: [
-				new Quarter('F', 5),
+				new Quarter('F', 5, false, 0, true),
 				new Eighth('F', 5),
 				new Eighth('F', 5),
 			],
@@ -82,8 +82,8 @@ const SheetMusic = () => {
 	const measureRef = useRef<HTMLDivElement>(null);
 	const sheetMusicRef = useRef<HTMLDivElement>(null);
 	const sheetMusicContainerRef = useRef<HTMLDivElement>(null);
-	const [ measureHeight, setMeasureHeight ] = useState(0);
-	const [ measuresList, setMeasuresList ] = useState<(MeasureTemplate[])[]>();
+	const [measureHeight, setMeasureHeight] = useState(0);
+	const [measuresList, setMeasuresList] = useState<(MeasureTemplate[])[]>();
 
 	useEffect(() => {
 		setMeasureDuration(getMeasureDurationByMeter(music.meter.top, music.meter.bottom))

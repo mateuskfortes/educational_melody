@@ -1,5 +1,5 @@
 import { useReducer } from "react"
-import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RemoveNotePayload, RestTemplate } from "../types/templates"
+import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload, RestTemplate } from "../types/templates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { getMeasureDurationByMeter } from "../utils";
@@ -91,12 +91,35 @@ const useSheetMusic = (initialState: MusicTemplate) => {
     if (running) return
     running = true
 
+    function getNextNote(measureIndex: number, noteIndex: number) {
+      let next = music.measures[measureIndex].notes[noteIndex + 1]
+      if (next) return next
+
+      next = music.measures[measureIndex + 1].notes[0]
+      if (next) return next
+
+      return undefined
+    }
+
     const beat = 60 / music.bpm
     let now = Tone.now();
-    music.measures.map((ms: MeasureTemplate) => {
-      ms.notes.map((nc: NoteTemplate | ChordTemplate | RestTemplate) => {
+    let skipNotesCount = 0
+    music.measures.map((ms: MeasureTemplate, msi: number) => {
+      ms.notes.map((nc: NoteTemplate | ChordTemplate | RestTemplate, nci: number) => {
+        if (skipNotesCount > 0) return skipNotesCount--
+        let ncBd: number = nc.beatDuration
+        let cNote: NotesTemplate | undefined = nc
+        while (cNote?.isTied) {
+          skipNotesCount++
+          cNote = getNextNote(msi, nci)
+          if (!cNote) break;
+
+          msi++
+          nci++
+          ncBd += cNote.beatDuration
+        }
         nc.play(sampler, now, beat)
-        now += beat * nc.beatDuration
+        now += beat * ncBd
       })
     })
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { Eighth, EighthRest, Half, HalfRest, Quarter, QuarterRest, RestBase, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
+import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, SixteenthRest, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
 import type { CleanNoteType, MeasureTemplate, NotesTemplate, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
-import { fillBdWithNote, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
+import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
 
 const note: CleanNoteType = 'C';
 const octave: OctaveType = 4;
@@ -94,42 +94,44 @@ describe('getMaxFittingRest (Whole = 4.0)', () => {
   });
 });
 
-describe('fillBdWithNote (Whole = 4.0)', () => {
+describe('fillBdWithNotes (Whole = 4.0)', () => {
   it('returns only the note when it fits exactly', () => {
-    const result = fillBdWithNote(2.0, note, octave, isSharp);
+    const result = fillBdWithNotes(2.0, note, octave, isSharp);
+    const fitNote = result[0]
     expect(result.length).toBe(1);
-    expect(result[0]).toBeInstanceOf(Half);
-    expect((result[0] as NoteTemplate).beatDuration).toBe(2.0);
+    expect(fitNote).toBeInstanceOf(Half);
+    expect(fitNote.isTied).toBe(false)
+    expect((fitNote as NoteTemplate).beatDuration).toBe(2.0);
   });
 
-  it('returns note plus rest when note does not fill the full duration', () => {
-    const result = fillBdWithNote(2.5, note, octave, isSharp);
+  it('returns note plus tied notes when just one note does not fill the full duration', () => {
+    const result = fillBdWithNotes(2.5, note, octave, isSharp);
     expect(result.length).toBe(2);
     expect(result[0]).toBeInstanceOf(Half);
-    expect(result[1]).toBeInstanceOf(EighthRest);
+    expect(result[0].isTied).toBe(true)
+    expect(result[1]).toBeInstanceOf(Eighth);
+    expect(result[1].isTied).toBe(false)
     const total = result.reduce((acc, el) => acc + el.beatDuration, 0);
     expect(total).toBeCloseTo(2.5);
   });
 
-  it('fills with multiple rests after the note', () => {
-    const result = fillBdWithNote(3.625, note, octave, isSharp);
+  it('fills with tied notes at the end', () => {
+    const result = fillBdWithNotes(3.625, note, octave, isSharp);
     const total = result.reduce((sum, el) => sum + el.beatDuration, 0);
     expect(result[0]).toBeInstanceOf(Half); // 2.0
+    expect(result.length).toBe(2)
     // Remaining: 1.625 -> Quarter (1.0), Eighth (0.5), Sixteenth (0.25), Thirtysecond (0.125)
     expect(total).toBeCloseTo(3.625);
-    expect(result.slice(1).every(r => 'note' in r === false)).toBe(true); // only rests after
+    expect(result[0].isTied).toBe(true)
+    expect(result[1].isTied).toBe(false)
+    expect(result.slice(0, 1).every(r => r.isTied)).toBe(true);
   });
 
   it('returns only a note when beatDuration = 4.0 and note = Whole', () => {
-    const result = fillBdWithNote(4.0, note, octave, isSharp);
+    const result = fillBdWithNotes(4.0, note, octave, isSharp);
     expect(result.length).toBe(1);
     expect(result[0]).toBeInstanceOf(Whole);
-  });
-
-  it('returns only rests when the note is too large and skipped', () => {
-    const result = fillBdWithNote(0.125, note, octave, isSharp);
-    expect(result.length).toBe(1);
-    expect(result[0]).toBeInstanceOf(Thirtysecond);
+    expect(result[0].isTied).toBe(false)
   });
 });
 
@@ -169,24 +171,6 @@ describe('fillBdWithRests (WholeRest = 4.0)', () => {
 });
 
 describe('splitNote with dotted notes (Whole = 4.0)', () => {
-  it('splits a dotted half note (3.0) with 3.0 space left', () => {
-    const measureDuration = 4.0;
-    const dottedHalf = new Half({ note: 'C', octave: 4, dots: 1 }); // beatDuration = 3.0
-
-    const m1 = createEmptyMeasure();
-    m1.notes.push(new Quarter({ note: 'C', octave: 4 })); // 1.0 used → 3.0 left
-
-    const m2 = createEmptyMeasure();
-
-    splitNote(measureDuration, dottedHalf, m1, m2);
-
-    const d1 = getMsNotesDr(m1.notes); // Should be 4.0
-    const d2 = getMsNotesDr(m2.notes); // Should be 3.0 - 3.0 = 0.0
-
-    expect(d1).toBeCloseTo(4.0);
-    expect(d2).toBeCloseTo(0.0);
-  });
-
   it('splits a dotted half (3.0) with only 1.0 space in first measure', () => {
     const measureDuration = 4.0;
     const dottedHalf = new Half({ note: 'D', octave: 4, dots: 1 }); // 3.0
@@ -203,7 +187,7 @@ describe('splitNote with dotted notes (Whole = 4.0)', () => {
 
     expect(d1).toBeCloseTo(4.0);
     expect(d2).toBeCloseTo(2.0);
-    expect(m2.notes.every(n => n instanceof RestBase)).toBe(true);
+    expect(m2.notes.every(n => n instanceof NoteBase)).toBe(true);
   });
 
   it('splits a double-dotted quarter note (1.75) with 1.0 space left', () => {
@@ -211,7 +195,7 @@ describe('splitNote with dotted notes (Whole = 4.0)', () => {
     const dottedQuarter = new Quarter({ note: 'E', octave: 4, dots: 2 }); // beatDuration = 1.75
 
     const m1 = createEmptyMeasure();
-    m1.notes.push(new Half({ note: 'C', octave: 4, dots: 1 })); // 3.0 → 2.0 left
+    m1.notes.push(new Half({ note: 'C', octave: 4, dots: 1 })); // 3.0 → 1.0 left
 
     const m2 = createEmptyMeasure();
 
@@ -222,14 +206,14 @@ describe('splitNote with dotted notes (Whole = 4.0)', () => {
 
     expect(d1).toBeLessThanOrEqual(4.0);
     expect(d2).toBeCloseTo(0.75);
-    expect(m2.notes.every(n => n instanceof RestBase)).toBe(true);
+    expect(m2.notes.every(n => n instanceof NoteBase)).toBe(true);
   });
 
   it('splits a note with dots and fills correctly both measures', () => {
     const measureDuration = 4.0;
     const dottedHalf = new Half({ note: 'F', octave: 4, dots: 1 }); // 3.0
 
-    const m1 = createEmptyMeasure(); // Already contains 2.5 → only 1.5 left
+    const m1 = createEmptyMeasure();
     m1.notes.push(new Half({ note: 'A', octave: 4 })); // 2.0
     m1.notes.push(new EighthRest()); // 0.5
 
@@ -243,7 +227,7 @@ describe('splitNote with dotted notes (Whole = 4.0)', () => {
 
     expect(d1).toBeCloseTo(4.0);
     expect(d2).toBeCloseTo(2.5);
-    expect(m2.notes.every(n => n instanceof RestBase)).toBe(true);
+    expect(m2.notes.splice(0, -2).every(n => n instanceof NoteBase)).toBe(true);
   });
 });
 

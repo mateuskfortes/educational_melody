@@ -46,7 +46,6 @@ export const getMaxFittingNote = (
       return instance;
     }
   }
-
   throw new Error("No fitting note found");
 };
 /**
@@ -77,32 +76,27 @@ export const getMaxFittingRest = (beatDuration: number): RestTemplate => {
 };
 
 /**
- * Returns a list of notes and rests that fit within the given beat duration.
- * Starts with the largest possible version of the provided note, and fills
- * the remaining duration with rests.
+ * Returns a list of notes that fit within the given beat duration.
  *
  * @param beatDuration - Total duration to fill.
- * @param note - The base note to insert first.
+ * @param note - The base note.
  * @param octave - The octave of the note.
  * @param isSharp - Whether the note is sharp.
- * @returns An array of NoteTemplate and RestTemplate instances.
+ * @returns An array of NoteTemplate instances.
  */
-export const fillBdWithNote = (
+export const fillBdWithNotes = (
   beatDuration: number,
   note: CleanNoteType,
   octave: OctaveType,
   isSharp: boolean
-): (NoteTemplate | RestTemplate)[] => {
-  const notes: (NoteTemplate | RestTemplate)[] = [];
-
-  const firstNote = getMaxFittingNote(beatDuration, note, octave, isSharp);
-  notes.push(firstNote);
-  beatDuration -= firstNote.beatDuration;
-
-  while (beatDuration > 0) {
-    const newRest = getMaxFittingRest(beatDuration);
-    notes.push(newRest);
-    beatDuration -= newRest.beatDuration;
+): NoteTemplate[] => {
+  const notes: NoteTemplate[] = [];
+  while (true) {
+    const noteObj = getMaxFittingNote(beatDuration, note, octave, isSharp)
+    notes.push(noteObj);
+    beatDuration -= noteObj.beatDuration;
+    if (beatDuration === 0) break
+    noteObj.isTied = true
   }
 
   return notes;
@@ -148,15 +142,18 @@ export const splitNote = (
 ) => {
   const crMsDr = measureDuration - getMsNotesDr(firstMeasure.notes);
 
-  const crMsNotes = note instanceof NoteBase
-    ? fillBdWithNote(crMsDr, note.note, note.octave, note.isSharp)
-    : fillBdWithRests(crMsDr);
+  if (note instanceof NoteBase) {
+    const crMsNotes = fillBdWithNotes(crMsDr, note.note, note.octave, note.isSharp)
+    const nextMsNotes = fillBdWithNotes(note.beatDuration - crMsDr, note.note, note.octave, note.isSharp)
+    firstMeasure.notes.push(...crMsNotes);
+    secondMeasure?.notes.unshift(...nextMsNotes)
+    return
+  }
 
-  firstMeasure.notes.push(...crMsNotes);
-
-  if (!secondMeasure) return;
-
-  secondMeasure.notes.unshift(...fillBdWithRests(note.beatDuration - crMsDr));
+  const crMsRests = fillBdWithRests(crMsDr)
+  const nextMsRests = fillBdWithRests(note.beatDuration - crMsDr)
+  firstMeasure.notes.push(...crMsRests);
+  secondMeasure?.notes.unshift(...nextMsRests)
 }
 
 /**

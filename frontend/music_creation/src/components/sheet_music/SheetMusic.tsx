@@ -1,6 +1,6 @@
-import { MeasureTemplate, MusicTemplate } from "../../types/templates";
+import { MeasureTemplate, MusicTemplate } from "../../types/sheetMusicTemplates";
 import Measure from "./Measure"
-import { Eighth, Quarter, EighthRest, NoteBase } from "../../components/sheet_music/notes";
+import { Eighth, Quarter, EighthRest, NoteBase } from "../../classes/notes";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getExtraDistance, getMeasureDurationByMeter } from "../../utils";
 import useSheetMusic from "../../hooks/useSheetMusic";
@@ -15,61 +15,61 @@ const musicDefault: MusicTemplate = {
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth('C', 5, false, 0, true),
-				new Eighth('D', 5),
-				new Eighth('E', 5, false, 0, true),
+				new Eighth({ note: 'C', octave: 5, isTied: true }),
+				new Eighth({ note: 'D', octave: 5 }),
+				new Eighth({ note: 'E', octave: 5 }),
 			],
 		},
 		{
 			notes: [
-				new Quarter('F', 5, false, 0, true),
-				new Eighth('F', 5),
-				new Eighth('F', 5),
+				new Quarter({ note: 'F', octave: 5 }),
+				new Eighth({ note: 'F', octave: 5 }),
+				new Eighth({ note: 'F', octave: 5 }),
 			],
 		},
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth('C', 5),
-				new Eighth('D', 5),
-				new Eighth('C', 5),
+				new Eighth({ note: 'C', octave: 5 }),
+				new Eighth({ note: 'D', octave: 5 }),
+				new Eighth({ note: 'C', octave: 5 }),
 			]
 		},
 		{
 			notes: [
-				new Quarter('D', 5),
-				new Eighth('D', 5),
-				new Eighth('D', 5),
+				new Quarter({ note: 'D', octave: 5 }),
+				new Eighth({ note: 'D', octave: 5 }),
+				new Eighth({ note: 'D', octave: 5 }),
 			]
 		},
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth('C', 5),
-				new Eighth('G', 5),
-				new Eighth('F', 5),
+				new Eighth({ note: 'C', octave: 5 }),
+				new Eighth({ note: 'G', octave: 5 }),
+				new Eighth({ note: 'F', octave: 5 }),
 			],
 		},
 		{
 			notes: [
-				new Quarter('E', 5),
-				new Eighth('E', 5),
-				new Eighth('E', 5),
+				new Quarter({ note: 'E', octave: 5 }),
+				new Eighth({ note: 'E', octave: 5 }),
+				new Eighth({ note: 'E', octave: 5 }),
 			],
 		},
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth('C', 5),
-				new Eighth('D', 5),
-				new Eighth('E', 5),
+				new Eighth({ note: 'C', octave: 5 }),
+				new Eighth({ note: 'D', octave: 5 }),
+				new Eighth({ note: 'E', octave: 5 }),
 			],
 		},
 		{
 			notes: [
-				new Quarter('F', 5),
-				new Eighth('F', 5),
-				new Eighth('F', 5),
+				new Quarter({ note: 'F', octave: 5 }),
+				new Eighth({ note: 'F', octave: 5 }),
+				new Eighth({ note: 'F', octave: 5 }),
 			],
 		},
 	],

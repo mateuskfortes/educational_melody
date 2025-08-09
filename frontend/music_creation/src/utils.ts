@@ -1,5 +1,5 @@
-import { Eighth, Half, Quarter, Sixteenth, Whole } from "./components/sheet_music/notes";
-import { NoteTemplate } from "./types/templates";
+import { Eighth, Half, Quarter, Sixteenth, Whole } from "./classes/notes";
+import { NoteTemplate } from "./types/sheetMusicTemplates";
 
 // List of note names used for vertical positioning calculations.
 // These represent the natural musical notes in ascending order.
@@ -97,5 +97,5 @@ export const getMeasureDurationByMeter = (top: number, bottom: number): number =
   }
 
   // Calculate measure duration: number of beats * beat duration of one beat note
-  return top * new noteType('C', 4, false).beatDuration;
+  return top * new noteType({ note: 'C', octave: 4 }).beatDuration;
 };

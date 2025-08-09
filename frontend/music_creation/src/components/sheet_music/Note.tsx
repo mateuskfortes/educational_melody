@@ -1,7 +1,7 @@
 import { FC } from "react";
-import { Eighth, Half, Quarter, Sixteenth, Thirtysecond, Whole } from "./notes";
+import { Eighth, Half, Quarter, Sixteenth, Thirtysecond, Whole } from "../../classes/notes";
 import { getExtraDistance, getTopDistance } from "../../utils";
-import { NoteTemplate } from "../../types/templates";
+import { NoteTemplate } from "../../types/sheetMusicTemplates";
 
 type Props = {
   note: NoteTemplate;

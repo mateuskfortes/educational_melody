@@ -1,5 +1,5 @@
-import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../../components/sheet_music/notes";
-import { CleanNoteType, MeasureTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../../types/templates";
+import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../../classes/notes";
+import { CleanNoteType, MeasureTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../../types/sheetMusicTemplates";
 
 // Returns the duration of the measure notes.
 export const getMsNotesDr = (notes: NotesTemplate[]): number => {
@@ -33,11 +33,11 @@ export const getMaxFittingNote = (
   ];
 
   for (const NoteClass of candidates) {
-    let instance = new NoteClass(note, octave, isSharp);
+    let instance = new NoteClass({ note, octave, isSharp });
 
     if (instance.beatDuration <= beatDuration) {
       for (let dots = 1; dots <= instance.dotsLimit; dots++) {
-        const instanceWithDots = new NoteClass(note, octave, isSharp, dots);
+        const instanceWithDots = new NoteClass({ note, octave, isSharp, dots });
         if (instanceWithDots.beatDuration <= beatDuration) {
           instance = instanceWithDots;
         }
@@ -185,7 +185,7 @@ export function normalizeMeasure(
 
   else if (getMsNotesDr(firstMeasure.notes) > measureDuration) {
     const popNote = firstMeasure.notes.pop() as NoteTemplate;
-  
+
     if (getMsNotesDr(firstMeasure.notes) >= measureDuration) {
       if (secondMeasure) {
         secondMeasure.notes.unshift(popNote);

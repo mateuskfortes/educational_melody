@@ -1,9 +1,10 @@
 import { useReducer } from "react"
-import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload, RestTemplate } from "../types/templates"
+import { AddNotePayload, MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RemoveNotePayload, RestTemplate } from "../types/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { getMeasureDurationByMeter } from "../utils";
-import { normalizeMeasure } from "./functions/useSheetMusicFunctions";
+import { normalizeMeasure } from "./helpers/useSheetMusicFunctions";
+import { NoteBase } from "../classes/notes";
 
 export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
   const measureDuration = getMeasureDurationByMeter(prevState.meter.top, prevState.meter.bottom)
@@ -105,20 +106,22 @@ const useSheetMusic = (initialState: MusicTemplate) => {
     let now = Tone.now();
     let skipNotesCount = 0
     music.measures.map((ms: MeasureTemplate, msi: number) => {
-      ms.notes.map((nc: NoteTemplate | ChordTemplate | RestTemplate, nci: number) => {
-        if (skipNotesCount > 0) return skipNotesCount--
+      ms.notes.map((nc: NoteTemplate | RestTemplate, nci: number) => {
         let ncBd: number = nc.beatDuration
-        let cNote: NotesTemplate | undefined = nc
-        while (cNote?.isTied) {
-          skipNotesCount++
-          cNote = getNextNote(msi, nci)
-          if (!cNote) break;
+        if (nc instanceof NoteBase) {
+          if (skipNotesCount > 0) return skipNotesCount--
+          let cNote: NoteTemplate | undefined = nc
+          while (cNote.isTied) {
+            skipNotesCount++
+            cNote = getNextNote(msi, nci) as NoteTemplate
+            if (!cNote) break;
 
-          msi++
-          nci++
-          ncBd += cNote.beatDuration
+            msi++
+            nci++
+            ncBd += cNote.beatDuration
+          }
+          nc.play(sampler, now, beat)
         }
-        nc.play(sampler, now, beat)
         now += beat * ncBd
       })
     })

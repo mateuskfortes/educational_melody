@@ -1,25 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { Eighth, EighthRest, Half, HalfRest, Quarter, QuarterRest, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../components/sheet_music/notes";
+import { Eighth, EighthRest, Half, HalfRest, Quarter, QuarterRest, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
 
 describe('Test notes object', () => {
   it('Should create the note with the given params', () => {
     const dots = 2
 
-    const defaultWholeBeatDuration = new Whole('C', 3).beatDuration
-    const note = new Whole('C', 3, true, dots) 
+    const defaultWholeBeatDuration = new Whole({ note: 'C', octave: 3 }).beatDuration
+    const note = new Whole({ note: 'C', octave: 3, isSharp: true, dots })
 
     expect(note.note).toBe('C')
     expect(note.octave).toBe(3)
     expect(note.isSharp).toBe(true)
-    expect(note.beatDuration).toBe(defaultWholeBeatDuration*(2-1/Math.pow(2, dots)))
+    expect(note.beatDuration).toBe(defaultWholeBeatDuration * (2 - 1 / Math.pow(2, dots)))
   })
   it('Should create a note with the right beat duration', () => {
-    const whole = new Whole('C', 4)
-    const half = new Half('C', 4)
-    const quarter = new Quarter('C', 4)
-    const eighth = new Eighth('C', 4)
-    const sixteenth = new Sixteenth('C', 4)
-    const thirtysecond = new Thirtysecond('C', 4)
+    const whole = new Whole({ note: 'C', octave: 4 })
+    const half = new Half({ note: 'C', octave: 4 })
+    const quarter = new Quarter({ note: 'C', octave: 4 })
+    const eighth = new Eighth({ note: 'C', octave: 4 })
+    const sixteenth = new Sixteenth({ note: 'C', octave: 4 })
+    const thirtysecond = new Thirtysecond({ note: 'C', octave: 4 })
 
     expect(thirtysecond.beatDuration * 2).toBe(sixteenth.beatDuration)
     expect(sixteenth.beatDuration * 2).toBe(eighth.beatDuration)
@@ -42,12 +42,12 @@ describe('Test notes object', () => {
     expect(halfRest.beatDuration * 2).toBe(wholeRest.beatDuration)
   })
   it('Should set dots with dots limit value if dots value is greater than dots limit', () => {
-    const whole = new Whole('C', 4, false, 6)
-    const half = new Half('C', 4, false, 5)
-    const quarter = new Quarter('C', 4, false, 4)
-    const eighth = new Eighth('C', 4, false, 3)
-    const sixteenth = new Sixteenth('C', 4, false, 2)
-    const thirtysecond = new Thirtysecond('C', 4, false, 1)
+    const whole = new Whole({ note: 'C', octave: 4, dots: 6 })
+    const half = new Half({ note: 'C', octave: 4, dots: 5 })
+    const quarter = new Quarter({ note: 'C', octave: 4, dots: 4 })
+    const eighth = new Eighth({ note: 'C', octave: 4, dots: 3 })
+    const sixteenth = new Sixteenth({ note: 'C', octave: 4, dots: 2 })
+    const thirtysecond = new Thirtysecond({ note: 'C', octave: 4, dots: 1 })
 
     expect(whole.dots).toBe(5) // Whole note has a limit of 5 dots
     expect(half.dots).toBe(4) // Half note has a limit of

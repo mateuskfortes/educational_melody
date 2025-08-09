@@ -1,7 +1,7 @@
 // Measure.tsx
 import { FC } from "react";
-import { MeasureTemplate } from "../../types/templates";
-import { NoteBase, RestBase } from "../../components/sheet_music/notes";
+import { MeasureTemplate } from "../../types/sheetMusicTemplates";
+import { NoteBase, RestBase } from "../../classes/notes";
 import Note from "./Note";
 import Rest from "./Rest";
 

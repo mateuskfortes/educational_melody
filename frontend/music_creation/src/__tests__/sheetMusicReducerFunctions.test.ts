@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { Eighth, EighthRest, Half, HalfRest, Quarter, QuarterRest, RestBase, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../components/sheet_music/notes";
-import type { CleanNoteType, MeasureTemplate, NoteTemplate, OctaveType } from '../types/templates';
-import { fillBdWithNote, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, normalizeMeasure, splitNote } from '../hooks/functions/useSheetMusicFunctions';
+import { Eighth, EighthRest, Half, HalfRest, Quarter, QuarterRest, RestBase, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
+import type { CleanNoteType, MeasureTemplate, NotesTemplate, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
+import { fillBdWithNote, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
 
 const note: CleanNoteType = 'C';
 const octave: OctaveType = 4;
@@ -11,7 +11,7 @@ function createEmptyMeasure(): MeasureTemplate {
   return { notes: [] };
 }
 
-function createMeasure(...notes: any[]): MeasureTemplate {
+function createMeasure(...notes: NotesTemplate[]): MeasureTemplate {
   return { notes: [...notes] };
 }
 
@@ -171,10 +171,10 @@ describe('fillBdWithRests (WholeRest = 4.0)', () => {
 describe('splitNote with dotted notes (Whole = 4.0)', () => {
   it('splits a dotted half note (3.0) with 3.0 space left', () => {
     const measureDuration = 4.0;
-    const dottedHalf = new Half('C', 4, false, 1); // beatDuration = 3.0
+    const dottedHalf = new Half({ note: 'C', octave: 4, dots: 1 }); // beatDuration = 3.0
 
     const m1 = createEmptyMeasure();
-    m1.notes.push(new Quarter('C', 4, false)); // 1.0 used → 3.0 left
+    m1.notes.push(new Quarter({ note: 'C', octave: 4 })); // 1.0 used → 3.0 left
 
     const m2 = createEmptyMeasure();
 
@@ -189,10 +189,10 @@ describe('splitNote with dotted notes (Whole = 4.0)', () => {
 
   it('splits a dotted half (3.0) with only 1.0 space in first measure', () => {
     const measureDuration = 4.0;
-    const dottedHalf = new Half('D', 4, false, 1); // 3.0
+    const dottedHalf = new Half({ note: 'D', octave: 4, dots: 1 }); // 3.0
 
     const m1 = createEmptyMeasure();
-    m1.notes.push(new Half('C', 4, false, 1)); // 3.0 used → 1.0 left
+    m1.notes.push(new Half({ note: 'C', octave: 4, dots: 1 })); // 3.0 used → 1.0 left
 
     const m2 = createEmptyMeasure();
 
@@ -208,10 +208,10 @@ describe('splitNote with dotted notes (Whole = 4.0)', () => {
 
   it('splits a double-dotted quarter note (1.75) with 1.0 space left', () => {
     const measureDuration = 4.0;
-    const dottedQuarter = new Quarter('E', 4, false, 2); // beatDuration = 1.75
+    const dottedQuarter = new Quarter({ note: 'E', octave: 4, dots: 2 }); // beatDuration = 1.75
 
     const m1 = createEmptyMeasure();
-    m1.notes.push(new Half('C', 4, false, 1)); // 3.0 → 2.0 left
+    m1.notes.push(new Half({ note: 'C', octave: 4, dots: 1 })); // 3.0 → 2.0 left
 
     const m2 = createEmptyMeasure();
 
@@ -227,10 +227,10 @@ describe('splitNote with dotted notes (Whole = 4.0)', () => {
 
   it('splits a note with dots and fills correctly both measures', () => {
     const measureDuration = 4.0;
-    const dottedHalf = new Half('F', 4, false, 1); // 3.0
+    const dottedHalf = new Half({ note: 'F', octave: 4, dots: 1 }); // 3.0
 
     const m1 = createEmptyMeasure(); // Already contains 2.5 → only 1.5 left
-    m1.notes.push(new Half('A', 4, false)); // 2.0
+    m1.notes.push(new Half({ note: 'A', octave: 4 })); // 2.0
     m1.notes.push(new EighthRest()); // 0.5
 
     const m2 = createEmptyMeasure();
@@ -251,14 +251,14 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
   const measureDuration = 4.0;
 
   it('does nothing if measure is already normalized', () => {
-    const ms = createMeasure(new Whole('C', 4, false));
+    const ms = createMeasure(new Whole({ note: 'C', octave: 4 }));
     const original = getMsNotesDr(ms.notes);
     normalizeMeasure([], ms, undefined, measureDuration);
     expect(getMsNotesDr(ms.notes)).toBe(original);
   });
 
   it('moves a note to the next measure if it overflows', () => {
-    const m1 = createMeasure(new Half('C', 4, false), new Half('D', 4, false), new Quarter('E', 4, false));
+    const m1 = createMeasure(new Half({ note: 'C', octave: 4 }), new Half({ note: 'D', octave: 4 }), new Quarter({ note: 'E', octave: 4 }));
     const m2 = createMeasure();
     normalizeMeasure([], m1, m2, measureDuration);
     const dur1 = getMsNotesDr(m1.notes);
@@ -269,7 +269,7 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
   });
 
   it('creates a new measure if no next and note is not a rest', () => {
-    const m1 = createMeasure(new Whole('C', 4, false), new Quarter('D', 4, false));
+    const m1 = createMeasure(new Whole({ note: 'C', octave: 4 }), new Quarter({ note: 'D', octave: 4 }));
     const all = [m1];
 
     normalizeMeasure(all, m1, undefined, measureDuration);
@@ -279,8 +279,8 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
   });
 
   it('splits note across measures if it doesn’t fit completely', () => {
-    const dotted = new Half('F', 4, false, 2); // dotted half (3.5)
-    const m1 = createMeasure(new Quarter('C', 4, false), dotted); // 1.0 + 3.5 = 4.5 but dotted' overflow
+    const dotted = new Half({ note: 'F', octave: 4, dots: 2 }); // dotted half (3.5)
+    const m1 = createMeasure(new Quarter({ note: 'C', octave: 4 }), dotted); // 1.0 + 3.5 = 4.5 but dotted' overflow
     const m2 = createMeasure();
     normalizeMeasure([], m1, m2, measureDuration);
 
@@ -292,7 +292,7 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
 
   it('skips removing rests if overflowing rest and no next measure', () => {
     const rest = new QuarterRest();
-    const m1 = createMeasure(new Whole('C', 4, false), rest);
+    const m1 = createMeasure(new Whole({ note: 'C', octave: 4 }), rest);
     normalizeMeasure([m1], m1, undefined, measureDuration);
     expect(m1.notes.includes(rest)).toBe(false);
     expect(getMsNotesDr(m1.notes)).toBeLessThanOrEqual(measureDuration);
@@ -300,10 +300,10 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
 
   it('recursively normalizes complex overflow', () => {
     const m1 = createMeasure(
-      new Half('A', 4, false), // 2.0
-      new Quarter('B', 4, false), // 1.0
-      new Quarter('C', 4, false), // 1.0 → total = 4.0
-      new Quarter('D', 4, false)  // extra → overflow
+      new Half({ note: 'A', octave: 4 }), // 2.0
+      new Quarter({ note: 'B', octave: 4 }), // 1.0
+      new Quarter({ note: 'C', octave: 4 }), // 1.0 → total = 4.0
+      new Quarter({ note: 'D', octave: 4 })  // extra → overflow
     );
     const m2 = createMeasure();
     const all = [m1, m2];
@@ -315,8 +315,8 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
   });
 
   it('pulls a note from the next measure if it fits and current measure is underfilled', () => {
-    const m1 = createMeasure(new Half('C', 4, false)); // 2.0 beats
-    const m2 = createMeasure(new Quarter('D', 4, false)); // 1.0 beat
+    const m1 = createMeasure(new Half({ note: 'C', octave: 4 })); // 2.0 beats
+    const m2 = createMeasure(new Quarter({ note: 'D', octave: 4 })); // 1.0 beat
     const all = [m1, m2];
 
     normalizeMeasure(all, m1, m2, measureDuration);
@@ -326,8 +326,8 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
   });
 
   it('splits a note from next measure if it does not fully fit', () => {
-    const m1 = createMeasure(new Half('C', 4, false)); // 2.0 beats
-    const m2 = createMeasure(new Half('E', 4, false)); // 2.0 beats
+    const m1 = createMeasure(new Half({ note: 'C', octave: 4 })); // 2.0 beats
+    const m2 = createMeasure(new Half({ note: 'E', octave: 4 })); // 2.0 beats
 
     normalizeMeasure([m1, m2], m1, m2, measureDuration);
 
@@ -336,7 +336,7 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
   });
 
   it('fills with rests if underfilled and there is no next measure', () => {
-    const m1 = createMeasure(new Half('C', 4, false)); // 2.0
+    const m1 = createMeasure(new Half({ note: 'C', octave: 4 })); // 2.0
     const all = [m1];
 
     normalizeMeasure(all, m1, undefined, measureDuration);
@@ -347,8 +347,8 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
   });
 
   it('does not overfill measure when pulling from next', () => {
-    const m1 = createMeasure(new Quarter('C', 4, false)); // 1.0
-    const m2 = createMeasure(new Whole('D', 4, false));   // 4.0
+    const m1 = createMeasure(new Quarter({ note: 'C', octave: 4 })); // 1.0
+    const m2 = createMeasure(new Whole({ note: 'D', octave: 4 }));   // 4.0
 
     normalizeMeasure([m1, m2], m1, m2, measureDuration);
 
@@ -357,9 +357,9 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
   });
 
   it('handles recursive pulling and splitting from next measures', () => {
-    const m1 = createMeasure(new Quarter('C', 4, false)); // 1.0
-    const m2 = createMeasure(new Whole('D', 4, false));   // 4.0
-    const m3 = createMeasure(new Whole('E', 4, false));   // 4.0
+    const m1 = createMeasure(new Quarter({ note: 'C', octave: 4 })); // 1.0
+    const m2 = createMeasure(new Whole({ note: 'D', octave: 4 }));   // 4.0
+    const m3 = createMeasure(new Whole({ note: 'E', octave: 4 }));   // 4.0
     const all = [m1, m2, m3];
 
     normalizeMeasure(all, m1, m2, measureDuration);

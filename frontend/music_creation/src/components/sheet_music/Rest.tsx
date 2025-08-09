@@ -1,6 +1,6 @@
 import { FC } from "react"
-import { RestTemplate } from "../../types/templates";
-import { HalfRest, WholeRest } from "./notes";
+import { RestTemplate } from "../../types/sheetMusicTemplates";
+import { HalfRest, WholeRest } from "../../classes/notes";
 
 type Props = {
   rest: RestTemplate;

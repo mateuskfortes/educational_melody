@@ -146,6 +146,10 @@ export const splitNote = (
     const crMsNotes = fillBdWithNotes(crMsDr, note.note, note.octave, note.isSharp)
     const nextMsNotes = fillBdWithNotes(note.beatDuration - crMsDr, note.note, note.octave, note.isSharp)
     firstMeasure.notes.push(...crMsNotes);
+
+    (firstMeasure.notes[firstMeasure.notes.length - 1] as NoteTemplate).isTied = true
+    if (note.isTied) nextMsNotes[nextMsNotes.length - 1].isTied = true
+
     secondMeasure?.notes.unshift(...nextMsNotes)
     return
   }
@@ -154,6 +158,46 @@ export const splitNote = (
   const nextMsRests = fillBdWithRests(note.beatDuration - crMsDr)
   firstMeasure.notes.push(...crMsRests);
   secondMeasure?.notes.unshift(...nextMsRests)
+}
+
+/**
+ * Merges sequences of tied notes within each measure into fewer notes.
+ *
+ * - Iterates through all measures in the list.
+ * - Detects consecutive tied notes of the same pitch.
+ * - Combines their total duration into the smallest possible number of notes
+ *   that represent the same duration (may be more than one note).
+ * - Preserves the tie status of the resulting last note in the sequence.
+ *
+ * @param measureList - Array of measures to process and merge tied notes within.
+ */
+export const mergeTiesAcrossMeasures = (measureList: MeasureTemplate[]) => {
+  for (const measure of measureList) {
+    const notes = measure.notes
+    for (const [i, note] of notes.entries()) {
+      if (note instanceof NoteBase
+        && note.isTied
+        && i < notes.length - 1 // Check if the note is not the last one
+      ) {
+        let popCount = 2
+        notes.forEach((iNote, ni) => {
+          if (ni > i && ni < notes.length - 1 && (iNote as NoteTemplate).isTied) popCount++
+        })
+
+        let isLastNoteTied = false
+        if (i + popCount === notes.length) {
+          isLastNoteTied = (notes[notes.length - 1] as NoteTemplate).isTied
+        }
+
+        const tiedNotes = notes.splice(i, popCount)
+
+        const newNotes = fillBdWithNotes(getMsNotesDr(tiedNotes), note.note, note.octave, note.isSharp)
+
+        notes.splice(i, 0, ...newNotes);
+        if (isLastNoteTied) (notes[notes.length - 1] as NoteTemplate).isTied = true
+      }
+    }
+  }
 }
 
 /**
@@ -181,7 +225,7 @@ export function normalizeMeasure(
   if (getMsNotesDr(firstMeasure.notes) === measureDuration) return;
 
   else if (getMsNotesDr(firstMeasure.notes) > measureDuration) {
-    const popNote = firstMeasure.notes.pop() as NoteTemplate;
+    const popNote = firstMeasure.notes.pop() as NotesTemplate;
 
     if (getMsNotesDr(firstMeasure.notes) >= measureDuration) {
       if (secondMeasure) {

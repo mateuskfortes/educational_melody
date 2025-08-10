@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, SixteenthRest, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
 import type { CleanNoteType, MeasureTemplate, NotesTemplate, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
-import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
+import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
 
 const note: CleanNoteType = 'C';
 const octave: OctaveType = 4;
@@ -209,6 +209,25 @@ describe('splitNote with dotted notes (Whole = 4.0)', () => {
     expect(m2.notes.every(n => n instanceof NoteBase)).toBe(true);
   });
 
+  it('splits a tied note with dots across measures', () => {
+    const measureDuration = 4.0;
+    const m1 = createMeasure(
+      new Half({ note: 'C', octave: 4, isTied: true }),
+    );
+    const m2 = createMeasure(new Quarter({ note: 'C', octave: 4 }));
+
+    splitNote(measureDuration, new Half({ note: 'C', octave: 4, isTied: true, dots: 1 }), m1, m2)
+
+    expect(m1).toEqual(createMeasure(
+      new Half({ note: 'C', octave: 4, isTied: true }),
+      new Half({ note: 'C', octave: 4, isTied: true }),
+    ))
+    expect(m2).toEqual(createMeasure(
+      new Quarter({ note: 'C', octave: 4, isTied: true }),
+      new Quarter({ note: 'C', octave: 4 }),
+    ))
+  })
+
   it('splits a note with dots and fills correctly both measures', () => {
     const measureDuration = 4.0;
     const dottedHalf = new Half({ note: 'F', octave: 4, dots: 1 }); // 3.0
@@ -230,6 +249,58 @@ describe('splitNote with dotted notes (Whole = 4.0)', () => {
     expect(m2.notes.splice(0, -2).every(n => n instanceof NoteBase)).toBe(true);
   });
 });
+
+describe('mergeTiesAcrossMeasures (Whole = 4.0)', () => {
+  it('Should merge ties across measures', () => {
+    const measures = [
+      createMeasure(
+        new Quarter({ note: 'C', octave: 4, dots: 1 }),
+        new Quarter({ note: 'C', octave: 4, isTied: true }),
+        new Quarter({ note: 'C', octave: 4, isTied: true }),
+        new Eighth({ note: 'C', octave: 4 })
+      ),
+      createMeasure(
+        new Quarter({ note: 'C', octave: 4, isTied: true }),
+        new Quarter({ note: 'C', octave: 4, isTied: true }),
+        new Quarter({ note: 'C', octave: 4, isTied: true }),
+        new Quarter({ note: 'C', octave: 4 })
+      )
+    ]
+    mergeTiesAcrossMeasures(measures)
+
+    expect(measures.length).toBe(2)
+    expect(measures[0].notes.length).toBe(3)
+    expect(measures[0]).toEqual(createMeasure(
+      new Quarter({ note: 'C', octave: 4, dots: 1 }),
+      new Half({ note: 'C', octave: 4, isTied: true }),
+      new Eighth({ note: 'C', octave: 4 })
+    ))
+    expect(measures[1]).toEqual(createMeasure(new Whole({ note: 'C', octave: 4 })))
+  })
+
+  it('Merges ties when tied notes span across measures', () => {
+    const measures = [
+      createMeasure(
+        new Quarter({ note: 'C', octave: 4, dots: 1 }),
+        new Quarter({ note: 'C', octave: 4, isTied: true }),
+        new Quarter({ note: 'C', octave: 4, isTied: true }),
+        new Eighth({ note: 'C', octave: 4, isTied: true })
+      ),
+      createMeasure(new Whole({ note: 'C', octave: 4 }))
+    ]
+    mergeTiesAcrossMeasures(measures)
+
+    expect(measures.length).toBe(2)
+    expect(measures[0].notes.length).toBe(3)
+    expect(measures[0]).toEqual(createMeasure(
+      new Quarter({ note: 'C', octave: 4, dots: 1 }),
+      new Half({ note: 'C', octave: 4, isTied: true }),
+      new Eighth({ note: 'C', octave: 4, isTied: true })
+    ))
+    expect(measures[1]).toEqual(createMeasure(new Whole({ note: 'C', octave: 4 })))
+  })
+
+})
 
 describe('normalizeMeasure (Whole = 4.0)', () => {
   const measureDuration = 4.0;
@@ -352,5 +423,5 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
     expect(getMsNotesDr(m2.notes)).toBeLessThan(measureDuration);
     expect(getMsNotesDr(m3.notes)).toBeGreaterThan(0); // still has something
   });
-
 });
+

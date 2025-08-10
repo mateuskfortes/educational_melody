@@ -1,5 +1,5 @@
 import { Eighth, Half, Quarter, Sixteenth, Whole } from "./classes/notes";
-import { NoteTemplate } from "./types/sheetMusicTemplates";
+import { MeasureTemplate, NoteTemplate } from "./types/sheetMusicTemplates";
 
 // List of note names used for vertical positioning calculations.
 // These represent the natural musical notes in ascending order.
@@ -99,3 +99,29 @@ export const getMeasureDurationByMeter = (top: number, bottom: number): number =
   // Calculate measure duration: number of beats * beat duration of one beat note
   return top * new noteType({ note: 'C', octave: 4 }).beatDuration;
 };
+
+export const calculateTieWidth = (
+  measureWidth: number,
+  totalMeasureDuration: number,
+  measureList: MeasureTemplate[],
+  measureIndex: number,
+  noteIndex: number
+) => {
+  const measureNotes = measureList[measureIndex].notes
+
+  // If the next note is not in the same measure
+  if (noteIndex >= measureNotes.length - 1) {
+    const nextMeasureNotes = measureList[measureIndex + 1]?.notes
+    if (!nextMeasureNotes) return 0
+
+    const currentNoteWidth = measureNotes[noteIndex].beatDuration / totalMeasureDuration * measureWidth / 2
+    const nextNoteWidth = nextMeasureNotes[0].beatDuration / totalMeasureDuration * measureWidth / 2
+
+    return currentNoteWidth + nextNoteWidth
+  }
+
+  const currentNoteWidth = measureNotes[noteIndex].beatDuration / totalMeasureDuration * measureWidth / 2
+  const nextNoteWidth = measureNotes[noteIndex + 1].beatDuration / totalMeasureDuration * measureWidth / 2
+
+  return currentNoteWidth + nextNoteWidth
+}

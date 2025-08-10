@@ -9,9 +9,12 @@ type Props = {
 	measure: MeasureTemplate;
 	ref: React.RefObject<HTMLDivElement | null>;
 	duration: number;
+	measuresList: MeasureTemplate[];
+	measureIndex: number;
+	width: number;
 };
 
-const Measure: FC<Props> = ({ measure, ref, duration }) => (
+const Measure: FC<Props> = ({ measure, ref, duration, width, measuresList, measureIndex }) => (
 	<div className="measure" ref={ref}>
 		{/* Left vertical bar */}
 		<div className="barline_start" />
@@ -27,7 +30,7 @@ const Measure: FC<Props> = ({ measure, ref, duration }) => (
 		<div className="notes_area">
 			{measure.notes.map((note, index) => {
 				if (note instanceof NoteBase) {
-					return <Note key={index} note={note} duration={duration} />;
+					return <Note key={index} note={note} duration={duration} measureWidth={width} measuresList={measuresList} measureIndex={measureIndex} noteIndex={index} />
 				}
 
 				if (note instanceof RestBase) {

@@ -17,7 +17,7 @@ const musicDefault: MusicTemplate = {
 				new EighthRest(),
 				new Eighth({ note: 'C', octave: 5, isTied: true }),
 				new Eighth({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'E', octave: 5 }),
+				new Eighth({ note: 'E', octave: 5, isTied: true }),
 			],
 		},
 		{
@@ -83,6 +83,8 @@ const SheetMusic = () => {
 	const sheetMusicRef = useRef<HTMLDivElement>(null);
 	const sheetMusicContainerRef = useRef<HTMLDivElement>(null);
 	const [measureHeight, setMeasureHeight] = useState(0);
+	const [measureWidth, setMeasureWidth] = useState(0)
+	const [measuresPerLine, setMeasuresPerLine] = useState(0)
 	const [measuresList, setMeasuresList] = useState<(MeasureTemplate[])[]>();
 
 	useEffect(() => {
@@ -128,6 +130,8 @@ const SheetMusic = () => {
 			}
 			setMeasuresList(lines);
 			setMeasureHeight(measureRef.current.offsetHeight)
+			setMeasureWidth(measureRef.current.offsetWidth)
+			setMeasuresPerLine(measurePerLine);
 		}
 	}, [music, measureRef.current, sheetMusicRef.current]);
 
@@ -144,6 +148,9 @@ const SheetMusic = () => {
 										key={`${lineIndex}-${measureIndex}`}
 										measure={measure}
 										duration={measureDuration}
+										width={measureWidth}
+										measuresList={music.measures}
+										measureIndex={lineIndex * measuresPerLine + measureIndex}
 										ref={measureRef}
 									/>
 								))}
@@ -154,6 +161,9 @@ const SheetMusic = () => {
 					<Measure
 						measure={music.measures[0]}
 						duration={measureDuration}
+						width={measureWidth}
+						measuresList={music.measures}
+						measureIndex={0}
 						ref={measureRef} />
 				}
 				<button onClick={run}>run</button>

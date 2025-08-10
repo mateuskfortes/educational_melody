@@ -1,14 +1,19 @@
 import { FC } from "react";
 import { Eighth, Half, Quarter, Sixteenth, Thirtysecond, Whole } from "../../classes/notes";
-import { getExtraDistance, getTopDistance } from "../../utils";
-import { NoteTemplate } from "../../types/sheetMusicTemplates";
+import { calculateTieWidth, getExtraDistance, getTopDistance } from "../../utils";
+import { MeasureTemplate, NoteTemplate } from "../../types/sheetMusicTemplates";
+import Tie from "./Tie";
 
 type Props = {
   note: NoteTemplate;
   duration: number;
+  measureWidth: number
+  measuresList: MeasureTemplate[]
+  measureIndex: number;
+  noteIndex: number
 }
 
-const Note: FC<Props> = ({ note, duration }) => {
+const Note: FC<Props> = ({ note, duration, measureWidth, measuresList, measureIndex, noteIndex }) => {
   const topDistance = getTopDistance(note);
 
   let offset = 0;
@@ -28,16 +33,11 @@ const Note: FC<Props> = ({ note, duration }) => {
 
   const extraLines = Math.floor(extraDistance / 25);
 
+  const tieWidth = calculateTieWidth(measureWidth, duration, measuresList, measureIndex, noteIndex)
   return (
-    <div
-      className="note_container"
-      style={{ width }}
-    >
-      {/* Render the note at the calculated top position */}
-      <div
-        className="note"
-        style={{ top }}
-      >
+    <div className="note_container" style={{ width }} >
+      {note.isTied && <Tie top={`${topDistance + 15}%`} width={tieWidth} />}
+      <div className="note" style={{ top }} >
         <img
           src={`public/static/img/${note.constructor.name}Note.svg`}
           className={`${note.constructor.name.toLowerCase()}_note`}

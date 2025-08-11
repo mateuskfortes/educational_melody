@@ -1,7 +1,7 @@
-import { MeasureTemplate, MusicTemplate } from "../../types/sheetMusicTemplates";
+import { MeasureTemplate, MusicAction, MusicTemplate } from "../../types/sheetMusicTemplates";
 import Measure from "./Measure"
 import { Eighth, Quarter, EighthRest, NoteBase } from "../../classes/notes";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ActionDispatch, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getExtraDistance, getMeasureDurationByMeter } from "../../utils";
 import useSheetMusic from "../../hooks/useSheetMusic";
 
@@ -15,9 +15,9 @@ const musicDefault: MusicTemplate = {
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth({ note: 'C', octave: 5, isTied: true }),
+				new Eighth({ note: 'C', octave: 5 }),
 				new Eighth({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'E', octave: 5, isTied: true }),
+				new Eighth({ note: 'E', octave: 5 }),
 			],
 		},
 		{
@@ -75,8 +75,11 @@ const musicDefault: MusicTemplate = {
 	],
 }
 
-const SheetMusic = () => {
-	const { run, music } = useSheetMusic(musicDefault)
+const SheetMusic = ({ setDispatch }: { setDispatch: (ds: ActionDispatch<[action: MusicAction]>) => void }) => {
+	const { run, music, dispatch } = useSheetMusic(musicDefault)
+
+
+
 	const [measureDuration, setMeasureDuration] = useState(0)
 
 	const measureRef = useRef<HTMLDivElement>(null);
@@ -90,6 +93,8 @@ const SheetMusic = () => {
 	useEffect(() => {
 		setMeasureDuration(getMeasureDurationByMeter(music.meter.top, music.meter.bottom))
 	}, [music])
+
+	useEffect(() => setDispatch(() => dispatch), [])
 
 	// Calculates the extra distance a note extends above or below the standard staff height.
 	const getMeasureStyle = (measureList: MeasureTemplate[]) => {

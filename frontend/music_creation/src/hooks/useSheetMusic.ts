@@ -16,9 +16,10 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
     const measureSpace = measureDuration / note.beatDuration // How many notes can fit in the measure
     if (
       !finalState.measures[measureIndex] // If there is no measure at the index
-      || measureSpace < note.beatDuration // If there is not enough space in the measure
+      || measureDuration < note.beatDuration // If there is not enough space in the measure
       || measureSpace < noteIndex + 1 // If there is not enough space in the measure
     ) {
+      console.log('prevstate', measureDuration, note.beatDuration)
       return prevState
     }
 
@@ -62,7 +63,6 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
 
     return finalState
   }
-
   switch (action.type) {
     case 'ADD_NOTE': return addNote();
     case 'REMOVE_NOTE': return removeNote();

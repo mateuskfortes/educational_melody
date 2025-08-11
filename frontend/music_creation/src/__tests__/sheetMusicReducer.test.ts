@@ -33,8 +33,7 @@ describe('sheetMusicReducer - ADD_NOTE', () => {
   })
 
   it('does not add note if not enough space in measure', () => {
-    const note: NoteTemplate = new Whole({ note: 'D', octave: 4 }) // 4 beats
-    // Trying to add a whole note at measure 0 where whole note already exists
+    const note: NoteTemplate = new Whole({ note: 'D', octave: 4, dots: 1 }) // 6 beats
     const action = {
       type: 'ADD_NOTE' as const,
       payload: { note, measureIndex: 0, noteIndex: 0 },
@@ -134,8 +133,16 @@ describe('sheetMusicReducer - REMOVE_NOTE', () => {
 
   it('removes note and causes normalization into next measure', () => {
     const initial = createMusicTemplate([
-      [new Half({ note: 'C', octave: 4 }), new Quarter({ note: 'D', octave: 4 }), new Quarter({ note: 'E', octave: 4 })],
-      [new Quarter({ note: 'F', octave: 4 }), new HalfRest(), new QuarterRest()],
+      [
+        new Half({ note: 'C', octave: 4 }),
+        new Quarter({ note: 'D', octave: 4 }),
+        new Quarter({ note: 'E', octave: 4 })
+      ],
+      [
+        new Quarter({ note: 'F', octave: 4 }),
+        new HalfRest(),
+        new QuarterRest()
+      ],
     ]);
 
     const action = {
@@ -145,7 +152,11 @@ describe('sheetMusicReducer - REMOVE_NOTE', () => {
 
     const state = sheetMusicReducer(initial, action);
 
-    expect(state.measures[0].notes).toEqual([new Half({ note: 'C', octave: 4 }), new Quarter({ note: 'E', octave: 4 }), new Quarter({ note: 'F', octave: 4 })]);
+    expect(state.measures[0].notes).toEqual([
+      new Half({ note: 'C', octave: 4 }),
+      new Quarter({ note: 'E', octave: 4 }),
+      new Quarter({ note: 'F', octave: 4 })
+    ]);
     expect(state.measures[1].notes.every(n => n instanceof RestBase)).toBe(true);
   });
 

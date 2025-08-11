@@ -1,5 +1,5 @@
 import { Eighth, Half, Quarter, Sixteenth, Whole } from "./classes/notes";
-import { MeasureTemplate, NoteTemplate } from "./types/sheetMusicTemplates";
+import { MeasureTemplate, MusicTemplate, NoteTemplate } from "./types/sheetMusicTemplates";
 
 // List of note names used for vertical positioning calculations.
 // These represent the natural musical notes in ascending order.
@@ -124,4 +124,33 @@ export const calculateTieWidth = (
   const nextNoteWidth = measureNotes[noteIndex + 1].beatDuration / totalMeasureDuration * measureWidth / 2
 
   return currentNoteWidth + nextNoteWidth
+}
+
+/**
+ * Creates a shallow copy of a MusicTemplate object.
+ *
+ * - Copies the meter and bpm values directly.
+ * - Copies the measures array, where each measure is spread into a new object.
+ * - The notes array in each measure is cloned using Array.from to avoid referencing the original array.
+ * 
+ * Note: This performs a shallow copy — the note objects themselves are still referenced.
+ *       To fully duplicate the notes, a deep copy would be required.
+ *
+ * @param sheetMusic - The MusicTemplate object to copy.
+ * @returns A new MusicTemplate object with cloned measures and notes arrays.
+ */
+export const copySheetMusic = (sheetMusic: MusicTemplate) => {
+  const finalSheetMusic: MusicTemplate = {
+    meter: {
+      top: sheetMusic.meter.top,
+      bottom: sheetMusic.meter.bottom
+    },
+    bpm: sheetMusic.bpm,
+    measures: sheetMusic.measures.map(measure => ({
+      ...measure,
+      notes: Array.from(measure.notes)
+    }))
+  }
+
+  return finalSheetMusic
 }

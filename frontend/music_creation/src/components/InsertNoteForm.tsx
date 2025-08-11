@@ -24,7 +24,6 @@ const InsertNoteForm = ({ dispatch }: { dispatch: ActionDispatch<[action: MusicA
     e.preventDefault();
 
     const NoteClass = noteClasses[noteType];
-    console.log(NoteClass)
     const noteObj = new NoteClass({ note, octave });
 
     dispatch({

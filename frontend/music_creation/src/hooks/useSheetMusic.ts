@@ -2,7 +2,7 @@ import { useReducer } from "react"
 import { AddNotePayload, MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RemoveNotePayload, RestTemplate } from "../types/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
-import { getMeasureDurationByMeter } from "../utils";
+import { copySheetMusic, getMeasureDurationByMeter } from "../utils";
 import { mergeTiesAcrossMeasures, normalizeMeasure } from "./helpers/useSheetMusicFunctions";
 import { NoteBase } from "../classes/notes";
 
@@ -10,7 +10,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
   const measureDuration = getMeasureDurationByMeter(prevState.meter.top, prevState.meter.bottom)
 
   function addNote() {
-    const finalState = { ...prevState }
+    const finalState = copySheetMusic(prevState)
     const { note, measureIndex, noteIndex } = action.payload as AddNotePayload
 
     const measureSpace = measureDuration / note.beatDuration // How many notes can fit in the measure
@@ -19,7 +19,6 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
       || measureDuration < note.beatDuration // If there is not enough space in the measure
       || measureSpace < noteIndex + 1 // If there is not enough space in the measure
     ) {
-      console.log('prevstate', measureDuration, note.beatDuration)
       return prevState
     }
 
@@ -40,7 +39,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
   }
 
   function removeNote() {
-    const finalState = { ...prevState }
+    const finalState = copySheetMusic(prevState)
     const { measureIndex, noteIndex } = action.payload as RemoveNotePayload
 
     if (

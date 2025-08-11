@@ -5,7 +5,6 @@ import { CleanNoteType, MeasureTemplate, NoteConstructorTemplate, NotesTemplate,
 export const getMsNotesDr = (notes: NotesTemplate[]): number => {
   return notes.reduce((acc, note) => acc + note.beatDuration, 0)
 }
-
 /**
  * Returns the largest possible note (including dotted versions) 
  * that fits within the given beat duration.
@@ -74,7 +73,6 @@ export const getMaxFittingRest = (beatDuration: number): RestTemplate => {
 
   throw new Error('No fitting rest found');
 };
-
 /**
  * Returns a list of notes that fit within the given beat duration.
  *
@@ -101,7 +99,6 @@ export const fillBdWithNotes = (
 
   return notes;
 };
-
 /**
  * Returns a list of rests that exactly fill the given beat duration.
  * It selects the largest possible rests
@@ -121,7 +118,6 @@ export const fillBdWithRests = (beatDuration: number): (NoteTemplate | RestTempl
 
   return notes;
 };
-
 /**
  * Splits a note or rest between two measures.
  *
@@ -147,9 +143,10 @@ export const splitNote = (
     const nextMsNotes = fillBdWithNotes(note.beatDuration - crMsDr, note.note, note.octave, note.isSharp)
     firstMeasure.notes.push(...crMsNotes);
 
+    
     (firstMeasure.notes[firstMeasure.notes.length - 1] as NoteTemplate).isTied = true
-    if (note.isTied) nextMsNotes[nextMsNotes.length - 1].isTied = true
-
+    if (note.isTied) nextMsNotes[0].isTied = true
+    
     secondMeasure?.notes.unshift(...nextMsNotes)
     return
   }
@@ -159,47 +156,6 @@ export const splitNote = (
   firstMeasure.notes.push(...crMsRests);
   secondMeasure?.notes.unshift(...nextMsRests)
 }
-
-/**
- * Merges sequences of tied notes within each measure into fewer notes.
- *
- * - Iterates through all measures in the list.
- * - Detects consecutive tied notes of the same pitch.
- * - Combines their total duration into the smallest possible number of notes
- *   that represent the same duration (may be more than one note).
- * - Preserves the tie status of the resulting last note in the sequence.
- *
- * @param measureList - Array of measures to process and merge tied notes within.
- */
-export const mergeTiesAcrossMeasures = (measureList: MeasureTemplate[]) => {
-  for (const measure of measureList) {
-    const notes = measure.notes
-    for (const [i, note] of notes.entries()) {
-      if (note instanceof NoteBase
-        && note.isTied
-        && i < notes.length - 1 // Check if the note is not the last one
-      ) {
-        let popCount = 2
-        notes.forEach((iNote, ni) => {
-          if (ni > i && ni < notes.length - 1 && (iNote as NoteTemplate).isTied) popCount++
-        })
-
-        let isLastNoteTied = false
-        if (i + popCount === notes.length) {
-          isLastNoteTied = (notes[notes.length - 1] as NoteTemplate).isTied
-        }
-
-        const tiedNotes = notes.splice(i, popCount)
-
-        const newNotes = fillBdWithNotes(getMsNotesDr(tiedNotes), note.note, note.octave, note.isSharp)
-
-        notes.splice(i, 0, ...newNotes);
-        if (isLastNoteTied) (notes[notes.length - 1] as NoteTemplate).isTied = true
-      }
-    }
-  }
-}
-
 /**
  * Normalizes the current measure to ensure its total duration matches the allowed measure duration.
  *
@@ -239,6 +195,7 @@ export function normalizeMeasure(
           notes: [popNote, ...fillBdWithRests(measureDuration - popNote.beatDuration)],
         };
         measureList.push(newMs);
+        secondMeasure = newMs
       }
     } else {
       splitNote(measureDuration, popNote, firstMeasure, secondMeasure);
@@ -260,4 +217,43 @@ export function normalizeMeasure(
   }
 
   normalizeMeasure(measureList, firstMeasure, secondMeasure, measureDuration);
+}
+/**
+ * Merges sequences of tied notes within each measure into fewer notes.
+ *
+ * - Iterates through all measures in the list.
+ * - Detects consecutive tied notes of the same pitch.
+ * - Combines their total duration into the smallest possible number of notes
+ *   that represent the same duration (may be more than one note).
+ * - Preserves the tie status of the resulting last note in the sequence.
+ *
+ * @param measureList - Array of measures to process and merge tied notes within.
+ */
+export const mergeTiesAcrossMeasures = (measureList: MeasureTemplate[]) => {
+  for (const measure of measureList) {
+    const notes = measure.notes
+    for (const [i, note] of notes.entries()) {
+      if (note instanceof NoteBase
+        && note.isTied
+        && i < notes.length - 1 // Check if the note is not the last one
+      ) {
+        let popCount = 2
+        notes.forEach((iNote, ni) => {
+          if (ni > i && ni < notes.length - 1 && (iNote as NoteTemplate).isTied) popCount++
+        })
+
+        let isLastNoteTied = false
+        if (i + popCount === notes.length) {
+          isLastNoteTied = (notes[notes.length - 1] as NoteTemplate).isTied
+        }
+
+        const tiedNotes = notes.splice(i, popCount)
+
+        const newNotes = fillBdWithNotes(getMsNotesDr(tiedNotes), note.note, note.octave, note.isSharp)
+
+        notes.splice(i, 0, ...newNotes);
+        if (isLastNoteTied) (notes[notes.length - 1] as NoteTemplate).isTied = true
+      }
+    }
+  }
 }

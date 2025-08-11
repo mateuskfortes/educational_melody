@@ -423,5 +423,28 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
     expect(getMsNotesDr(m2.notes)).toBeLessThan(measureDuration);
     expect(getMsNotesDr(m3.notes)).toBeGreaterThan(0); // still has something
   });
-});
 
+  it('normalize measure with 1.5 overflow', () => {
+    const measure = createMeasure(
+      new Quarter({note: 'C', octave: 4, dots: 1}), // 1.5
+      new Half({note: 'C', octave: 4}),             // 2
+      new Quarter({note: 'C', octave: 4}),          // 1
+      new Quarter({note: 'C', octave: 4})           // 1
+    ) 
+    const all = [measure]
+    normalizeMeasure(all, measure, undefined, measureDuration)
+
+    console.log(measure)
+    expect(measure).toEqual(createMeasure(
+      new Quarter({note: 'C', octave: 4, dots: 1}), 
+      new Half({note: 'C', octave: 4}), new Quarter({note: 'C', octave: 4}),
+      new Eighth({note: 'C', octave: 4, isTied: true})
+    ))
+    expect(all[1]).toEqual(createMeasure(
+      new Eighth({note: 'C', octave: 4}),
+      new Quarter({note: 'C', octave: 4}),
+      new HalfRest(),
+      new QuarterRest()
+    ))
+  })
+});

@@ -39,11 +39,11 @@ const Note: FC<Props> = ({ note, duration, measureWidth, measuresList, measureIn
       {note.isTied && <Tie top={`${topDistance + 15}%`} width={tieWidth} />}
       <div className="note" style={{ top }} >
         <img
-          src={`public/static/img/${note.constructor.name}Note.svg`}
-          className={`${note.constructor.name.toLowerCase()}_note`}
+          src={`img/${note.name}Note.svg`}
+          className={`${note.name.toLowerCase()}_note`}
         />
         {[...Array(note.dots)].map((_, i) =>
-          <img key={i} style={{ marginTop: 'auto' }} src="public/static/img/dot.svg" alt="" />
+          <img key={i} style={{ marginTop: 'auto' }} src="img/dot.svg" alt="" />
         )}
       </div>
 

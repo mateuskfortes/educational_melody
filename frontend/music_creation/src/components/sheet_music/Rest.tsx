@@ -24,7 +24,7 @@ const Rest: FC<Props> = ({ rest, duration }) => {
     >
       {/* Render the note at the calculated top position */}
       <img
-        src={`public/static/img/${rest.constructor.name}.svg`}
+        src={`img/${rest.name}.svg`}
         className="note"
         style={{ top }}
       />

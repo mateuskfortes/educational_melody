@@ -19,6 +19,7 @@ export type NoteConstructorArgsTemplate = {
 }
 
 export interface NoteTemplate {
+    name: string
     note: CleanNoteType;
     octave: OctaveType;
     isSharp: boolean;
@@ -30,6 +31,7 @@ export interface NoteTemplate {
 }
 
 export interface RestTemplate {
+    name: string
     beatDuration: number;
 }
 

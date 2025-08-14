@@ -4,7 +4,7 @@ import { CleanNoteType, NoteConstructorArgsTemplate, NoteTemplate, OctaveType, R
 // Returns the beat duration including the number of dots
 const getBeatDurationWithDots = (initialBeatDuration: number, dots: number) => initialBeatDuration * (2 - 1 / Math.pow(2, dots))
 
-export class NoteBase implements NoteTemplate {
+export class NoteBase implements Omit<NoteTemplate, 'name'> {
   note: CleanNoteType;
   octave: OctaveType;
   isSharp: boolean;
@@ -43,6 +43,7 @@ export class NoteBase implements NoteTemplate {
 }
 
 export class Whole extends NoteBase implements NoteTemplate {
+  name = 'Whole'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 4;
     const dotsLimit = 5;
@@ -51,6 +52,7 @@ export class Whole extends NoteBase implements NoteTemplate {
 }
 
 export class Half extends NoteBase implements NoteTemplate {
+  name = 'Half'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 2;
     const dotsLimit = 4;
@@ -59,6 +61,7 @@ export class Half extends NoteBase implements NoteTemplate {
 }
 
 export class Quarter extends NoteBase implements NoteTemplate {
+  name = 'Quarter'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1;
     const dotsLimit = 3;
@@ -67,6 +70,7 @@ export class Quarter extends NoteBase implements NoteTemplate {
 }
 
 export class Eighth extends NoteBase implements NoteTemplate {
+  name = 'Eighth'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1 / 2;
     const dotsLimit = 2;
@@ -75,6 +79,7 @@ export class Eighth extends NoteBase implements NoteTemplate {
 }
 
 export class Sixteenth extends NoteBase implements NoteTemplate {
+  name = 'Sixteenth'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1 / 4;
     const dotsLimit = 1;
@@ -83,6 +88,7 @@ export class Sixteenth extends NoteBase implements NoteTemplate {
 }
 
 export class Thirtysecond extends NoteBase implements NoteTemplate {
+  name = 'Thirtysecond'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1 / 8;
     const dotsLimit = 0;
@@ -90,30 +96,36 @@ export class Thirtysecond extends NoteBase implements NoteTemplate {
   }
 }
 
-export class RestBase implements RestTemplate {
+export class RestBase implements Omit<RestTemplate, 'name'> {
   beatDuration = 0;
 }
 
 export class WholeRest extends RestBase implements RestTemplate {
+  name = 'WholeRest'
   beatDuration = 4;
 }
 
 export class HalfRest extends RestBase implements RestTemplate {
+  name = 'HalfRest'
   beatDuration = 2;
 }
 
 export class QuarterRest extends RestBase implements RestTemplate {
+  name = 'QuarterRest'
   beatDuration = 1;
 }
 
 export class EighthRest extends RestBase implements RestTemplate {
+  name = 'EighthRest'
   beatDuration = 1 / 2;
 }
 
 export class SixteenthRest extends RestBase implements RestTemplate {
+  name = 'SixteenthRest'
   beatDuration = 1 / 4;
 }
 
 export class ThirtysecondRest extends RestBase implements RestTemplate {
+  name = 'ThirtysecondRest'
   beatDuration = 1 / 8
 }

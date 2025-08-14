@@ -36,9 +36,9 @@ export class NoteBase implements Omit<NoteTemplate, 'name'> {
     return this.note + (this.isSharp ? '#' : '') + this.octave;
   }
 
-  play(sampler: Sampler, now: number, beat: number) {
+  play(sampler: Sampler, now: number, beat: number, extraTieDuration: number = 0) {
     sampler.triggerAttack(this.getMusicalNote(), now);
-    sampler.triggerRelease(this.getMusicalNote(), now + this.beatDuration * beat)
+    sampler.triggerRelease(this.getMusicalNote(), now + (this.beatDuration + extraTieDuration) * beat)
   }
 }
 

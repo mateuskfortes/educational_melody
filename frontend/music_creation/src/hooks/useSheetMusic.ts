@@ -93,37 +93,78 @@ const useSheetMusic = (initialState: MusicTemplate) => {
     if (running) return
     running = true
 
+    /**
+     * Retrieves the next note in the music sequence based on the given measure and note indexes.
+     *
+     * @param measureIndex - The index of the current measure in the `music.measures` array.
+     * @param noteIndex - The index of the current note within the measure's `notes` array.
+     * @returns The next note object if found, otherwise `undefined`.
+     */
     function getNextNote(measureIndex: number, noteIndex: number) {
       let next = music.measures[measureIndex].notes[noteIndex + 1]
       if (next) return next
 
-      next = music.measures[measureIndex + 1].notes[0]
+      next = music.measures[measureIndex + 1]?.notes[0]
       if (next) return next
 
       return undefined
     }
 
+    /**
+     * Calculates the total extra beat duration contributed by all tied notes
+     * starting from the given note, as well as the number of tied notes encountered.
+     *
+     * @param note - The starting note to evaluate ties from.
+     * @param measureIndex - The index of the measure where the starting note is located.
+     * @param noteIndex - The index of the note within the measure.
+     * @returns A tuple:
+     *   [ totalExtraBeatDuration, tiedNotesCount ]
+     *   - totalExtraBeatDuration: The sum of beat durations of all tied notes following the start note.
+     *   - tiedNotesCount: The number of tied notes that were counted.
+     */
+    function increaseBeatDuration(
+      note: NoteTemplate,
+      measureIndex: number,
+      noteIndex: number,
+    ) {
+      let totalExtraBeatDuration = 0
+      let tiedNotesCount = 0
+
+      do {
+        note = getNextNote(measureIndex, noteIndex) as NoteTemplate
+        if (!note) return [totalExtraBeatDuration, tiedNotesCount]
+
+        const measure = music.measures[measureIndex]
+        tiedNotesCount++
+        measureIndex++
+        noteIndex = measure.notes.length - 1 === noteIndex
+          ? 0
+          : noteIndex + 1
+        totalExtraBeatDuration += note.beatDuration
+      } while (note.isTied)
+
+      return [totalExtraBeatDuration, tiedNotesCount]
+    }
+
+
     const beat = 60 / music.bpm
     let now = Tone.now();
     let skipNotesCount = 0
-    music.measures.map((ms: MeasureTemplate, msi: number) => {
-      ms.notes.map((nc: NoteTemplate | RestTemplate, nci: number) => {
-        let ncBd: number = nc.beatDuration
-        if (nc instanceof NoteBase) {
-          if (skipNotesCount > 0) return skipNotesCount--
-          let cNote: NoteTemplate | undefined = nc
-          while (cNote.isTied) {
-            skipNotesCount++
-            cNote = getNextNote(msi, nci) as NoteTemplate
-            if (!cNote) break;
 
-            msi++
-            nci++
-            ncBd += cNote.beatDuration
+    music.measures.map((measure: MeasureTemplate, measureIndex: number) => {
+      measure.notes.map((note: NoteTemplate | RestTemplate, NoteIndex: number) => {
+        if (skipNotesCount > 0) return skipNotesCount--
+
+        let extraTiedDuration = 0
+        if (note instanceof NoteBase) {
+          if (note.isTied) {
+            const [extraBeatDuration, newSkipNotesCount] = increaseBeatDuration(note, measureIndex, NoteIndex)
+            skipNotesCount = newSkipNotesCount
+            extraTiedDuration = extraBeatDuration
           }
-          nc.play(sampler, now, beat)
+          note.play(sampler, now, beat, extraTiedDuration)
         }
-        now += beat * ncBd
+        now += beat * (note.beatDuration + extraTiedDuration)
       })
     })
 

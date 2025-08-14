@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, SixteenthRest, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
+import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
 import type { CleanNoteType, MeasureTemplate, NotesTemplate, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
 import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
 
@@ -311,6 +311,28 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
     normalizeMeasure([], ms, undefined, measureDuration);
     expect(getMsNotesDr(ms.notes)).toBe(original);
   });
+
+  it('normalize a measure with an extra thirtysecond note', () => {
+    const m1 = createMeasure(
+      new Thirtysecond({note: 'C', octave: 4}),
+      new Half({ note: 'C', octave: 4 }), 
+      new Half({ note: 'C', octave: 4 }),
+    );
+    const all = [m1]
+    normalizeMeasure(all, m1, undefined, measureDuration);
+    const dur1 = getMsNotesDr(m1.notes);
+
+    expect(dur1).toBe(measureDuration)
+    expect(m1).toEqual(createMeasure(
+      new Thirtysecond({note: 'C', octave: 4}),
+      new Half({note: 'C', octave: 4}),
+      new Quarter({note: 'C', octave: 4, isTied: true, dots:3})
+    )) 
+    expect(all.length).toBe(2)
+    expect(all[1]).toEqual(createMeasure( 
+      new Thirtysecond({ note: 'C', octave: 4 })
+    ))
+  })
 
   it('moves a note to the next measure if it overflows', () => {
     const m1 = createMeasure(new Half({ note: 'C', octave: 4 }), new Half({ note: 'D', octave: 4 }), new Quarter({ note: 'E', octave: 4 }));

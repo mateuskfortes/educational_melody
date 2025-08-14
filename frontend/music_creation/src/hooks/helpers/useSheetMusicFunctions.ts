@@ -198,6 +198,10 @@ export function normalizeMeasure(
         secondMeasure = newMs
       }
     } else {
+      if (!secondMeasure) {
+        secondMeasure = {notes: []}
+        measureList.push(secondMeasure)
+      }
       splitNote(measureDuration, popNote, firstMeasure, secondMeasure);
     }
   }

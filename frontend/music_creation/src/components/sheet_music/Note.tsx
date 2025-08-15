@@ -1,5 +1,4 @@
 import { FC } from "react";
-import { Eighth, Half, Quarter, Sixteenth, Thirtysecond, Whole } from "../../classes/notes";
 import { calculateTieWidth, getExtraDistance, getTopDistance } from "../../utils";
 import { MeasureTemplate, NoteTemplate } from "../../types/sheetMusicTemplates";
 import Tie from "./Tie";
@@ -16,17 +15,7 @@ type Props = {
 const Note: FC<Props> = ({ note, duration, measureWidth, measuresList, measureIndex, noteIndex }) => {
   const topDistance = getTopDistance(note);
 
-  let offset = 0;
-
-  // Calculate the top position for the note based on its type
-  if (note instanceof Whole) offset = 3
-  else if (note instanceof Half) offset = -35
-  else if (note instanceof Quarter) offset = -38
-  else if (note instanceof Eighth) offset = -38
-  else if (note instanceof Sixteenth) offset = -38
-  else if (note instanceof Thirtysecond) offset = -36
-
-  const top = `${topDistance + offset}%`;
+  const top = `${topDistance}%`;
   const width = `${note.beatDuration / duration * 100}%`;
 
   const [isTop, extraDistance] = getExtraDistance(note);
@@ -38,6 +27,11 @@ const Note: FC<Props> = ({ note, duration, measureWidth, measuresList, measureIn
     <div className="note_container" style={{ width }} >
       {note.isTied && <Tie top={`${topDistance + 15}%`} width={tieWidth} />}
       <div className="note" style={{ top }} >
+        {note.isSharp && (
+          <div className="sharp_box">
+            <img src="img/sharp.svg" style={{}} />
+          </div>
+        )}
         <img
           src={`img/${note.name}Note.svg`}
           className={`${note.name.toLowerCase()}_note`}

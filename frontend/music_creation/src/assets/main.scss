@@ -71,42 +71,79 @@ $barline-height: $measure-height + 2rem;
                     height: 100%;
 
                     .note {
+                        //background-color: red;
                         position: absolute;
                         left: 50%;
-                        width: calc($measure-height / 2);
-                        height: calc($measure-height / 1.04);
-                        transform: translate(-50%, -50%);
+                        transform: translate(-50%, -100%);
                         display: flex;
-                        align-items: center;
+                        align-items: end;
                         justify-content: center;
+
+                        .sharp_box {
+                            position: relative;
+                            width: calc($measure-height / 2.3);
+                            ;
+
+                            img {
+                                position: absolute;
+                                top: -$measure-height / 3.1;
+                                width: inherit;
+                            }
+                        }
+
+                        * {
+                            margin-bottom: calc($measure-height / 50)
+                        }
+
+                        .whole_note {
+                            width: calc($measure-height / 3.5);
+                        }
+
+                        .half_note {
+                            width: calc($measure-height / 3.2);
+                        }
+
+                        .quarter_note {
+                            width: calc($measure-height / 3.2);
+                        }
+
+                        .eighth_note {
+                            width: calc($measure-height / 2.1);
+                        }
+
+                        .sixteenth_note {
+                            width: calc($measure-height / 2.2);
+                        }
+
+                        .thirtysecond_note {
+                            width: calc($measure-height / 2);
+                        }
+
+                        .note_line {
+                            position: absolute;
+                            left: 50%;
+                            width: calc($measure-height / 2.7);
+                            height: $line-height;
+                            background-color: black;
+                            transform: translate(-50%, -50%);
+                        }
                     }
 
-                    .whole_note {
-                        width: calc($measure-width /2.2);
-                        height: calc($measure-height / 2.2);
+                    .rest_note {
+                        @extend .note;
+                        width: calc($measure-height / 2);
                     }
 
-                    .half_note,
-                    .quarter_note,
-                    .eighth_note,
-                    .sixteenth_note,
-                    .thirtysecond_note {
-                        width: $measure-height;
-                        height: $measure-height;
+                    .QuarterRest {
+                        width: $measure-height / 3;
                     }
 
-                    .sixteenth_note {
-                        margin-left: 20%;
-                        margin-right: auto;
+                    .EighthRest {
+                        width: $measure-height / 2.7;
                     }
 
-                    .note_line {
-                        position: absolute;
-                        left: 50%;
-                        width: calc($measure-height / 2.7);
-                        height: $line-height;
-                        background-color: black;
-                        transform: translate(-50%, -50%);
+                    .SixteenthRest {
+                        width: $measure-height / 2.2;
                     }
                 }
             }

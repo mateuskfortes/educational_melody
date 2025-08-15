@@ -12,15 +12,15 @@ const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
  * This is used for positioning notes vertically in a music sheet UI.
  * 
  * Formula explanation:
- * - Starts from a base offset (475).
- * - Subtracts an amount based on the octave (each octave shifts by 87.5).
- * - Subtracts an amount based on the note position within the octave (each note shifts by 12.5).
+ * - Starts from a base offset (487.5%).
+ * - Subtracts an amount based on the octave (each octave shifts by 87.5%).
+ * - Subtracts an amount based on the note position within the octave (each note shifts by 12.5%).
  * 
  * @param note - The note object containing `note` (name) and `octave`.
  * @returns The calculated vertical top distance for the note.
  */
 export const getTopDistance = (note: NoteTemplate) => {
-  const topDistance = 475 - note.octave * 87.5 - notes.indexOf(note.note) * 12.5;
+  const topDistance = 487.5 - note.octave * 87.5 - notes.indexOf(note.note) * 12.5;
   return topDistance;
 };
 

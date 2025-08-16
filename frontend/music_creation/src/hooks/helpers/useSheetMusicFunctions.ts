@@ -239,8 +239,7 @@ export const mergeTiesAcrossMeasures = (measureList: MeasureTemplate[]) => {
   for (const measure of measureList) {
     let mainIndex = 0
     const notes = measure.notes
-    const lastNote = notes[notes.length - 1]
-    const isLastNoteTied = lastNote instanceof NoteBase && lastNote.isTied
+    const isLastNoteTied = isNoteAndTied(notes[notes.length - 1])
 
     while (notes[mainIndex]) {
       let tieCount = 0

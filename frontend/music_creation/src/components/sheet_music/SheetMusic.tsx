@@ -78,8 +78,6 @@ const musicDefault: MusicTemplate = {
 const SheetMusic = ({ setDispatch }: { setDispatch: (ds: ActionDispatch<[action: MusicAction]>) => void }) => {
 	const { run, music, dispatch } = useSheetMusic(musicDefault)
 
-
-
 	const [measureDuration, setMeasureDuration] = useState(0)
 
 	const measureRef = useRef<HTMLDivElement>(null);
@@ -89,12 +87,16 @@ const SheetMusic = ({ setDispatch }: { setDispatch: (ds: ActionDispatch<[action:
 	const [measureWidth, setMeasureWidth] = useState(0)
 	const [measuresPerLine, setMeasuresPerLine] = useState(0)
 	const [measuresList, setMeasuresList] = useState<(MeasureTemplate[])[]>();
+	const [loading, setLoading] = useState(false)
 
 	useEffect(() => {
 		setMeasureDuration(getMeasureDurationByMeter(music.meter.top, music.meter.bottom))
 	}, [music])
 
-	useEffect(() => setDispatch(() => dispatch), [])
+	useEffect(() => setDispatch(() => (action: MusicAction) => {
+		setLoading(true)
+		dispatch(action)
+	}), [])
 
 	// Calculates the extra distance a note extends above or below the standard staff height.
 	const getMeasureStyle = (measureList: MeasureTemplate[]) => {
@@ -123,6 +125,7 @@ const SheetMusic = ({ setDispatch }: { setDispatch: (ds: ActionDispatch<[action:
 		}
 	}
 
+	useEffect(() => setLoading(false), [measuresList])
 
 	useLayoutEffect(() => {
 		if (measureRef.current && sheetMusicRef.current) {
@@ -143,7 +146,7 @@ const SheetMusic = ({ setDispatch }: { setDispatch: (ds: ActionDispatch<[action:
 	return (
 		<div className="sheet_music_container" ref={sheetMusicContainerRef}>
 			<div className="sheet_music" ref={sheetMusicRef}>
-				{measuresList ?
+				{measuresList && !loading ?
 					measuresList.map((line, lineIndex) => {
 						const measureStyle = getMeasureStyle(line)
 						return (
@@ -163,13 +166,15 @@ const SheetMusic = ({ setDispatch }: { setDispatch: (ds: ActionDispatch<[action:
 						)
 					})
 					:
-					<Measure
-						measure={music.measures[0]}
-						duration={measureDuration}
-						width={measureWidth}
-						measuresList={music.measures}
-						measureIndex={0}
-						ref={measureRef} />
+					<div className="sheet_music_row">
+						<Measure
+							measure={music.measures[0]}
+							duration={measureDuration}
+							width={measureWidth}
+							measuresList={music.measures}
+							measureIndex={0}
+							ref={measureRef} />
+					</div>
 				}
 				<button onClick={run}>run</button>
 			</div>

@@ -86,7 +86,7 @@ $barline-height: $measure-height + 2rem;
 
                             img {
                                 position: absolute;
-                                top: -$measure-height / 3.1;
+                                top: ($measure-height / -2.8);
                                 width: inherit;
                             }
                         }
@@ -135,15 +135,15 @@ $barline-height: $measure-height + 2rem;
                     }
 
                     .QuarterRest {
-                        width: $measure-height / 3;
+                        width: calc($measure-height / 3);
                     }
 
                     .EighthRest {
-                        width: $measure-height / 2.7;
+                        width: calc($measure-height / 2.7);
                     }
 
                     .SixteenthRest {
-                        width: $measure-height / 2.2;
+                        width: calc($measure-height / 2.2);
                     }
                 }
             }

@@ -14,35 +14,45 @@ type Props = {
 	width: number;
 };
 
-const Measure: FC<Props> = ({ measure, ref, duration, width, measuresList, measureIndex }) => (
-	<div className="measure" ref={ref}>
-		{/* Left vertical bar */}
-		<div className="barline_start" />
+const Measure: FC<Props> = ({ measure, ref, duration, width, measuresList, measureIndex }) => {
+	return (
+		<div className="measure" ref={ref}>
+			{/* Left vertical bar */}
+			<div className="barline_start" />
 
-		{/* Horizontal staff lines */}
-		<div className="line_area">
-			{[...Array(5)].map((_, i) => (
-				<div key={i} className="line" />
-			))}
-		</div>
+			{/* Horizontal staff lines */}
+			<div className="line_area">
+				{[...Array(5)].map((_, i) => (
+					<div key={i} className="line" />
+				))}
+			</div>
 
-		{/* Note rendering area */}
-		<div className="notes_area">
-			{measure.notes.map((note, index) => {
-				if (note instanceof NoteBase) {
-					return <Note key={index} note={note} duration={duration} measureWidth={width} measuresList={measuresList} measureIndex={measureIndex} noteIndex={index} />
+			{/* Note rendering area */}
+			<div className="notes_area">
+				{measure.notes.map((note, index) => {
+					if (note instanceof NoteBase) {
+						return <Note
+							key={index}
+							note={note}
+							duration={duration}
+							measureWidth={width}
+							measuresList={measuresList}
+							measureIndex={measureIndex}
+							noteIndex={index}
+						/>
+					}
+
+					if (note instanceof RestBase) {
+						return <Rest key={index} rest={note} duration={duration} />;
+					}
 				}
+				)}
+			</div>
 
-				if (note instanceof RestBase) {
-					return <Rest key={index} rest={note} duration={duration} />;
-				}
-			}
-			)}
+			{/* Right vertical bar */}
+			<div className="barline_end" />
 		</div>
-
-		{/* Right vertical bar */}
-		<div className="barline_end" />
-	</div>
-);
+	)
+};
 
 export default Measure;

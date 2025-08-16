@@ -136,7 +136,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
 
         const measure = music.measures[measureIndex]
         tiedNotesCount++
-        measureIndex++
+        if (music.measures[measureIndex].notes.length - 1 <= noteIndex) measureIndex++
         noteIndex = measure.notes.length - 1 === noteIndex
           ? 0
           : noteIndex + 1

@@ -143,10 +143,10 @@ export const splitNote = (
     const nextMsNotes = fillBdWithNotes(note.beatDuration - crMsDr, note.note, note.octave, note.isSharp)
     firstMeasure.notes.push(...crMsNotes);
 
-    
+
     (firstMeasure.notes[firstMeasure.notes.length - 1] as NoteTemplate).isTied = true
     if (note.isTied) nextMsNotes[0].isTied = true
-    
+
     secondMeasure?.notes.unshift(...nextMsNotes)
     return
   }
@@ -199,7 +199,7 @@ export function normalizeMeasure(
       }
     } else {
       if (!secondMeasure) {
-        secondMeasure = {notes: []}
+        secondMeasure = { notes: [] }
         measureList.push(secondMeasure)
       }
       splitNote(measureDuration, popNote, firstMeasure, secondMeasure);
@@ -234,30 +234,33 @@ export function normalizeMeasure(
  * @param measureList - Array of measures to process and merge tied notes within.
  */
 export const mergeTiesAcrossMeasures = (measureList: MeasureTemplate[]) => {
+  const isNoteAndTied = (note: NotesTemplate) => note instanceof NoteBase && note.isTied
+
   for (const measure of measureList) {
+    let mainIndex = 0
     const notes = measure.notes
-    for (const [i, note] of notes.entries()) {
-      if (note instanceof NoteBase
-        && note.isTied
-        && i < notes.length - 1 // Check if the note is not the last one
-      ) {
-        let popCount = 2
-        notes.forEach((iNote, ni) => {
-          if (ni > i && ni < notes.length - 1 && (iNote as NoteTemplate).isTied) popCount++
-        })
+    const lastNote = notes[notes.length - 1]
+    const isLastNoteTied = lastNote instanceof NoteBase && lastNote.isTied
 
-        let isLastNoteTied = false
-        if (i + popCount === notes.length) {
-          isLastNoteTied = (notes[notes.length - 1] as NoteTemplate).isTied
-        }
+    while (notes[mainIndex]) {
+      let tieCount = 0
+      for (tieCount; isNoteAndTied(notes[mainIndex + tieCount]); tieCount++);
 
-        const tiedNotes = notes.splice(i, popCount)
-
-        const newNotes = fillBdWithNotes(getMsNotesDr(tiedNotes), note.note, note.octave, note.isSharp)
-
-        notes.splice(i, 0, ...newNotes);
-        if (isLastNoteTied) (notes[notes.length - 1] as NoteTemplate).isTied = true
+      if (tieCount === 0) {
+        mainIndex++
+        continue
       }
+
+      const note = notes[mainIndex] as NoteTemplate
+      const tiedNotes = notes.splice(mainIndex, tieCount + 1)
+      const newNotes = fillBdWithNotes(getMsNotesDr(tiedNotes), note.note, note.octave, note.isSharp)
+      notes.splice(mainIndex, 0, ...newNotes);
+
+      mainIndex += newNotes.length
+    }
+
+    if (isLastNoteTied) {
+      (notes[notes.length - 1] as NoteTemplate).isTied = true
     }
   }
 }

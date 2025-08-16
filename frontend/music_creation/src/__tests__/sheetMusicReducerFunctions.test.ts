@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
+import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
 import type { CleanNoteType, MeasureTemplate, NotesTemplate, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
 import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
 
@@ -251,6 +251,33 @@ describe('splitNote with dotted notes (Whole = 4.0)', () => {
 });
 
 describe('mergeTiesAcrossMeasures (Whole = 4.0)', () => {
+  it('Should merge multiple ties across measures', () => {
+    const measures = [
+      createMeasure(
+        new Thirtysecond({ note: 'C', octave: 5, isTied: true }),
+        new Thirtysecond({ note: 'C', octave: 5 }),
+        new Thirtysecond({ note: 'C', octave: 5, isTied: true }),
+        new Sixteenth({ note: 'C', octave: 5 }),
+        new Eighth({ note: 'C', octave: 5, isTied: true }),
+        new Eighth({ note: 'C', octave: 5, isTied: true }),
+        new Eighth({ note: 'C', octave: 5 }),
+        new Thirtysecond({ note: 'C', octave: 5 }),
+        new Thirtysecond({ note: 'C', octave: 5, isTied: true }),
+        new Thirtysecond({ note: 'C', octave: 5, isTied: true })
+      ),
+    ]
+
+    mergeTiesAcrossMeasures(measures)
+
+    expect(measures[0]).toEqual(createMeasure(
+      new Sixteenth({ note: 'C', octave: 5 }),
+      new Sixteenth({ note: 'C', octave: 5, dots: 1 }),
+      new Quarter({ note: 'C', octave: 5, dots: 1 }),
+      new Thirtysecond({ note: 'C', octave: 5 }),
+      new Sixteenth({ note: 'C', octave: 5, isTied: true })
+    ))
+  })
+
   it('Should merge ties across measures', () => {
     const measures = [
       createMeasure(
@@ -314,8 +341,8 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
 
   it('normalize a measure with an extra thirtysecond note', () => {
     const m1 = createMeasure(
-      new Thirtysecond({note: 'C', octave: 4}),
-      new Half({ note: 'C', octave: 4 }), 
+      new Thirtysecond({ note: 'C', octave: 4 }),
+      new Half({ note: 'C', octave: 4 }),
       new Half({ note: 'C', octave: 4 }),
     );
     const all = [m1]
@@ -324,12 +351,12 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
 
     expect(dur1).toBe(measureDuration)
     expect(m1).toEqual(createMeasure(
-      new Thirtysecond({note: 'C', octave: 4}),
-      new Half({note: 'C', octave: 4}),
-      new Quarter({note: 'C', octave: 4, isTied: true, dots:3})
-    )) 
+      new Thirtysecond({ note: 'C', octave: 4 }),
+      new Half({ note: 'C', octave: 4 }),
+      new Quarter({ note: 'C', octave: 4, isTied: true, dots: 3 })
+    ))
     expect(all.length).toBe(2)
-    expect(all[1]).toEqual(createMeasure( 
+    expect(all[1]).toEqual(createMeasure(
       new Thirtysecond({ note: 'C', octave: 4 })
     ))
   })
@@ -456,7 +483,6 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
     const all = [measure]
     normalizeMeasure(all, measure, undefined, measureDuration)
 
-    console.log(measure)
     expect(measure).toEqual(createMeasure(
       new Quarter({ note: 'C', octave: 4, dots: 1 }),
       new Half({ note: 'C', octave: 4 }),

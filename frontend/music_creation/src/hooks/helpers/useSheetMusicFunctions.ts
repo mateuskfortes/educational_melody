@@ -5,6 +5,7 @@ import { CleanNoteType, MeasureTemplate, NoteConstructorTemplate, NotesTemplate,
 export const getMsNotesDr = (notes: NotesTemplate[]): number => {
   return notes.reduce((acc, note) => acc + note.beatDuration, 0)
 }
+
 /**
  * Returns the largest possible note (including dotted versions) 
  * that fits within the given beat duration.
@@ -47,6 +48,7 @@ export const getMaxFittingNote = (
   }
   throw new Error("No fitting note found");
 };
+
 /**
  * Returns the largest possible rest that fits within the given beat duration.
  *
@@ -73,6 +75,7 @@ export const getMaxFittingRest = (beatDuration: number): RestTemplate => {
 
   throw new Error('No fitting rest found');
 };
+
 /**
  * Returns a list of notes that fit within the given beat duration.
  *
@@ -99,6 +102,7 @@ export const fillBdWithNotes = (
 
   return notes;
 };
+
 /**
  * Returns a list of rests that exactly fill the given beat duration.
  * It selects the largest possible rests
@@ -145,7 +149,7 @@ export const splitNote = (
 
 
     (firstMeasure.notes[firstMeasure.notes.length - 1] as NoteTemplate).isTied = true
-    if (note.isTied) nextMsNotes[0].isTied = true
+    if (note.isTied) nextMsNotes[nextMsNotes.length - 1].isTied = true
 
     secondMeasure?.notes.unshift(...nextMsNotes)
     return
@@ -156,6 +160,7 @@ export const splitNote = (
   firstMeasure.notes.push(...crMsRests);
   secondMeasure?.notes.unshift(...nextMsRests)
 }
+
 /**
  * Normalizes the current measure to ensure its total duration matches the allowed measure duration.
  *

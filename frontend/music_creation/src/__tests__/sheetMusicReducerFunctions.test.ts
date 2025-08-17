@@ -170,7 +170,27 @@ describe('fillBdWithRests (WholeRest = 4.0)', () => {
   });
 });
 
-describe('splitNote with dotted notes (Whole = 4.0)', () => {
+describe('splitNote (Whole = 4.0)', () => {
+  it('splits a tied note', () => {
+    const quarterNote = new Quarter(({ note: 'C', octave: 5, isTied: true }))
+
+    const m1 = createMeasure(new Eighth({ note: 'C', octave: 5 }), new Thirtysecond({ note: 'C', octave: 5 }))
+    const m2 = createMeasure(new Sixteenth({ note: 'C', octave: 5, dots: 1 }))
+
+    splitNote(1, quarterNote, m1, m2)
+
+    expect(m1).toEqual(createMeasure(
+      new Eighth({ note: 'C', octave: 5 }),
+      new Thirtysecond({ note: 'C', octave: 5 }),
+      new Sixteenth({ note: 'C', octave: 5, dots: 1, isTied: true })
+    ))
+    expect(m2).toEqual(createMeasure(
+      new Eighth({ note: 'C', octave: 5, isTied: true }),
+      new Thirtysecond({ note: 'C', octave: 5, isTied: true }),
+      new Sixteenth({ note: 'C', octave: 5, dots: 1 })
+    ))
+  })
+
   it('splits a dotted half (3.0) with only 1.0 space in first measure', () => {
     const measureDuration = 4.0;
     const dottedHalf = new Half({ note: 'D', octave: 4, dots: 1 }); // 3.0

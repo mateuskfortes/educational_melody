@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { sheetMusicReducer } from '../hooks/useSheetMusic'
-import { Whole, Quarter, QuarterRest, Half, HalfRest, RestBase, WholeRest } from '../classes/notes'
+import { Whole, Quarter, QuarterRest, Half, HalfRest } from '../classes/notes'
 import type { MusicTemplate, NotesTemplate, NoteTemplate } from '../types/sheetMusicTemplates'
 import * as SheetMusicFunctions from '../hooks/helpers/useSheetMusicFunctions'
 
@@ -152,16 +152,16 @@ describe('sheetMusicReducer - REMOVE_NOTE', () => {
 
     const state = sheetMusicReducer(initial, action);
 
+    expect(state.measures.length).toBe(1)
     expect(state.measures[0].notes).toEqual([
       new Half({ note: 'C', octave: 4 }),
       new Quarter({ note: 'E', octave: 4 }),
       new Quarter({ note: 'F', octave: 4 })
     ]);
-    expect(state.measures[1].notes.every(n => n instanceof RestBase)).toBe(true);
   });
 
-  it('clears measure and fills it with rests', () => {
-    const initial = createMusicTemplate([[new Whole({ note: 'C', octave: 4 })]]);
+  it('clears measure', () => {
+    const initial = createMusicTemplate([[new Whole({ note: 'C', octave: 4 })], [new Whole({ note: 'C', octave: 5 })]]);
 
     const action = {
       type: 'REMOVE_NOTE',
@@ -170,6 +170,7 @@ describe('sheetMusicReducer - REMOVE_NOTE', () => {
 
     const state = sheetMusicReducer(initial, action);
 
-    expect(state.measures[0].notes).toEqual([new WholeRest()]);
+    expect(state.measures.length).toBe(1)
+    expect(state.measures[0].notes).toEqual([new Whole({ note: 'C', octave: 5 })]);
   });
 });

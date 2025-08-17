@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
 import type { CleanNoteType, MeasureTemplate, NotesTemplate, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
-import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
+import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
 
 const note: CleanNoteType = 'C';
 const octave: OctaveType = 4;
@@ -327,6 +327,51 @@ describe('mergeTiesAcrossMeasures (Whole = 4.0)', () => {
     expect(measures[1]).toEqual(createMeasure(new Whole({ note: 'C', octave: 4 })))
   })
 
+})
+
+describe('mergeRestsAcrossMeasures (Whole = 4.0)', () => {
+  it('should not pop a measure that is not at the end of the sheet music', () => {
+    const measures = [
+      createMeasure(new HalfRest(), new HalfRest()),
+      createMeasure(new Whole({ note: 'C', octave: 5 })),
+      createMeasure(new HalfRest(), new HalfRest()),
+      createMeasure(new HalfRest(), new QuarterRest(), new QuarterRest()),
+    ]
+
+    mergeRestsAcrossMeasures(measures)
+
+    expect(measures.length).toBe(2)
+    expect(measures[0]).toEqual(createMeasure(new WholeRest()))
+    expect(measures[1]).toEqual(createMeasure(new Whole({ note: 'C', octave: 5 })))
+  })
+
+  it('should pop the final measures if they are composed only of rests', () => {
+    const measures = [
+      createMeasure(new Whole({ note: 'C', octave: 5 })),
+      createMeasure(new HalfRest(), new HalfRest()),
+      createMeasure(new HalfRest(), new QuarterRest(), new QuarterRest()),
+    ]
+
+    mergeRestsAcrossMeasures(measures)
+
+    expect(measures.length).toBe(1)
+    expect(measures[0]).toEqual(createMeasure(new Whole({ note: 'C', octave: 5 })))
+  })
+
+  it('should merge rests', () => {
+    const measures = [
+      createMeasure(new HalfRest(), new HalfRest()),
+      createMeasure(new HalfRest(), new QuarterRest(), new QuarterRest()),
+      createMeasure(new Whole({ note: 'C', octave: 5 }))
+    ]
+
+    mergeRestsAcrossMeasures(measures)
+
+    expect(measures.length).toBe(3)
+    expect(measures[0]).toEqual(createMeasure(new WholeRest()))
+    expect(measures[1]).toEqual(createMeasure(new WholeRest()))
+    expect(measures[2]).toEqual(createMeasure(new Whole({ note: 'C', octave: 5 })))
+  })
 })
 
 describe('normalizeMeasure (Whole = 4.0)', () => {

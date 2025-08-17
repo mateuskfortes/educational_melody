@@ -198,7 +198,7 @@ export function normalizeMeasure(
         secondMeasure = newMs
       }
     } else {
-      if (!secondMeasure) {
+      if (!secondMeasure && !(popNote instanceof RestBase)) {
         secondMeasure = { notes: [] }
         measureList.push(secondMeasure)
       }
@@ -222,6 +222,7 @@ export function normalizeMeasure(
 
   normalizeMeasure(measureList, firstMeasure, secondMeasure, measureDuration);
 }
+
 /**
  * Merges sequences of tied notes within each measure into fewer notes.
  *
@@ -260,6 +261,47 @@ export const mergeTiesAcrossMeasures = (measureList: MeasureTemplate[]) => {
 
     if (isLastNoteTied) {
       (notes[notes.length - 1] as NoteTemplate).isTied = true
+    }
+  }
+}
+
+/**
+ * Merges consecutive rests within and across measures into fewer rests.
+ *
+ * - Iterates through all measures, starting from the last going backwards.
+ * - Detects consecutive sequences of rests.
+ * - If the final measure contains only rests, it is removed entirely.
+ * - Combines consecutive rests into the smallest possible number of rests
+ *   that represent the same total duration (may be more than one rest).
+ *
+ * @param measureList - Array of measures to process and merge rests within.
+ */
+export const mergeRestsAcrossMeasures = (measureList: MeasureTemplate[]) => {
+  let isFinalMeasure = true
+
+  for (const measure of measureList.slice().reverse()) {
+    let mainIndex = 0
+    const notes = measure.notes
+
+    while (notes[mainIndex]) {
+      let restCount = 0
+      for (restCount; notes[mainIndex + restCount] instanceof RestBase; restCount++);
+
+      if (isFinalMeasure && restCount === notes.length) {
+        measureList.pop()
+        break;
+      } else isFinalMeasure = false
+
+      if (restCount === 0) {
+        mainIndex++
+        continue;
+      }
+
+      const restNotes = notes.splice(mainIndex, restCount)
+      const newRests = fillBdWithRests(getMsNotesDr(restNotes))
+      notes.splice(mainIndex, 0, ...newRests)
+
+      mainIndex += newRests.length
     }
   }
 }

@@ -3,7 +3,7 @@ import Note from "./Note";
 import Rest from "./Rest";
 import { MeasurePropsTemplate } from "../../types/ComponentsPropsTypes";
 
-const Measure = ({ measure, ref, measureIndex }: MeasurePropsTemplate) => {
+const Measure = ({ measure, ref, sheetMusicIndex, measureIndex }: MeasurePropsTemplate) => {
 	return (
 		<div className="measure" ref={ref}>
 			{/* Left vertical bar */}
@@ -23,13 +23,20 @@ const Measure = ({ measure, ref, measureIndex }: MeasurePropsTemplate) => {
 						return <Note
 							key={noteIndex}
 							note={note}
+							sheetMusicIndex={sheetMusicIndex}
 							measureIndex={measureIndex}
 							noteIndex={noteIndex}
 						/>
 					}
 
 					else if (note instanceof RestBase) {
-						return <Rest key={noteIndex} rest={note} />;
+						return <Rest
+							key={noteIndex}
+							rest={note}
+							sheetMusicIndex={sheetMusicIndex}
+							measureIndex={measureIndex}
+							noteIndex={noteIndex}
+						/>;
 					}
 				}
 				)}

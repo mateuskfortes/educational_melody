@@ -2,8 +2,11 @@ import { calculateTieWidth, getExtraDistance, getTopDistance } from "../../utils
 import Tie from "./Tie";
 import { NotePropsTemplate } from "../../types/ComponentsPropsTypes";
 import { useSheetMusicContext } from "../../hooks/useSheetMusicContext";
+import { useSheetMusicLibraryContext } from "../../hooks/useSheetMusicLibraryContext";
+import { NoteBase } from "../../classes/notes";
 
-const Note = ({ note, measureIndex, noteIndex }: NotePropsTemplate) => {
+const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTemplate) => {
+  const { sheetMusicList, selectedNote } = useSheetMusicLibraryContext()
   const { measureDuration, measureWidth, measuresList } = useSheetMusicContext()
 
   if (noteIndex > measuresList[measureIndex].notes.length - 1) return <></> // Prevent render bugs
@@ -18,8 +21,21 @@ const Note = ({ note, measureIndex, noteIndex }: NotePropsTemplate) => {
   const extraLines = Math.floor(extraDistance / 25);
 
   const tieWidth = calculateTieWidth(measureWidth, measureDuration, measuresList, measureIndex, noteIndex)
+
+  function insertNote() {
+    if (selectedNote
+      && selectedNote instanceof NoteBase
+      && sheetMusicList[sheetMusicIndex]
+      && sheetMusicList[sheetMusicIndex].dispatch
+    ) {
+      sheetMusicList[sheetMusicIndex].dispatch({
+        type: "ADD_NOTE",
+        payload: { note: selectedNote, measureIndex, noteIndex }
+      })
+    }
+  }
   return (
-    <div className="note_container" style={{ width }} >
+    <div onClick={insertNote} className="note_container_on_insert" style={{ width }} >
       {note.isTied && <Tie top={`${topDistance + 15}%`} width={tieWidth} />}
       <div className="note" style={{ top }} >
         {note.isSharp && (

@@ -1,7 +1,7 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { CleanNoteType, OctaveType } from "../types/sheetMusicTemplates"
 import { Whole, Half, Quarter, Eighth, Sixteenth, Thirtysecond } from "../classes/notes"
-import { useSheetMusicLibraryContext } from "../hooks/useSheetMusicLibrary";
+import { useSheetMusicLibraryContext } from "../hooks/useSheetMusicLibraryContext";
 
 const noteClasses = {
   whole: Whole,
@@ -15,7 +15,7 @@ const noteClasses = {
 type NoteTypeKey = keyof typeof noteClasses;
 
 const InsertNoteForm = () => {
-  const { sheetMusicList, addSheetMusic, runAll } = useSheetMusicLibraryContext()
+  const { sheetMusicList, addSheetMusic, runAll, selectNote } = useSheetMusicLibraryContext()
 
   const [note, setNote] = useState<CleanNoteType>("C");
   const [octave, setOctave] = useState<OctaveType>(5);
@@ -39,6 +39,12 @@ const InsertNoteForm = () => {
         payload: { note: noteObj, measureIndex, noteIndex }
       })
   }
+
+  useEffect(() => {
+    const NoteClass = noteClasses[noteType];
+    const noteObj = new NoteClass({ note, octave, isSharp, dots, isTied });
+    selectNote(noteObj)
+  }, [note, octave, isSharp, dots, isTied, noteType])
 
   return (
     <>

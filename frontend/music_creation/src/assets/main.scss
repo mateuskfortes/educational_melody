@@ -147,6 +147,24 @@ $barline-height: $measure-height + 2rem;
                         width: calc($measure-height / 2.2);
                     }
                 }
+
+                .note_container_on_insert {
+                    @extend .note_container;
+                }
+
+                .note_container_on_insert::before {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 0;
+                    height: 100%;
+                    background: limegreen;
+                }
+
+                .note_container_on_insert:hover::before {
+                    width: 4px;
+                }
             }
         }
     }

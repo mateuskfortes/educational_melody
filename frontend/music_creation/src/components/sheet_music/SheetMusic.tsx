@@ -6,7 +6,7 @@ import { useSheetMusicLayout } from "../../hooks/useSheetMusicLayout";
 import { SheetMusicPropsTemplate } from "../../types/ComponentsPropsTypes";
 import SheetMusicContext from "../../hooks/useSheetMusicContext";
 
-const SheetMusic = ({ initMusic, setRunAndDispatch }: SheetMusicPropsTemplate) => {
+const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusicPropsTemplate) => {
 	const { run, music, dispatch } = useSheetMusic(initMusic);
 	const [measureDuration, setMeasureDuration] = useState(0);
 
@@ -37,6 +37,7 @@ const SheetMusic = ({ initMusic, setRunAndDispatch }: SheetMusicPropsTemplate) =
 								<Measure
 									key={`${lineIndex}-${measureIndex}`}
 									measure={measure}
+									sheetMusicIndex={sheetMusicIndex}
 									measureIndex={lineIndex * measuresPerLine + measureIndex}
 									ref={measureRef}
 								/>

@@ -1,82 +1,20 @@
 import { MeasureTemplate, MusicAction, MusicTemplate } from "../../types/sheetMusicTemplates";
 import Measure from "./Measure"
-import { Eighth, Quarter, EighthRest, NoteBase } from "../../classes/notes";
+import { NoteBase } from "../../classes/notes";
 import { ActionDispatch, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getExtraDistance, getMeasureDurationByMeter } from "../../utils";
 import useSheetMusic from "../../hooks/useSheetMusic";
 
-const musicDefault: MusicTemplate = {
-	meter: {
-		top: 2,
-		bottom: 4,
-	},
-	bpm: 120,
-	measures: [
-		{
-			notes: [
-				new EighthRest(),
-				new Eighth({ note: 'C', octave: 5, isSharp: false, isTied: false, dots: 0 }),
-				new Eighth({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'E', octave: 5 }),
-			],
-		},
-		{
-			notes: [
-				new Quarter({ note: 'F', octave: 5 }),
-				new Eighth({ note: 'F', octave: 5 }),
-				new Eighth({ note: 'F', octave: 5 }),
-			],
-		},
-		{
-			notes: [
-				new EighthRest(),
-				new Eighth({ note: 'C', octave: 5 }),
-				new Eighth({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'C', octave: 5 }),
-			]
-		},
-		{
-			notes: [
-				new Quarter({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'D', octave: 5 }),
-			]
-		},
-		{
-			notes: [
-				new EighthRest(),
-				new Eighth({ note: 'C', octave: 5 }),
-				new Eighth({ note: 'G', octave: 5 }),
-				new Eighth({ note: 'F', octave: 5 }),
-			],
-		},
-		{
-			notes: [
-				new Quarter({ note: 'E', octave: 5 }),
-				new Eighth({ note: 'E', octave: 5 }),
-				new Eighth({ note: 'E', octave: 5 }),
-			],
-		},
-		{
-			notes: [
-				new EighthRest(),
-				new Eighth({ note: 'C', octave: 5 }),
-				new Eighth({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'E', octave: 5 }),
-			],
-		},
-		{
-			notes: [
-				new Quarter({ note: 'F', octave: 5 }),
-				new Eighth({ note: 'F', octave: 5 }),
-				new Eighth({ note: 'F', octave: 5 }),
-			],
-		},
-	],
+type PropsTemplate = {
+	initMusic: MusicTemplate,
+	setRunAndDispatch: (run: () => void, dispatch: ActionDispatch<[action: MusicAction]>) => void
 }
 
-const SheetMusic = ({ setDispatch }: { setDispatch: (ds: ActionDispatch<[action: MusicAction]>) => void }) => {
-	const { run, music, dispatch } = useSheetMusic(musicDefault)
+const SheetMusic = ({
+	initMusic,
+	setRunAndDispatch
+}: PropsTemplate) => {
+	const { run, music, dispatch } = useSheetMusic(initMusic)
 
 	const [measureDuration, setMeasureDuration] = useState(0)
 
@@ -93,10 +31,9 @@ const SheetMusic = ({ setDispatch }: { setDispatch: (ds: ActionDispatch<[action:
 		setMeasureDuration(getMeasureDurationByMeter(music.meter.top, music.meter.bottom))
 	}, [music])
 
-	useEffect(() => setDispatch(() => (action: MusicAction) => {
-		setLoading(true)
-		dispatch(action)
-	}), [])
+	useEffect(() => {
+		setRunAndDispatch(run, dispatch)
+	}, [])
 
 	// Calculates the extra distance a note extends above or below the standard staff height.
 	const getMeasureStyle = (measureList: MeasureTemplate[]) => {

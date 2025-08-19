@@ -86,7 +86,7 @@ $barline-height: $measure-height + 2rem;
 
                             img {
                                 position: absolute;
-                                top: ($measure-height / -2.8);
+                                top: calc($measure-height / -2.8);
                                 width: inherit;
                             }
                         }

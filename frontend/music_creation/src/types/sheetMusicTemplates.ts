@@ -1,3 +1,4 @@
+import { ActionDispatch } from "react";
 import { Sampler } from "tone";
 
 export type OctaveType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
@@ -77,3 +78,14 @@ export type RemoveNoteAction = {
 }
 
 export type MusicAction = AddNoteAction | RemoveNoteAction;
+
+export type SheetMusicItem = {
+    music: MusicTemplate,
+    run?: (() => void),
+    dispatch?: ActionDispatch<[action: MusicAction]>
+}
+
+export type MusicContextType = {
+    sheetMusicList: SheetMusicItem[]
+    addSheetMusic: () => void
+}

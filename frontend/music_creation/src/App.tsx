@@ -1,10 +1,9 @@
 import SheetMusic from "./components/sheet_music/SheetMusic";
 import './assets/main.scss';
 import InsertNoteForm from "./components/InsertNoteForm";
-import { createContext, useState } from "react";
-import { MusicContextType, MusicTemplate, SheetMusicItem } from "./types/sheetMusicTemplates";
+import { ActionDispatch, createContext, useState } from "react";
+import { MusicAction, MusicContextType, MusicTemplate, SheetMusicItem } from "./types/sheetMusicTemplates";
 import { Eighth, EighthRest, Quarter, Whole } from "./classes/notes";
-
 
 const musicDefault: MusicTemplate = {
 	meter: {
@@ -76,7 +75,6 @@ const musicDefault: MusicTemplate = {
 	],
 }
 
-
 export const MusicContext = createContext<MusicContextType>({
 	sheetMusicList: [] as SheetMusicItem[],
 	addSheetMusic: () => undefined
@@ -108,7 +106,7 @@ function App() {
 				<SheetMusic
 					key={index}
 					initMusic={sheetMusic.music}
-					setRunAndDispatch={(run, dispatch) => {
+					setRunAndDispatch={(run: () => void, dispatch: ActionDispatch<[action: MusicAction]>) => {
 						setSheetMusicList(prev => {
 							const newList = [...prev]
 							newList[index] = {

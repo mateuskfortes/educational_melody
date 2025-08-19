@@ -119,14 +119,15 @@ $barline-height: $measure-height + 2rem;
                             width: calc($measure-height / 2);
                         }
 
-                        .note_line {
-                            position: absolute;
-                            left: 50%;
-                            width: calc($measure-height / 2.7);
-                            height: $line-height;
-                            background-color: black;
-                            transform: translate(-50%, -50%);
-                        }
+                    }
+
+                    .note_line {
+                        position: absolute;
+                        left: 50%;
+                        width: calc($measure-height / 2.7);
+                        height: $line-height;
+                        background-color: black;
+                        transform: translate(-50%, -50%);
                     }
 
                     .rest_note {

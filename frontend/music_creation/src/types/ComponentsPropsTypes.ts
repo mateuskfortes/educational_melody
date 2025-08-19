@@ -1,12 +1,15 @@
 import { ActionDispatch } from "react";
 import { MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RestTemplate } from "./sheetMusicTemplates";
 
+export type SheetMusicSetRunAndDispatchArgs = {
+  music: MusicTemplate,
+  run: () => void,
+  dispatch: ActionDispatch<[action: MusicAction]>
+}
+
 export type SheetMusicPropsTemplate = {
   initMusic: MusicTemplate;
-  setRunAndDispatch: (
-    run: () => void,
-    dispatch: ActionDispatch<[action: MusicAction]>
-  ) => void;
+  setRunAndDispatch: (args: SheetMusicSetRunAndDispatchArgs) => void;
 };
 
 export type MeasurePropsTemplate = {

@@ -11,13 +11,10 @@ const SheetMusic = ({ initMusic, setRunAndDispatch }: SheetMusicPropsTemplate) =
 	const [measureDuration, setMeasureDuration] = useState(0);
 
 	useEffect(() => {
-		setRunAndDispatch(run, dispatch);
-	}, []);
-
-	useEffect(() => {
 		setMeasureDuration(
 			getMeasureDurationByMeter(music.meter.top, music.meter.bottom)
 		);
+		setRunAndDispatch({ music, run, dispatch })
 	}, [music]);
 
 	const { measureRef, sheetMusicRef, measureWidth, measuresPerLine, lines } =

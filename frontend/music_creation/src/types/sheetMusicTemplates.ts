@@ -88,6 +88,7 @@ export type SheetMusicItem = {
 export type MusicContextType = {
     sheetMusicList: SheetMusicItem[]
     addSheetMusic: () => void
+    runAll: () => void
 }
 
 export type SheetMusicContextType = {

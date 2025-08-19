@@ -1,8 +1,8 @@
 import SheetMusic from "./components/sheet_music/SheetMusic";
 import './assets/main.scss';
 import InsertNoteForm from "./components/InsertNoteForm";
-import { ActionDispatch, useState } from "react";
-import { MusicAction, MusicTemplate, SheetMusicItem } from "./types/sheetMusicTemplates";
+import { useState } from "react";
+import { MusicTemplate, SheetMusicItem } from "./types/sheetMusicTemplates";
 import { Eighth, EighthRest, Quarter, Whole } from "./classes/notes";
 import SheetMusicLibraryContext from "./hooks/useSheetMusicLibrary";
 
@@ -96,20 +96,24 @@ function App() {
 		])
 	}
 
+	function runAll() {
+		sheetMusicList.map(sheetMusic => {
+			sheetMusic.run?.(); console.log('oi')
+		})
+	}
+
 	return (
-		<SheetMusicLibraryContext.Provider value={{ sheetMusicList, addSheetMusic }}>
+		<SheetMusicLibraryContext.Provider value={{ sheetMusicList, addSheetMusic, runAll }}>
 			{sheetMusicList.map((sheetMusic: SheetMusicItem, index: number) =>
 				<SheetMusic
 					key={index}
 					initMusic={sheetMusic.music}
-					setRunAndDispatch={(run: () => void, dispatch: ActionDispatch<[action: MusicAction]>) => {
+					setRunAndDispatch={({ music, run, dispatch }) => {
 						setSheetMusicList(prev => {
 							const newList = [...prev]
-							newList[index] = {
-								...newList[index],
-								run,
-								dispatch
-							}
+							if (music) newList[index].music = music
+							if (run) newList[index].run = run
+							if (dispatch) newList[index].dispatch = dispatch
 							return newList
 						})
 					}}

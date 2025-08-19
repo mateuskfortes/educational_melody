@@ -6,6 +6,8 @@ import { useSheetMusicContext } from "../../hooks/useSheetMusicContext";
 const Note = ({ note, measureIndex, noteIndex }: NotePropsTemplate) => {
   const { measureDuration, measureWidth, measuresList } = useSheetMusicContext()
 
+  if (noteIndex > measuresList[measureIndex].notes.length - 1) return <></> // Prevent render bugs
+
   const topDistance = getTopDistance(note);
 
   const top = `${topDistance}%`;

@@ -15,21 +15,23 @@ const noteClasses = {
 type NoteTypeKey = keyof typeof noteClasses;
 
 const InsertNoteForm = () => {
-  const { sheetMusicList, addSheetMusic } = useSheetMusicLibraryContext()
+  const { sheetMusicList, addSheetMusic, runAll } = useSheetMusicLibraryContext()
 
   const [note, setNote] = useState<CleanNoteType>("C");
   const [octave, setOctave] = useState<OctaveType>(5);
+  const [isSharp, setIsSharp] = useState<boolean>(false)
+  const [dots, setDots] = useState<number>(0)
+  const [isTied, setIsTied] = useState<boolean>(false)
   const [sheetMusicIndex, setSheetMusicIndex] = useState(0)
   const [measureIndex, setMeasureIndex] = useState(0);
   const [noteIndex, setNoteIndex] = useState(0);
   const [noteType, setNoteType] = useState<NoteTypeKey>("eighth");
-  const [isSharp, setIsSharp] = useState<boolean>(false)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     const NoteClass = noteClasses[noteType];
-    const noteObj = new NoteClass({ note, octave, isSharp });
+    const noteObj = new NoteClass({ note, octave, isSharp, dots, isTied });
 
     if (sheetMusicList[sheetMusicIndex] && sheetMusicList[sheetMusicIndex].dispatch)
       sheetMusicList[sheetMusicIndex].dispatch({
@@ -59,6 +61,27 @@ const InsertNoteForm = () => {
           value={octave}
           onChange={e => setOctave(Number(e.target.value) as OctaveType)}
           placeholder="Oitava"
+        />
+
+        <input
+          type="number"
+          min={0}
+          max={new noteClasses[noteType]({ note, octave }).dotsLimit}
+          value={dots}
+          onChange={e => setDots(Number(e.target.value) as OctaveType)}
+          placeholder="Pontos de aumento"
+        />
+
+        <input
+          type="checkbox"
+          checked={isSharp}
+          onChange={e => setIsSharp(e.target.checked)}
+        />
+
+        <input
+          type="checkbox"
+          checked={isTied}
+          onChange={e => setIsTied(e.target.checked)}
         />
 
         <select value={noteType} onChange={e => setNoteType(e.target.value as NoteTypeKey)}>
@@ -91,15 +114,11 @@ const InsertNoteForm = () => {
           onChange={e => setNoteIndex(Number(e.target.value))}
           placeholder="Índice da nota"
         />
-        <input
-          type="checkbox"
-          checked={isSharp}
-          onChange={e => setIsSharp(e.target.checked)}
-        />
 
         <button type="submit">Adicionar</button>
       </form>
       <button onClick={addSheetMusic}>adicionar partitura</button>
+      <button onClick={runAll}>Tocar tudo</button>
     </>
   )
 }

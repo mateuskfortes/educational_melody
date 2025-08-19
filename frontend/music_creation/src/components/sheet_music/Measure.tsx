@@ -1,20 +1,9 @@
-// Measure.tsx
-import { FC } from "react";
-import { MeasureTemplate } from "../../types/sheetMusicTemplates";
 import { NoteBase, RestBase } from "../../classes/notes";
 import Note from "./Note";
 import Rest from "./Rest";
+import { MeasurePropsTemplate } from "../../types/ComponentsPropsTypes";
 
-type Props = {
-	measure: MeasureTemplate;
-	ref: React.RefObject<HTMLDivElement | null>;
-	duration: number;
-	measuresList: MeasureTemplate[];
-	measureIndex: number;
-	width: number;
-};
-
-const Measure: FC<Props> = ({ measure, ref, duration, width, measuresList, measureIndex }) => {
+const Measure = ({ measure, ref, measureIndex }: MeasurePropsTemplate) => {
 	return (
 		<div className="measure" ref={ref}>
 			{/* Left vertical bar */}
@@ -29,21 +18,18 @@ const Measure: FC<Props> = ({ measure, ref, duration, width, measuresList, measu
 
 			{/* Note rendering area */}
 			<div className="notes_area">
-				{measure.notes.map((note, index) => {
+				{measure.notes.map((note, noteIndex) => {
 					if (note instanceof NoteBase) {
 						return <Note
-							key={index}
+							key={noteIndex}
 							note={note}
-							duration={duration}
-							measureWidth={width}
-							measuresList={measuresList}
 							measureIndex={measureIndex}
-							noteIndex={index}
+							noteIndex={noteIndex}
 						/>
 					}
 
-					if (note instanceof RestBase) {
-						return <Rest key={index} rest={note} duration={duration} />;
+					else if (note instanceof RestBase) {
+						return <Rest key={noteIndex} rest={note} />;
 					}
 				}
 				)}

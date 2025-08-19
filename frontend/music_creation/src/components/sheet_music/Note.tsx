@@ -1,28 +1,21 @@
-import { FC } from "react";
 import { calculateTieWidth, getExtraDistance, getTopDistance } from "../../utils";
-import { MeasureTemplate, NoteTemplate } from "../../types/sheetMusicTemplates";
 import Tie from "./Tie";
+import { NotePropsTemplate } from "../../types/ComponentsPropsTypes";
+import { useSheetMusicContext } from "../../hooks/useSheetMusicContext";
 
-type Props = {
-  note: NoteTemplate;
-  duration: number;
-  measureWidth: number
-  measuresList: MeasureTemplate[]
-  measureIndex: number;
-  noteIndex: number
-}
+const Note = ({ note, measureIndex, noteIndex }: NotePropsTemplate) => {
+  const { measureDuration, measureWidth, measuresList } = useSheetMusicContext()
 
-const Note: FC<Props> = ({ note, duration, measureWidth, measuresList, measureIndex, noteIndex }) => {
   const topDistance = getTopDistance(note);
 
   const top = `${topDistance}%`;
-  const width = `${note.beatDuration / duration * 100}%`;
+  const width = `${note.beatDuration / measureDuration * 100}%`;
 
   const [isTop, extraDistance] = getExtraDistance(note);
 
   const extraLines = Math.floor(extraDistance / 25);
 
-  const tieWidth = calculateTieWidth(measureWidth, duration, measuresList, measureIndex, noteIndex)
+  const tieWidth = calculateTieWidth(measureWidth, measureDuration, measuresList, measureIndex, noteIndex)
   return (
     <div className="note_container" style={{ width }} >
       {note.isTied && <Tie top={`${topDistance + 15}%`} width={tieWidth} />}

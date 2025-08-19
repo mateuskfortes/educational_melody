@@ -1,14 +1,11 @@
-import { FC } from "react"
-import { RestTemplate } from "../../types/sheetMusicTemplates";
 import { EighthRest, HalfRest, QuarterRest, SixteenthRest, ThirtysecondRest, WholeRest } from "../../classes/notes";
+import { RestPropsTemplate } from "../../types/ComponentsPropsTypes";
+import { useSheetMusicContext } from "../../hooks/useSheetMusicContext";
 
-type Props = {
-  rest: RestTemplate;
-  duration: number;
-}
+const Rest = ({ rest }: RestPropsTemplate) => {
+  const { measureDuration } = useSheetMusicContext()
 
-const Rest: FC<Props> = ({ rest, duration }) => {
-  const width = `${rest.beatDuration / duration * 100}%`;
+  const width = `${rest.beatDuration / measureDuration * 100}%`;
 
   let offset = 0;
 

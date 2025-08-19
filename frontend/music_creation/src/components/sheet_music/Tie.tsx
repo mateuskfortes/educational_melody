@@ -1,11 +1,6 @@
-type Props = {
-  width: number,
-  height?: number,
-  left?: string,
-  top?: string
-}
+import { TiePropsTemplate } from "../../types/ComponentsPropsTypes";
 
-const Tie = ({ width, height, left = '50%', top = '0' }: Props) => {
+const Tie = ({ width, height, left = '50%', top = '0' }: TiePropsTemplate) => {
   if (!height) height = width * .11
   const path = `M0,0 Q${width / 2},${height} ${width},0`;
 

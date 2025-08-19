@@ -89,3 +89,9 @@ export type MusicContextType = {
     sheetMusicList: SheetMusicItem[]
     addSheetMusic: () => void
 }
+
+export type SheetMusicContextType = {
+    measureWidth: number
+    measureDuration: number
+    measuresList: MeasureTemplate[]
+}

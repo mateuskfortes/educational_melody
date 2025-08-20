@@ -79,6 +79,8 @@ export type RemoveNoteAction = {
 
 export type MusicAction = AddNoteAction | RemoveNoteAction;
 
+export type MusicManageModeType = "ADD" | "REMOVE"
+
 export type SheetMusicItem = {
     music: MusicTemplate,
     run?: (() => void),
@@ -91,6 +93,8 @@ export type MusicContextType = {
     runAll: () => void
     selectedNote: NotesTemplate | undefined
     selectNote: Dispatch<SetStateAction<NotesTemplate | undefined>>
+    musicManageMode: MusicManageModeType
+    setMusicManageMode: Dispatch<SetStateAction<MusicManageModeType>>
 }
 
 export type SheetMusicContextType = {

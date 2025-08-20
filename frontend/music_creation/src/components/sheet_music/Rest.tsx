@@ -4,7 +4,7 @@ import { useSheetMusicContext } from "../../hooks/useSheetMusicContext";
 import { useSheetMusicLibraryContext } from "../../hooks/useSheetMusicLibraryContext";
 
 const Rest = ({ rest, sheetMusicIndex, measureIndex, noteIndex }: RestPropsTemplate) => {
-  const { sheetMusicList, selectedNote } = useSheetMusicLibraryContext()
+  const { sheetMusicList, selectedNote, musicManageMode } = useSheetMusicLibraryContext()
   const { measureDuration } = useSheetMusicContext()
 
   const width = `${rest.beatDuration / measureDuration * 100}%`;
@@ -20,22 +20,35 @@ const Rest = ({ rest, sheetMusicIndex, measureIndex, noteIndex }: RestPropsTempl
 
   const top = `${50 + offset}%`
 
-  function insertNote() {
-    if (selectedNote
-      && selectedNote instanceof NoteBase
-      && sheetMusicList[sheetMusicIndex]
-      && sheetMusicList[sheetMusicIndex].dispatch
-    ) {
-      sheetMusicList[sheetMusicIndex].dispatch({
-        type: "ADD_NOTE",
-        payload: { note: selectedNote, measureIndex, noteIndex }
-      })
+  const containerClass = musicManageMode === "ADD" ? "note_container_on_insert" : "note_container_on_remove"
+
+  function handleNote() {
+    if (musicManageMode === "ADD") {
+      if (selectedNote
+        && selectedNote instanceof NoteBase
+        && sheetMusicList[sheetMusicIndex]
+        && sheetMusicList[sheetMusicIndex].dispatch
+      ) {
+        sheetMusicList[sheetMusicIndex].dispatch({
+          type: "ADD_NOTE",
+          payload: { note: selectedNote, measureIndex, noteIndex }
+        })
+      }
+    }
+    else {
+      if (sheetMusicList[sheetMusicIndex] && sheetMusicList[sheetMusicIndex].dispatch) {
+        sheetMusicList[sheetMusicIndex].dispatch({
+          type: "REMOVE_NOTE",
+          payload: { measureIndex, noteIndex }
+        })
+      }
     }
   }
+
   return (
     <div
-      onClick={insertNote}
-      className="note_container_on_insert"
+      onClick={handleNote}
+      className={containerClass}
       style={{ width }}
     >
       {/* Render the note at the calculated top position */}

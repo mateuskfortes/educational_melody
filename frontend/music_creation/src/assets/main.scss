@@ -162,6 +162,14 @@ $barline-height: $measure-height + 2rem;
                     background: limegreen;
                 }
 
+                .note_container_on_remove {
+                    @extend .note_container
+                }
+
+                .note_container_on_remove:hover {
+                    background-color: rgba(255, 0, 0, 0.308)
+                }
+
                 .note_container_on_insert:hover::before {
                     width: 4px;
                 }

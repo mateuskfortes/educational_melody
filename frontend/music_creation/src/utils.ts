@@ -1,4 +1,4 @@
-import { Eighth, Half, Quarter, Sixteenth, Whole } from "./classes/notes";
+import { Eighth, Half, NoteBase, Quarter, Sixteenth, Whole } from "./classes/notes";
 import { MeasureTemplate, MusicTemplate, NoteTemplate } from "./types/sheetMusicTemplates";
 
 // List of note names used for vertical positioning calculations.
@@ -153,4 +153,44 @@ export const copySheetMusic = (sheetMusic: MusicTemplate) => {
   }
 
   return finalSheetMusic
+}
+
+/**
+ * Calculates the top and bottom margins for a line of measures based on the extra
+ * distance that notes extend above or below the standard staff height.
+ *
+ * - Iterates through each measure and its notes to find the maximum extra distance.
+ * - Top margin is calculated from the highest note above the staff plus an additional offset.
+ * - Bottom margin is calculated from the lowest note below the staff minus an offset (minimum 0).
+ *
+ * Note: Uses NoteBase instance check to ensure only valid notes are considered.
+ *
+ * @param lineMeasures - Array of MeasureTemplate objects representing one line of measures.
+ * @param measureHeight - The rendered offset height of a single measure.
+ * @returns An object containing `marginTop` and `marginBottom` in pixels for the line.
+ */
+export const calculateMeasureLineMargin = (lineMeasures: MeasureTemplate[], measureHeight: number) => {
+  let maxExtraTop = 0;
+  let maxExtraBottom = 0;
+
+  lineMeasures.forEach((measure) =>
+    measure.notes.forEach((note) => {
+      if (!(note instanceof NoteBase)) return;
+      const [isTop, extra] = getExtraDistance(note);
+      if (isTop && extra > maxExtraTop) maxExtraTop = extra;
+      if (!isTop && extra > maxExtraBottom) maxExtraBottom = extra;
+    })
+  );
+
+  const topPx =
+    (maxExtraTop * measureHeight) / 100 +
+    measureHeight * 0.3;
+  const bottomPx =
+    (maxExtraBottom * measureHeight) / 100 -
+    measureHeight * 0.3;
+
+  return {
+    marginTop: topPx,
+    marginBottom: bottomPx
+  }
 }

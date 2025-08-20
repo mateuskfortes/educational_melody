@@ -1,8 +1,8 @@
 import SheetMusic from "./components/sheet_music/SheetMusic";
 import './assets/main.scss';
-import InsertNoteForm from "./components/InsertNoteForm";
+import ManageNoteForm from "./components/ManageNoteForm";
 import { useState } from "react";
-import { MusicTemplate, NotesTemplate, SheetMusicItem } from "./types/sheetMusicTemplates";
+import { MusicManageModeType, MusicTemplate, NotesTemplate, SheetMusicItem } from "./types/sheetMusicTemplates";
 import { Eighth, EighthRest, Quarter, Whole } from "./classes/notes";
 import SheetMusicLibraryContext from "./hooks/useSheetMusicLibraryContext";
 
@@ -79,6 +79,7 @@ const musicDefault: MusicTemplate = {
 function App() {
 	const [sheetMusicList, setSheetMusicList] = useState<SheetMusicItem[]>([{ music: musicDefault }])
 	const [selectedNote, setSelectedNote] = useState<NotesTemplate | undefined>()
+	const [musicManageMode, setMusicManageMode] = useState<MusicManageModeType>("ADD")
 
 	function addSheetMusic() {
 		setSheetMusicList(prev => [
@@ -104,7 +105,7 @@ function App() {
 	}
 
 	return (
-		<SheetMusicLibraryContext.Provider value={{ sheetMusicList, addSheetMusic, runAll, selectedNote, selectNote: setSelectedNote }}>
+		<SheetMusicLibraryContext.Provider value={{ sheetMusicList, addSheetMusic, runAll, selectedNote, selectNote: setSelectedNote, musicManageMode, setMusicManageMode }}>
 			{sheetMusicList.map((sheetMusic: SheetMusicItem, index: number) =>
 				<SheetMusic
 					key={index}
@@ -120,7 +121,7 @@ function App() {
 						})
 					}}
 				/>)}
-			<InsertNoteForm />
+			<ManageNoteForm />
 		</SheetMusicLibraryContext.Provider>
 	)
 }

@@ -6,10 +6,10 @@ import { useSheetMusicLibraryContext } from "../../hooks/useSheetMusicLibraryCon
 import { NoteBase } from "../../classes/notes";
 
 const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTemplate) => {
-  const { sheetMusicList, selectedNote } = useSheetMusicLibraryContext()
+  const { sheetMusicList, selectedNote, musicManageMode } = useSheetMusicLibraryContext()
   const { measureDuration, measureWidth, measuresList } = useSheetMusicContext()
 
-  if (noteIndex > measuresList[measureIndex].notes.length - 1) return <></> // Prevent render bugs
+  if (!(measuresList[measureIndex]) || noteIndex > measuresList[measureIndex].notes.length - 1) return <></> // Prevent render bugs
 
   const topDistance = getTopDistance(note);
 
@@ -22,20 +22,33 @@ const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTempl
 
   const tieWidth = calculateTieWidth(measureWidth, measureDuration, measuresList, measureIndex, noteIndex)
 
-  function insertNote() {
-    if (selectedNote
-      && selectedNote instanceof NoteBase
-      && sheetMusicList[sheetMusicIndex]
-      && sheetMusicList[sheetMusicIndex].dispatch
-    ) {
-      sheetMusicList[sheetMusicIndex].dispatch({
-        type: "ADD_NOTE",
-        payload: { note: selectedNote, measureIndex, noteIndex }
-      })
+  const containerClass = musicManageMode === "ADD" ? "note_container_on_insert" : "note_container_on_remove"
+
+  function handleNote() {
+    if (musicManageMode === "ADD") {
+      if (selectedNote
+        && selectedNote instanceof NoteBase
+        && sheetMusicList[sheetMusicIndex]
+        && sheetMusicList[sheetMusicIndex].dispatch
+      ) {
+        sheetMusicList[sheetMusicIndex].dispatch({
+          type: "ADD_NOTE",
+          payload: { note: selectedNote, measureIndex, noteIndex }
+        })
+      }
+    }
+    else {
+      if (sheetMusicList[sheetMusicIndex] && sheetMusicList[sheetMusicIndex].dispatch) {
+        sheetMusicList[sheetMusicIndex].dispatch({
+          type: "REMOVE_NOTE",
+          payload: { measureIndex, noteIndex }
+        })
+      }
     }
   }
+
   return (
-    <div onClick={insertNote} className="note_container_on_insert" style={{ width }} >
+    <div onClick={handleNote} className={containerClass} style={{ width }} >
       {note.isTied && <Tie top={`${topDistance + 15}%`} width={tieWidth} />}
       <div className="note" style={{ top }} >
         {note.isSharp && (

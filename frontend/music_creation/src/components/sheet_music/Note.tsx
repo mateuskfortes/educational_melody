@@ -9,8 +9,6 @@ const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTempl
   const { sheetMusicList, selectedNote, musicManageMode } = useSheetMusicLibraryContext()
   const { measureDuration, measureWidth, measuresList } = useSheetMusicContext()
 
-  if (!(measuresList[measureIndex]) || noteIndex > measuresList[measureIndex].notes.length - 1) return <></> // Prevent render bugs
-
   const topDistance = getTopDistance(note);
 
   const top = `${topDistance}%`;

@@ -104,8 +104,37 @@ function App() {
 		})
 	}
 
+	function insertNote(sheetMusicIndex: number, measureIndex: number, noteIndex: number) {
+		if (selectedNote
+			&& sheetMusicList[sheetMusicIndex]
+			&& sheetMusicList[sheetMusicIndex].dispatch
+		) {
+			sheetMusicList[sheetMusicIndex].dispatch({
+				type: "ADD_NOTE",
+				payload: { note: selectedNote, measureIndex, noteIndex }
+			})
+		}
+	}
+
+	function removeNote(sheetMusicIndex: number, measureIndex: number, noteIndex: number) {
+		if (sheetMusicList[sheetMusicIndex] && sheetMusicList[sheetMusicIndex].dispatch) {
+			sheetMusicList[sheetMusicIndex].dispatch({
+				type: "REMOVE_NOTE",
+				payload: { measureIndex, noteIndex }
+			})
+		}
+	}
 	return (
-		<SheetMusicLibraryContext.Provider value={{ sheetMusicList, addSheetMusic, runAll, selectedNote, selectNote: setSelectedNote, musicManageMode, setMusicManageMode }}>
+		<SheetMusicLibraryContext.Provider
+			value={{
+				addSheetMusic,
+				runAll,
+				selectNote: setSelectedNote,
+				musicManageMode,
+				setMusicManageMode,
+				insertNote,
+				removeNote
+			}}>
 			{sheetMusicList.map((sheetMusic: SheetMusicItem, index: number) =>
 				<SheetMusic
 					key={index}

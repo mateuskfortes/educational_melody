@@ -3,10 +3,9 @@ import Tie from "./Tie";
 import { NotePropsTemplate } from "../../types/ComponentsPropsTypes";
 import { useSheetMusicContext } from "../../hooks/useSheetMusicContext";
 import { useSheetMusicLibraryContext } from "../../hooks/useSheetMusicLibraryContext";
-import { NoteBase } from "../../classes/notes";
 
 const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTemplate) => {
-  const { sheetMusicList, selectedNote, musicManageMode } = useSheetMusicLibraryContext()
+  const { musicManageMode, insertNote, removeNote } = useSheetMusicLibraryContext()
   const { measureDuration, measureWidth, measuresList } = useSheetMusicContext()
 
   const topDistance = getTopDistance(note);
@@ -23,26 +22,8 @@ const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTempl
   const containerClass = musicManageMode === "ADD" ? "note_container_on_insert" : "note_container_on_remove"
 
   function handleNote() {
-    if (musicManageMode === "ADD") {
-      if (selectedNote
-        && selectedNote instanceof NoteBase
-        && sheetMusicList[sheetMusicIndex]
-        && sheetMusicList[sheetMusicIndex].dispatch
-      ) {
-        sheetMusicList[sheetMusicIndex].dispatch({
-          type: "ADD_NOTE",
-          payload: { note: selectedNote, measureIndex, noteIndex }
-        })
-      }
-    }
-    else {
-      if (sheetMusicList[sheetMusicIndex] && sheetMusicList[sheetMusicIndex].dispatch) {
-        sheetMusicList[sheetMusicIndex].dispatch({
-          type: "REMOVE_NOTE",
-          payload: { measureIndex, noteIndex }
-        })
-      }
-    }
+    if (musicManageMode === 'ADD') insertNote(sheetMusicIndex, measureIndex, noteIndex)
+    else if (musicManageMode === 'REMOVE') removeNote(sheetMusicIndex, measureIndex, noteIndex)
   }
 
   return (

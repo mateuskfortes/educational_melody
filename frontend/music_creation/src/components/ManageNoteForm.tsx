@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react"
-import { CleanNoteType, MusicManageModeType, OctaveType } from "../types/sheetMusicTemplates"
-import { Whole, Half, Quarter, Eighth, Sixteenth, Thirtysecond } from "../classes/notes"
+import { CleanNoteType, MusicManageModeType, NotesTemplate, OctaveType } from "../types/sheetMusicTemplates"
+import { Whole, Half, Quarter, Eighth, Sixteenth, Thirtysecond, WholeRest, HalfRest, QuarterRest, EighthRest, SixteenthRest, ThirtysecondRest } from "../classes/notes"
 import { useSheetMusicLibraryContext } from "../hooks/useSheetMusicLibraryContext";
+
+const restClasses = {
+  whole: WholeRest,
+  half: HalfRest,
+  quarter: QuarterRest,
+  eighth: EighthRest,
+  sixteenth: SixteenthRest,
+  thirtysecond: ThirtysecondRest,
+}
 
 const noteClasses = {
   whole: Whole,
@@ -15,9 +24,9 @@ const noteClasses = {
 type NoteTypeKey = keyof typeof noteClasses;
 
 const ManageNoteForm = () => {
-  const { sheetMusicList, addSheetMusic, runAll, selectNote, musicManageMode, setMusicManageMode } = useSheetMusicLibraryContext()
+  const { addSheetMusic, runAll, selectNote, musicManageMode, setMusicManageMode, insertNote, removeNote } = useSheetMusicLibraryContext()
 
-  const [note, setNote] = useState<CleanNoteType>("C");
+  const [note, setNote] = useState<CleanNoteType | "REST">("C");
   const [octave, setOctave] = useState<OctaveType>(5);
   const [isSharp, setIsSharp] = useState<boolean>(false)
   const [dots, setDots] = useState<number>(0)
@@ -30,27 +39,21 @@ const ManageNoteForm = () => {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!sheetMusicList[sheetMusicIndex] || !sheetMusicList[sheetMusicIndex].dispatch) return;
-
-    if (musicManageMode === "ADD") {
-      const NoteClass = noteClasses[noteType];
-      const noteObj = new NoteClass({ note, octave, isSharp, dots, isTied });
-      sheetMusicList[sheetMusicIndex].dispatch({
-        type: "ADD_NOTE",
-        payload: { note: noteObj, measureIndex, noteIndex }
-      });
-    } else if (musicManageMode === "REMOVE") {
-      sheetMusicList[sheetMusicIndex].dispatch({
-        type: "REMOVE_NOTE",
-        payload: { measureIndex, noteIndex }
-      });
-    }
+    if (musicManageMode === "ADD") insertNote(sheetMusicIndex, measureIndex, noteIndex)
+    else if (musicManageMode === "REMOVE") removeNote(sheetMusicIndex, measureIndex, noteIndex)
   }
 
   useEffect(() => {
     if (musicManageMode === "ADD") {
-      const NoteClass = noteClasses[noteType];
-      const noteObj = new NoteClass({ note, octave, isSharp, dots, isTied });
+      let noteObj: NotesTemplate
+      if (note === "REST") {
+        const RestClass = restClasses[noteType]
+        noteObj = new RestClass()
+      }
+      else {
+        const NoteClass = noteClasses[noteType];
+        noteObj = new NoteClass({ note, octave, isSharp, dots, isTied });
+      }
       selectNote(noteObj);
       setMusicManageMode("ADD")
     } else {
@@ -81,43 +84,48 @@ const ManageNoteForm = () => {
               <option value="G">G</option>
               <option value="A">A</option>
               <option value="B">B</option>
+              <option value="REST">Pausa</option>
             </select>
 
-            <input
-              type="number"
-              min={0}
-              max={8}
-              value={octave}
-              onChange={e => setOctave(Number(e.target.value) as OctaveType)}
-              placeholder="Oitava"
-            />
+            {note !== "REST" && (
+              <>
+                <input
+                  type="number"
+                  min={0}
+                  max={8}
+                  value={octave}
+                  onChange={e => setOctave(Number(e.target.value) as OctaveType)}
+                  placeholder="Oitava"
+                />
 
-            <input
-              type="number"
-              min={0}
-              max={new noteClasses[noteType]({ note, octave }).dotsLimit}
-              value={dots}
-              onChange={e => setDots(Number(e.target.value))}
-              placeholder="Pontos de aumento"
-            />
+                <input
+                  type="number"
+                  min={0}
+                  max={new noteClasses[noteType]({ note, octave }).dotsLimit}
+                  value={dots}
+                  onChange={e => setDots(Number(e.target.value))}
+                  placeholder="Pontos de aumento"
+                />
 
-            <label>
-              ♯
-              <input
-                type="checkbox"
-                checked={isSharp}
-                onChange={e => setIsSharp(e.target.checked)}
-              />
-            </label>
+                <label>
+                  ♯
+                  <input
+                    type="checkbox"
+                    checked={isSharp}
+                    onChange={e => setIsSharp(e.target.checked)}
+                  />
+                </label>
 
-            <label>
-              Tie
-              <input
-                type="checkbox"
-                checked={isTied}
-                onChange={e => setIsTied(e.target.checked)}
-              />
-            </label>
+                <label>
+                  Tie
+                  <input
+                    type="checkbox"
+                    checked={isTied}
+                    onChange={e => setIsTied(e.target.checked)}
+                  />
+                </label>
+              </>
+            )}
 
             <select value={noteType} onChange={e => setNoteType(e.target.value as NoteTypeKey)}>
               <option value="whole">Whole</option>

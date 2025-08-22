@@ -57,7 +57,7 @@ export interface GlobalTemplate {
 
 
 export type AddNotePayload = {
-    note: NoteTemplate
+    note: NotesTemplate
     measureIndex: number
     noteIndex: number
 }
@@ -88,13 +88,13 @@ export type SheetMusicItem = {
 }
 
 export type MusicContextType = {
-    sheetMusicList: SheetMusicItem[]
     addSheetMusic: () => void
     runAll: () => void
-    selectedNote: NotesTemplate | undefined
     selectNote: Dispatch<SetStateAction<NotesTemplate | undefined>>
     musicManageMode: MusicManageModeType
     setMusicManageMode: Dispatch<SetStateAction<MusicManageModeType>>
+    insertNote: (sheetMusicIndex: number, measureIndex: number, noteIndex: number) => void
+    removeNote: (sheetMusicIndex: number, measureIndex: number, noteIndex: number) => void
 }
 
 export type SheetMusicContextType = {

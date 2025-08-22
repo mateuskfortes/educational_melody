@@ -32,6 +32,20 @@ describe('sheetMusicReducer - ADD_NOTE', () => {
     expect(state).toEqual(initialState)
   })
 
+  it('should add rests', () => {
+    const note = new QuarterRest()
+    const action = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0 }
+    }
+
+    const state = sheetMusicReducer(initialState, action)
+    expect(state.measures).toEqual([
+      { notes: [new QuarterRest(), new Half({ note: 'C', octave: 4, dots: 1, isTied: true })] },
+      { notes: [new Quarter({ note: 'C', octave: 4 }), new HalfRest(), new QuarterRest()] }
+    ])
+  })
+
   it('does not add note if not enough space in measure', () => {
     const note: NoteTemplate = new Whole({ note: 'D', octave: 4, dots: 1 }) // 6 beats
     const action = {

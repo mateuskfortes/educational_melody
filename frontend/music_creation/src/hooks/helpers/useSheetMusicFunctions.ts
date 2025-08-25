@@ -1,5 +1,5 @@
 import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../../classes/notes";
-import { CleanNoteType, MeasureTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../../types/sheetMusicTemplates";
+import { AccidentalTemplate, CleanNoteType, MeasureTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../../types/sheetMusicTemplates";
 
 // Returns the duration of the measure notes.
 export const getMsNotesDr = (notes: NotesTemplate[]): number => {
@@ -13,7 +13,7 @@ export const getMsNotesDr = (notes: NotesTemplate[]): number => {
  * @param beatDuration - The remaining duration to fill.
  * @param note - The note pitch (e.g., C, D, E).
  * @param octave - The octave of the note.
- * @param isSharp - Whether the note is sharp.
+ * @param accidental - Note accidental.
  * @returns The best fitting NoteTemplate instance.
  * @throws Error if no fitting note is found.
  */
@@ -21,7 +21,7 @@ export const getMaxFittingNote = (
   beatDuration: number,
   note: CleanNoteType,
   octave: OctaveType,
-  isSharp: boolean
+  accidental: AccidentalTemplate
 ): NoteTemplate => {
   const candidates: NoteConstructorTemplate[] = [
     Whole,
@@ -33,11 +33,11 @@ export const getMaxFittingNote = (
   ];
 
   for (const NoteClass of candidates) {
-    let instance = new NoteClass({ note, octave, isSharp });
+    let instance = new NoteClass({ note, octave, accidental });
 
     if (instance.beatDuration <= beatDuration) {
       for (let dots = 1; dots <= instance.dotsLimit; dots++) {
-        const instanceWithDots = new NoteClass({ note, octave, isSharp, dots });
+        const instanceWithDots = new NoteClass({ note, octave, accidental, dots });
         if (instanceWithDots.beatDuration <= beatDuration) {
           instance = instanceWithDots;
         }
@@ -82,18 +82,18 @@ export const getMaxFittingRest = (beatDuration: number): RestTemplate => {
  * @param beatDuration - Total duration to fill.
  * @param note - The base note.
  * @param octave - The octave of the note.
- * @param isSharp - Whether the note is sharp.
+ * @param accidental - Note accidenal.
  * @returns An array of NoteTemplate instances.
  */
 export const fillBdWithNotes = (
   beatDuration: number,
   note: CleanNoteType,
   octave: OctaveType,
-  isSharp: boolean
+  accidental: AccidentalTemplate
 ): NoteTemplate[] => {
   const notes: NoteTemplate[] = [];
   while (true) {
-    const noteObj = getMaxFittingNote(beatDuration, note, octave, isSharp)
+    const noteObj = getMaxFittingNote(beatDuration, note, octave, accidental)
     notes.push(noteObj);
     beatDuration -= noteObj.beatDuration;
     if (beatDuration === 0) break
@@ -143,8 +143,8 @@ export const splitNote = (
   const crMsDr = measureDuration - getMsNotesDr(firstMeasure.notes);
 
   if (note instanceof NoteBase) {
-    const crMsNotes = fillBdWithNotes(crMsDr, note.note, note.octave, note.isSharp)
-    const nextMsNotes = fillBdWithNotes(note.beatDuration - crMsDr, note.note, note.octave, note.isSharp)
+    const crMsNotes = fillBdWithNotes(crMsDr, note.note, note.octave, note.accidental)
+    const nextMsNotes = fillBdWithNotes(note.beatDuration - crMsDr, note.note, note.octave, note.accidental)
     firstMeasure.notes.push(...crMsNotes);
 
 
@@ -258,7 +258,7 @@ export const mergeTiesAcrossMeasures = (measureList: MeasureTemplate[]) => {
 
       const note = notes[mainIndex] as NoteTemplate
       const tiedNotes = notes.splice(mainIndex, tieCount + 1)
-      const newNotes = fillBdWithNotes(getMsNotesDr(tiedNotes), note.note, note.octave, note.isSharp)
+      const newNotes = fillBdWithNotes(getMsNotesDr(tiedNotes), note.note, note.octave, note.accidental)
       notes.splice(mainIndex, 0, ...newNotes);
 
       mainIndex += newNotes.length

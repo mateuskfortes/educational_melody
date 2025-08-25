@@ -11,10 +11,12 @@ export type NoteConstructorTemplate = new (args: NoteConstructorArgsTemplate) =>
 
 export type RestConstructorTemplate = new () => RestTemplate;
 
+export type AccidentalTemplate = undefined | "sharp" | "flat" | "natural";
+
 export type NoteConstructorArgsTemplate = {
     note: CleanNoteType;
     octave: OctaveType;
-    isSharp?: boolean;
+    accidental?: AccidentalTemplate;
     isTied?: boolean; // If the note is tied with the next one
     dots?: number; // Number of dots
 }
@@ -23,7 +25,7 @@ export interface NoteTemplate {
     name: string
     note: CleanNoteType;
     octave: OctaveType;
-    isSharp: boolean;
+    accidental: AccidentalTemplate;
     isTied: boolean; // If the note is tied with the next one
     beatDuration: number;
     dots: number; // Number of dots

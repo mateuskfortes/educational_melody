@@ -16,7 +16,7 @@ const musicDefault: MusicTemplate = {
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth({ note: 'C', octave: 5, isSharp: false, isTied: false, dots: 0 }),
+				new Eighth({ note: 'C', octave: 5, accidental: 'sharp', isTied: false, dots: 0 }),
 				new Eighth({ note: 'D', octave: 5 }),
 				new Eighth({ note: 'E', octave: 5 }),
 			],

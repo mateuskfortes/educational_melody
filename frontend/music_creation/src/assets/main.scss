@@ -81,14 +81,27 @@ $barline-height: $measure-height + 2rem;
 
                         .sharp_box {
                             position: relative;
-                            width: calc($measure-height / 2.3);
-                            ;
+                            width: calc($measure-height / 3.2);
 
                             img {
                                 position: absolute;
                                 top: calc($measure-height / -2.8);
                                 width: inherit;
                             }
+                        }
+
+                        .flat_box {
+                            @extend .sharp_box;
+                            width: calc($measure-height / 3.5);
+                            
+                            img {
+                                top: calc($measure-height / -2.5);
+                            }
+                        }
+
+                        .natural_box {
+                            @extend .sharp_box;
+                            width: calc($measure-height / 4.7);                
                         }
 
                         * {

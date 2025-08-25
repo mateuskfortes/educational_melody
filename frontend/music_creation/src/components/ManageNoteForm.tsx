@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { CleanNoteType, MusicManageModeType, NotesTemplate, OctaveType } from "../types/sheetMusicTemplates"
+import { AccidentalTemplate, CleanNoteType, MusicManageModeType, NotesTemplate, OctaveType } from "../types/sheetMusicTemplates"
 import { Whole, Half, Quarter, Eighth, Sixteenth, Thirtysecond, WholeRest, HalfRest, QuarterRest, EighthRest, SixteenthRest, ThirtysecondRest } from "../classes/notes"
 import { useSheetMusicLibraryContext } from "../hooks/useSheetMusicLibraryContext";
 
@@ -28,7 +28,7 @@ const ManageNoteForm = () => {
 
   const [note, setNote] = useState<CleanNoteType | "REST">("C");
   const [octave, setOctave] = useState<OctaveType>(5);
-  const [isSharp, setIsSharp] = useState<boolean>(false)
+  const [accidental, setAccidental] = useState<AccidentalTemplate>(undefined);
   const [dots, setDots] = useState<number>(0)
   const [isTied, setIsTied] = useState<boolean>(false)
   const [sheetMusicIndex, setSheetMusicIndex] = useState(0)
@@ -43,24 +43,23 @@ const ManageNoteForm = () => {
     else if (musicManageMode === "REMOVE") removeNote(sheetMusicIndex, measureIndex, noteIndex)
   }
 
-  useEffect(() => {
-    if (musicManageMode === "ADD") {
-      let noteObj: NotesTemplate
-      if (note === "REST") {
-        const RestClass = restClasses[noteType]
-        noteObj = new RestClass()
-      }
-      else {
-        const NoteClass = noteClasses[noteType];
-        noteObj = new NoteClass({ note, octave, isSharp, dots, isTied });
-      }
-      selectNote(noteObj);
-      setMusicManageMode("ADD")
+ useEffect(() => {
+  if (musicManageMode === "ADD") {
+    let noteObj: NotesTemplate;
+    if (note === "REST") {
+      const RestClass = restClasses[noteType];
+      noteObj = new RestClass();
     } else {
-      selectNote(undefined);
-      setMusicManageMode("REMOVE")
+      const NoteClass = noteClasses[noteType];
+      noteObj = new NoteClass({ note, octave, accidental, dots, isTied });
     }
-  }, [note, octave, isSharp, dots, isTied, noteType, musicManageMode])
+    selectNote(noteObj);
+    setMusicManageMode("ADD");
+  } else {
+    selectNote(undefined);
+    setMusicManageMode("REMOVE");
+  }
+}, [note, octave, accidental, dots, isTied, noteType, musicManageMode]);
 
   return (
     <>
@@ -108,14 +107,15 @@ const ManageNoteForm = () => {
                 />
 
                 <label>
-                  ♯
-                  <input
-                    type="checkbox"
-                    checked={isSharp}
-                    onChange={e => setIsSharp(e.target.checked)}
-                  />
+                  Acidental:
+                  <select value={accidental} onChange={e => setAccidental(e.target.value as AccidentalTemplate)}>
+                    <option value={undefined}>Nenhum</option>
+                    <option value="sharp">♯</option>
+                    <option value="flat">♭</option>
+                    <option value="natural">♮</option>
+                  </select>
                 </label>
-
+                
                 <label>
                   Tie
                   <input

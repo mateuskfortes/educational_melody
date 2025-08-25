@@ -6,11 +6,11 @@ describe('Test notes object', () => {
     const dots = 2
 
     const defaultWholeBeatDuration = new Whole({ note: 'C', octave: 3 }).beatDuration
-    const note = new Whole({ note: 'C', octave: 3, isSharp: true, dots })
+    const note = new Whole({ note: 'C', octave: 3, accidental: 'sharp', dots })
 
     expect(note.note).toBe('C')
     expect(note.octave).toBe(3)
-    expect(note.isSharp).toBe(true)
+    expect(note.accidental).toBe('sharp')
     expect(note.beatDuration).toBe(defaultWholeBeatDuration * (2 - 1 / Math.pow(2, dots)))
   })
   it('Should create a note with the right beat duration', () => {

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
-import type { CleanNoteType, MeasureTemplate, NotesTemplate, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
+import type { AccidentalTemplate, CleanNoteType, MeasureTemplate, NotesTemplate, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
 import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
 
 const note: CleanNoteType = 'C';
 const octave: OctaveType = 4;
-const isSharp = false;
+const accidental: AccidentalTemplate = 'sharp';
 
 function createEmptyMeasure(): MeasureTemplate {
   return { notes: [] };
@@ -17,27 +17,27 @@ function createMeasure(...notes: NotesTemplate[]): MeasureTemplate {
 
 describe('getMaxFittingNote (Whole = 4.0)', () => {
   it('returns a whole note for 4 duration', () => {
-    const result = getMaxFittingNote(4, note, octave, isSharp);
+    const result = getMaxFittingNote(4, note, octave, accidental);
     expect(result).toBeInstanceOf(Whole);
     expect(result.beatDuration).toBeLessThanOrEqual(4);
   });
 
   it('returns a dotted half note for 3 duration', () => {
-    const result = getMaxFittingNote(3, note, octave, isSharp);
+    const result = getMaxFittingNote(3, note, octave, accidental);
     expect(result).toBeInstanceOf(Half);
     expect(result.dots).toBe(1);
     expect(result.beatDuration).toBeLessThanOrEqual(3);
   });
 
   it('returns a quarter note for 1 duration', () => {
-    const result = getMaxFittingNote(1, note, octave, isSharp);
+    const result = getMaxFittingNote(1, note, octave, accidental);
     expect(result).toBeInstanceOf(Quarter);
     expect(result.dots).toBe(0);
     expect(result.beatDuration).toBeLessThanOrEqual(1);
   });
 
   it('returns a dotted eighth note for 0.75 duration', () => {
-    const result = getMaxFittingNote(0.75, note, octave, isSharp);
+    const result = getMaxFittingNote(0.75, note, octave, accidental);
     expect(result).toBeInstanceOf(Eighth);
     expect(result.dots).toBe(1);
     expect(result.beatDuration).toBeLessThanOrEqual(0.75);
@@ -45,7 +45,7 @@ describe('getMaxFittingNote (Whole = 4.0)', () => {
 
   it('throws an error when no note fits', () => {
     expect(() => {
-      getMaxFittingNote(0.001, note, octave, isSharp);
+      getMaxFittingNote(0.001, note, octave, accidental);
     }).toThrow('No fitting note found');
   });
 });
@@ -96,7 +96,7 @@ describe('getMaxFittingRest (Whole = 4.0)', () => {
 
 describe('fillBdWithNotes (Whole = 4.0)', () => {
   it('returns only the note when it fits exactly', () => {
-    const result = fillBdWithNotes(2.0, note, octave, isSharp);
+    const result = fillBdWithNotes(2.0, note, octave, accidental);
     const fitNote = result[0]
     expect(result.length).toBe(1);
     expect(fitNote).toBeInstanceOf(Half);
@@ -105,7 +105,7 @@ describe('fillBdWithNotes (Whole = 4.0)', () => {
   });
 
   it('returns note plus tied notes when just one note does not fill the full duration', () => {
-    const result = fillBdWithNotes(2.5, note, octave, isSharp);
+    const result = fillBdWithNotes(2.5, note, octave, accidental);
     expect(result.length).toBe(2);
     expect(result[0]).toBeInstanceOf(Half);
     expect(result[0].isTied).toBe(true)
@@ -116,7 +116,7 @@ describe('fillBdWithNotes (Whole = 4.0)', () => {
   });
 
   it('fills with tied notes at the end', () => {
-    const result = fillBdWithNotes(3.625, note, octave, isSharp);
+    const result = fillBdWithNotes(3.625, note, octave, accidental);
     const total = result.reduce((sum, el) => sum + el.beatDuration, 0);
     expect(result[0]).toBeInstanceOf(Half); // 2.0
     expect(result.length).toBe(2)
@@ -128,7 +128,7 @@ describe('fillBdWithNotes (Whole = 4.0)', () => {
   });
 
   it('returns only a note when beatDuration = 4.0 and note = Whole', () => {
-    const result = fillBdWithNotes(4.0, note, octave, isSharp);
+    const result = fillBdWithNotes(4.0, note, octave, accidental);
     expect(result.length).toBe(1);
     expect(result[0]).toBeInstanceOf(Whole);
     expect(result[0].isTied).toBe(false)

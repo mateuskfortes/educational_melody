@@ -63,7 +63,7 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 									marginTop: `${marginTop}px`,
 									marginBottom: `${marginBottom}px`,
 								}}
-							>
+							>								
 								{measuresRow.map((measure, measureIndex) => (
 									<Measure
 										key={`${lineIndex}-${measureIndex}`}
@@ -71,6 +71,7 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 										sheetMusicIndex={sheetMusicIndex}
 										measureIndex={lineIndex * measuresPerLine + measureIndex}
 										ref={measureRef}
+										isFirst={lineIndex === 0 && measureIndex === 0}
 									/>
 								))}
 							</div>

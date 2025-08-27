@@ -17,6 +17,56 @@ $barline-height: $measure-height + 2rem;
         width: 100%;
         align-items: center;
         justify-content: center;
+        
+        .line_area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            height: $measure-height;
+            justify-content: space-between;
+
+            .line {
+                display: inline-flex;
+                background-color: black;
+                height: $line-height;
+                width: $measure-width;
+                transform: translateY(-50%);
+            }
+        }
+
+        .clef_area {
+            margin: $measure-margin;
+            padding-right: calc($measure-width / 6);
+            display: flex;
+            position: relative;
+            height: $measure-height;
+            
+            .clef_box {
+                position: absolute;
+                height: calc($measure-height * 2);
+                
+                img {
+                    height: inherit ;
+                }
+                
+            }
+            
+            .treble {
+                top: -55%
+            }
+            
+            .line_area {
+                width: 100%;
+
+                .line {
+                    width: 100%;
+                }
+            }
+        }
 
         .measure {
             margin: $measure-margin;
@@ -24,26 +74,6 @@ $barline-height: $measure-height + 2rem;
             position: relative;
             width: $measure-width;
             height: $measure-height;
-
-            .line_area {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                height: $measure-height;
-                justify-content: space-between;
-
-                .line {
-                    display: flex;
-                    background-color: black;
-                    height: $line-height;
-                    width: $measure-width;
-                    transform: translateY(-50%);
-                }
-            }
 
             .barline_start,
             .barline_end {

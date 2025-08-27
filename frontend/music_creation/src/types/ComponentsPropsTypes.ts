@@ -16,7 +16,8 @@ export type SheetMusicPropsTemplate = {
 export type MeasurePropsTemplate = {
   measure: MeasureTemplate;
   ref: React.RefObject<HTMLDivElement | null>;
-  sheetMusicIndex: number
+  sheetMusicIndex: number;
+  isFirst: boolean;
   measureIndex: number;
 };
 

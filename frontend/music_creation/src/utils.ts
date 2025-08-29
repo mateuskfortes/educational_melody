@@ -30,37 +30,38 @@ export const getTopDistance = (note: NoteTemplate) => {
 };
 
 /**
- * Determines if a note's vertical position exceeds the visible bounds (top or bottom)
- * of the music sheet, and by how much.
+ * Checks whether a note's vertical position lies outside the visible range 
+ * (above the top or below the bottom) of the music staff, and calculates by how much in percentage.
  * 
  * Returns a tuple:
- * - isTop: boolean indicating if the note is above the top bound (true) or below the bottom bound (false).
- * - distance: the absolute distance by which the note exceeds the bound.
+ * - isTop: boolean — `true` if the note exceeds the top boundary, `false` if it exceeds the bottom boundary.
+ * - distance: number — the percentage by which the note exceeds the boundary.
  * 
  * Logic:
- * - If `topDistance` is negative, the note is above the visible area.
- * - If `topDistance - 100` is positive, the note is below the bottom visible bound.
- * - Otherwise, the note is within bounds.
+ * - If `topDistance <= 0`, the note is above the top visible boundary.
+ * - If `topDistance >= 125`, the note is below the bottom visible boundary.
+ * - Otherwise, the note lies within the visible range.
  * 
- * @param note - The note object containing `note` (name) and `octave`.
- * @returns A tuple [isTop, distance] indicating if the note exceeds bounds and by how much.
+ * @param note - The note object.
+ * @returns A tuple [isTop, distance] indicating if the note is out of bounds and the exceeded percentage.
  */
 export const getExtraDistance = (note: NoteTemplate): [boolean, number] => {
   const topDistance = getTopDistance(note);
 
-  if (topDistance < 0) {
-    // Note is above the top visible boundary
+  if (topDistance <= 0) {
+    // Note is above the top boundary
     return [true, -topDistance] as const;
   }
 
-  if (topDistance - 100 > 0) {
-    // Note is below the bottom visible boundary
-    return [false, topDistance - 100] as const;
+  if (topDistance >= 125) {
+    // Note is below the bottom boundary
+    return [false, topDistance - 125] as const;
   }
 
-  // Note is within visible vertical bounds
+  // Note is within the visible range
   return [false, 0] as const;
 };
+
 
 /**
  * Calculates the total duration (in beats) of a measure based on the time signature's

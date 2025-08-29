@@ -109,6 +109,31 @@ $end-bar-line-width: calc($measure-width / 40);
                     position: relative;
                     height: 100%;
 
+                    .sharp_box {
+                        position: relative;
+                        width: calc($measure-height / 3.2);
+
+                        img {
+                            position: absolute;
+                            top: calc($measure-height / -2.8);
+                            width: inherit;
+                        }
+                    }
+
+                    .flat_box {
+                        @extend .sharp_box;
+                        width: calc($measure-height / 3.5);
+
+                        img {
+                            top: calc($measure-height / -2.5);
+                        }
+                    }
+
+                    .natural_box {
+                        @extend .sharp_box;
+                        width: calc($measure-height / 4.7);
+                    }
+
                     .note {
                         //background-color: red;
                         position: absolute;
@@ -117,31 +142,6 @@ $end-bar-line-width: calc($measure-width / 40);
                         display: flex;
                         align-items: end;
                         justify-content: center;
-
-                        .sharp_box {
-                            position: relative;
-                            width: calc($measure-height / 3.2);
-
-                            img {
-                                position: absolute;
-                                top: calc($measure-height / -2.8);
-                                width: inherit;
-                            }
-                        }
-
-                        .flat_box {
-                            @extend .sharp_box;
-                            width: calc($measure-height / 3.5);
-
-                            img {
-                                top: calc($measure-height / -2.5);
-                            }
-                        }
-
-                        .natural_box {
-                            @extend .sharp_box;
-                            width: calc($measure-height / 4.7);
-                        }
 
                         * {
                             margin-bottom: calc($measure-height / 50)

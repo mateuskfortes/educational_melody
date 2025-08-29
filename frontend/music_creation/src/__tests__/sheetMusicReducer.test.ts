@@ -18,7 +18,6 @@ describe('sheetMusicReducer - ADD_NOTE', () => {
     bpm: 120,
     measures: [
       { notes: [new Whole({ note: 'C', octave: 4 })] }, // 4 beats total
-      { notes: [] },
     ],
   }
 
@@ -67,7 +66,7 @@ describe('sheetMusicReducer - ADD_NOTE', () => {
     expect(state).toEqual(initialState)
   })
 
-  it('adds note correctly and calls normalizeMeasure', () => {
+  it('adds note correctly at the end of the sheet music and calls normalizeMeasure', () => {
     const note: NoteTemplate = new Quarter({ note: 'D', octave: 4 })
     const action = {
       type: 'ADD_NOTE' as const,

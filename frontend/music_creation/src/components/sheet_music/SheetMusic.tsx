@@ -4,6 +4,8 @@ import { calculateMeasureLineMargin, getMeasureDurationByMeter } from "../../uti
 import useSheetMusic from "../../hooks/useSheetMusic";
 import { SheetMusicPropsTemplate } from "../../types/ComponentsPropsTypes";
 import SheetMusicContext from "../../hooks/useSheetMusicContext";
+import SheetMusicStart from "./SheetMusicStart";
+import EndBarLine from "./EndBarLine";
 
 const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusicPropsTemplate) => {
 	const { run, music, dispatch } = useSheetMusic(initMusic);
@@ -45,7 +47,7 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 	const sheetMusicLines = Math.ceil(music.measures.length / measuresPerLine)
 
 	return (
-		<SheetMusicContext.Provider value={{ measureDuration, measuresList: music.measures, measureWidth }}>
+		<SheetMusicContext.Provider value={{ measureDuration, music, measureWidth, sheetMusicIndex }}>
 			<div className="sheet_music_container">
 				<div className="sheet_music" ref={sheetMusicRef}>
 					{Array.from({ length: sheetMusicLines }).map((_, lineIndex) => {
@@ -55,6 +57,9 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 						)
 						const { marginTop, marginBottom } = calculateMeasureLineMargin(measuresRow, measureHeight)
 
+						const isFirstRow = lineIndex === 0
+						const isFinalRow = lineIndex === sheetMusicLines - 1
+
 						return (
 							<div
 								className="sheet_music_row"
@@ -63,7 +68,8 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 									marginTop: `${marginTop}px`,
 									marginBottom: `${marginBottom}px`,
 								}}
-							>								
+							>
+								{isFirstRow ? <SheetMusicStart /> : <div className="single_barline" />}
 								{measuresRow.map((measure, measureIndex) => (
 									<Measure
 										key={`${lineIndex}-${measureIndex}`}
@@ -71,12 +77,18 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 										sheetMusicIndex={sheetMusicIndex}
 										measureIndex={lineIndex * measuresPerLine + measureIndex}
 										ref={measureRef}
-										isFirst={lineIndex === 0 && measureIndex === 0}
 									/>
 								))}
+								{isFinalRow && <EndBarLine />}
 							</div>
 						)
 					})}
+					{sheetMusicLines === 0 && (
+						<div className="sheet_music_row">
+							<SheetMusicStart />
+							<EndBarLine />
+						</div>
+					)}
 					<button onClick={run}>run</button>
 				</div>
 			</div>

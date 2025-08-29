@@ -6,7 +6,7 @@ import { useSheetMusicLibraryContext } from "../../hooks/useSheetMusicLibraryCon
 
 const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTemplate) => {
   const { musicManageMode, insertNote, removeNote } = useSheetMusicLibraryContext()
-  const { measureDuration, measureWidth, measuresList } = useSheetMusicContext()
+  const { measureDuration, measureWidth, music } = useSheetMusicContext()
 
   const topDistance = getTopDistance(note);
 
@@ -17,7 +17,7 @@ const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTempl
 
   const extraLines = Math.floor(extraDistance / 25);
 
-  const tieWidth = calculateTieWidth(measureWidth, measureDuration, measuresList, measureIndex, noteIndex)
+  const tieWidth = calculateTieWidth(measureWidth, measureDuration, music.measures, measureIndex, noteIndex)
 
   const containerClass = musicManageMode === "ADD" ? "note_container_on_insert" : "note_container_on_remove"
 

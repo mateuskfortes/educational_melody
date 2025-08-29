@@ -5,8 +5,10 @@ $measure-width: 20rem;
 
 $line-height: 2px;
 
+$insert-bar-width: 4px;
+
 $barline-width: 2px;
-$barline-height: $measure-height + 2rem;
+$end-bar-line-width: calc($measure-width / 40);
 
 .sheet_music {
     display: flex;
@@ -17,7 +19,7 @@ $barline-height: $measure-height + 2rem;
         width: 100%;
         align-items: center;
         justify-content: center;
-        
+
         .line_area {
             position: absolute;
             top: 0;
@@ -33,39 +35,58 @@ $barline-height: $measure-height + 2rem;
                 display: inline-flex;
                 background-color: black;
                 height: $line-height;
-                width: $measure-width;
-                transform: translateY(-50%);
+                width: 100%;
             }
         }
 
+        .insert_bar {
+            content: "";
+            visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: $insert-bar-width;
+            height: 100%;
+            background: limegreen;
+        }
+
         .clef_area {
+            position: relative;
+            display: flex;
             margin: $measure-margin;
             padding-right: calc($measure-width / 6);
-            display: flex;
-            position: relative;
             height: $measure-height;
-            
+
             .clef_box {
                 position: absolute;
                 height: calc($measure-height * 2);
-                
+
                 img {
-                    height: inherit ;
+                    height: inherit;
                 }
-                
+
             }
-            
+
             .treble {
                 top: -55%
             }
-            
-            .line_area {
-                width: 100%;
+        }
 
-                .line {
-                    width: 100%;
-                }
-            }
+        .barline {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translate(0, -50%);
+            display: flex;
+            width: $barline-width;
+            height: $measure-height;
+            background-color: black;
+        }
+
+        .single_barline {
+            @extend .barline;
+            position: initial;
+            transform: translate(0, 0);
         }
 
         .measure {
@@ -75,20 +96,8 @@ $barline-height: $measure-height + 2rem;
             width: $measure-width;
             height: $measure-height;
 
-            .barline_start,
-            .barline_end {
-                position: absolute;
-                top: 50%;
-                left: 0;
-                transform: translate(0, -50%);
-                display: flex;
-                width: $barline-width;
-                height: $barline-height;
-                background-color: black;
-            }
-
-            .barline_end {
-                left: 100%;
+            .single_barline {
+                @extend .barline
             }
 
             .notes_area {
@@ -123,7 +132,7 @@ $barline-height: $measure-height + 2rem;
                         .flat_box {
                             @extend .sharp_box;
                             width: calc($measure-height / 3.5);
-                            
+
                             img {
                                 top: calc($measure-height / -2.5);
                             }
@@ -131,7 +140,7 @@ $barline-height: $measure-height + 2rem;
 
                         .natural_box {
                             @extend .sharp_box;
-                            width: calc($measure-height / 4.7);                
+                            width: calc($measure-height / 4.7);
                         }
 
                         * {
@@ -166,11 +175,12 @@ $barline-height: $measure-height + 2rem;
 
                     .note_line {
                         position: absolute;
+                        top: 0;
                         left: 50%;
                         width: calc($measure-height / 2.7);
                         height: $line-height;
                         background-color: black;
-                        transform: translate(-50%, -50%);
+                        transform: translate(-50%, 0);
                     }
 
                     .rest_note {
@@ -193,29 +203,49 @@ $barline-height: $measure-height + 2rem;
 
                 .note_container_on_insert {
                     @extend .note_container;
-                }
 
-                .note_container_on_insert::before {
-                    content: "";
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 0;
-                    height: 100%;
-                    background: limegreen;
+                    &::before {
+                        @extend .insert_bar
+                    }
+
+                    &:hover::before {
+                        visibility: visible;
+                    }
                 }
 
                 .note_container_on_remove {
-                    @extend .note_container
-                }
+                    @extend .note_container;
 
-                .note_container_on_remove:hover {
-                    background-color: rgba(255, 0, 0, 0.308)
+                    &:hover {
+                        background-color: rgba(255, 0, 0, 0.308)
+                    }
                 }
+            }
+        }
 
-                .note_container_on_insert:hover::before {
-                    width: 4px;
-                }
+        .end_bar_line {
+            position: relative;
+            display: flex;
+            margin: $measure-margin;
+            height: $measure-height;
+            width: calc($measure-width / 20);
+
+            .end_bar {
+                margin-left: auto;
+                width: $end-bar-line-width;
+                background-color: black;
+            }
+        }
+
+        .end_bar_line_on_insert {
+            @extend .end_bar_line;
+
+            &::before {
+                @extend .insert_bar
+            }
+
+            &:hover::before {
+                visibility: visible;
             }
         }
     }

@@ -1,9 +1,14 @@
 import { Eighth, Half, NoteBase, Quarter, Sixteenth, Whole } from "./classes/notes";
-import { MeasureTemplate, MusicTemplate, NoteTemplate } from "./types/sheetMusicTemplates";
+import { MeasureTemplate, MusicTemplate, NotesTemplate, NoteTemplate } from "./types/sheetMusicTemplates";
 
 // List of note names used for vertical positioning calculations.
 // These represent the natural musical notes in ascending order.
 const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+
+// Returns a measure with the given notes
+export function createMeasure(...notes: NotesTemplate[]): MeasureTemplate {
+  return { notes: [...notes] };
+}
 
 /**
  * Calculates the vertical distance (in percentage or pixels) from a reference point

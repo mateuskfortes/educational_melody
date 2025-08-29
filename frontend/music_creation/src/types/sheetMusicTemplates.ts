@@ -100,7 +100,8 @@ export type MusicContextType = {
 }
 
 export type SheetMusicContextType = {
+    sheetMusicIndex: number
+    music: MusicTemplate
     measureWidth: number
     measureDuration: number
-    measuresList: MeasureTemplate[]
 }

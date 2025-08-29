@@ -1,19 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
-import type { AccidentalTemplate, CleanNoteType, MeasureTemplate, NotesTemplate, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
+import type { AccidentalTemplate, CleanNoteType, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
 import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
+import { createMeasure } from "../utils";
 
 const note: CleanNoteType = 'C';
 const octave: OctaveType = 4;
 const accidental: AccidentalTemplate = 'sharp';
-
-function createEmptyMeasure(): MeasureTemplate {
-  return { notes: [] };
-}
-
-function createMeasure(...notes: NotesTemplate[]): MeasureTemplate {
-  return { notes: [...notes] };
-}
 
 describe('getMaxFittingNote (Whole = 4.0)', () => {
   it('returns a whole note for 4 duration', () => {
@@ -195,10 +188,10 @@ describe('splitNote (Whole = 4.0)', () => {
     const measureDuration = 4.0;
     const dottedHalf = new Half({ note: 'D', octave: 4, dots: 1 }); // 3.0
 
-    const m1 = createEmptyMeasure();
+    const m1 = createMeasure();
     m1.notes.push(new Half({ note: 'C', octave: 4, dots: 1 })); // 3.0 used → 1.0 left
 
-    const m2 = createEmptyMeasure();
+    const m2 = createMeasure();
 
     splitNote(measureDuration, dottedHalf, m1, m2);
 
@@ -214,10 +207,10 @@ describe('splitNote (Whole = 4.0)', () => {
     const measureDuration = 4.0;
     const dottedQuarter = new Quarter({ note: 'E', octave: 4, dots: 2 }); // beatDuration = 1.75
 
-    const m1 = createEmptyMeasure();
+    const m1 = createMeasure();
     m1.notes.push(new Half({ note: 'C', octave: 4, dots: 1 })); // 3.0 → 1.0 left
 
-    const m2 = createEmptyMeasure();
+    const m2 = createMeasure();
 
     splitNote(measureDuration, dottedQuarter, m1, m2);
 
@@ -252,11 +245,11 @@ describe('splitNote (Whole = 4.0)', () => {
     const measureDuration = 4.0;
     const dottedHalf = new Half({ note: 'F', octave: 4, dots: 1 }); // 3.0
 
-    const m1 = createEmptyMeasure();
+    const m1 = createMeasure();
     m1.notes.push(new Half({ note: 'A', octave: 4 })); // 2.0
     m1.notes.push(new EighthRest()); // 0.5
 
-    const m2 = createEmptyMeasure();
+    const m2 = createMeasure();
     m2.notes.push(new QuarterRest()); // 1.0
 
     splitNote(measureDuration, dottedHalf, m1, m2);

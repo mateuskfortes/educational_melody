@@ -2,7 +2,7 @@ import { useReducer } from "react"
 import { AddNotePayload, MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RemoveNotePayload, RestTemplate } from "../types/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
-import { copySheetMusic, getMeasureDurationByMeter } from "../utils";
+import { copySheetMusic, createMeasure, getMeasureDurationByMeter } from "../utils";
 import { mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure } from "./helpers/useSheetMusicFunctions";
 import { NoteBase } from "../classes/notes";
 
@@ -13,9 +13,10 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
     const finalState = copySheetMusic(prevState)
     const { note, measureIndex, noteIndex } = action.payload as AddNotePayload
 
+    const isFinalPosition = measureIndex === finalState.measures.length && noteIndex === 0 // If the note is at the end of the sheet music
     const measureSpace = measureDuration / note.beatDuration // How many notes can fit in the measure
     if (
-      !finalState.measures[measureIndex] // If there is no measure at the index
+      (!finalState.measures[measureIndex] && !isFinalPosition) // If there is no measure at the index
       || measureDuration < note.beatDuration // If there is not enough space in the measure
       || measureSpace < noteIndex + 1 // If there is not enough space in the measure
     ) {
@@ -23,7 +24,8 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
     }
 
     // Add the note to the measure
-    finalState.measures[measureIndex].notes.splice(noteIndex, 0, note)
+    if (isFinalPosition) finalState.measures[measureIndex] = createMeasure(note)
+    else finalState.measures[measureIndex].notes.splice(noteIndex, 0, note)
 
     // Normalize the measures
     let mi = measureIndex

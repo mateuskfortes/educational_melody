@@ -180,7 +180,7 @@ $end-bar-line-width: calc($measure-width / 40);
                         width: calc($measure-height / 2.7);
                         height: $line-height;
                         background-color: black;
-                        transform: translate(-50%, 0);
+                        transform: translate(-50%, -50%);
                     }
 
                     .rest_note {

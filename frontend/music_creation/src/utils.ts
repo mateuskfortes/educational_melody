@@ -3,7 +3,7 @@ import { MeasureTemplate, MusicTemplate, NotesTemplate, NoteTemplate } from "./t
 
 // List of note names used for vertical positioning calculations.
 // These represent the natural musical notes in ascending order.
-const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const;
 
 // Returns a measure with the given notes
 export function createMeasure(...notes: NotesTemplate[]): MeasureTemplate {
@@ -46,20 +46,20 @@ export const getTopDistance = (note: NoteTemplate) => {
  * @returns A tuple [isTop, distance] indicating if the note exceeds bounds and by how much.
  */
 export const getExtraDistance = (note: NoteTemplate): [boolean, number] => {
-  const topDistance = 475 - note.octave * 87.5 - notes.indexOf(note.note) * 12.5;
+  const topDistance = getTopDistance(note);
 
   if (topDistance < 0) {
     // Note is above the top visible boundary
-    return [true, -topDistance];
+    return [true, -topDistance] as const;
   }
 
   if (topDistance - 100 > 0) {
     // Note is below the bottom visible boundary
-    return [false, topDistance - 100];
+    return [false, topDistance - 100] as const;
   }
 
   // Note is within visible vertical bounds
-  return [false, 0];
+  return [false, 0] as const;
 };
 
 /**

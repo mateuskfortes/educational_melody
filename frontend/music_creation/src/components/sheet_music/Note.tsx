@@ -15,7 +15,7 @@ const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTempl
 
   const [isTop, extraDistance] = getExtraDistance(note);
 
-  const extraLines = Math.floor(extraDistance / 25);
+  const extraLines = isTop ? Math.ceil(extraDistance / 25) : Math.floor(extraDistance / 25);
 
   const tieWidth = calculateTieWidth(measureWidth, measureDuration, music.measures, measureIndex, noteIndex)
 

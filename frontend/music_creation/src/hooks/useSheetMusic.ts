@@ -3,7 +3,7 @@ import { AddNotePayload, MeasureTemplate, MusicAction, MusicTemplate, NoteTempla
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { copySheetMusic, createMeasure, getMeasureDurationByMeter } from "../utils";
-import { mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure } from "./helpers/useSheetMusicFunctions";
+import { mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
 import { NoteBase } from "../classes/notes";
 
 export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
@@ -27,14 +27,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
     if (isFinalPosition) finalState.measures[measureIndex] = createMeasure(note)
     else finalState.measures[measureIndex].notes.splice(noteIndex, 0, note)
 
-    // Normalize the measures
-    let mi = measureIndex
-    while (true) {
-      const currentMs = finalState.measures[mi];
-      if (!currentMs) break;
-      normalizeMeasure(finalState.measures, currentMs, finalState.measures[mi + 1], measureDuration)
-      mi++;
-    }
+    normalizeMeasuresAcrossSheetMusic(finalState.measures, measureDuration)
     mergeTiesAcrossMeasures(finalState.measures)
     mergeRestsAcrossMeasures(finalState.measures)
 

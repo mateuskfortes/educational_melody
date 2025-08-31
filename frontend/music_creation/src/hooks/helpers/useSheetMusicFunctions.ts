@@ -1,8 +1,13 @@
-import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../../classes/notes";
-import { AccidentalTemplate, CleanNoteType, MeasureTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../../types/sheetMusicTemplates";
+import { NoteBase, notesConstructors, RestBase, restNotesConstructors } from "../../classes/notes";
+import { AccidentalTemplate, CleanNoteType, MeasureTemplate, NotesTemplate, NoteTemplate, OctaveType, RestTemplate } from "../../types/sheetMusicTemplates";
 
-// Returns the duration of the measure notes.
-export const getMsNotesDr = (notes: NotesTemplate[]): number => {
+/**
+ * Calculates the total duration of an array of notes.
+ *
+ * @param notes - Array of note objects.
+ * @returns The total duration of all notes combined.
+ */
+export const getNotesDuration = (notes: NotesTemplate[]): number => {
   return notes.reduce((acc, note) => acc + note.beatDuration, 0)
 }
 
@@ -23,16 +28,7 @@ export const getMaxFittingNote = (
   octave: OctaveType,
   accidental: AccidentalTemplate
 ): NoteTemplate => {
-  const candidates: NoteConstructorTemplate[] = [
-    Whole,
-    Half,
-    Quarter,
-    Eighth,
-    Sixteenth,
-    Thirtysecond,
-  ];
-
-  for (const NoteClass of candidates) {
+  for (const NoteClass of notesConstructors) {
     let instance = new NoteClass({ note, octave, accidental });
 
     if (instance.beatDuration <= beatDuration) {
@@ -57,16 +53,7 @@ export const getMaxFittingNote = (
  * @throws Error if no fitting rest is found.
  */
 export const getMaxFittingRest = (beatDuration: number): RestTemplate => {
-  const candidates: RestConstructorTemplate[] = [
-    WholeRest,
-    HalfRest,
-    QuarterRest,
-    EighthRest,
-    SixteenthRest,
-    ThirtysecondRest,
-  ];
-
-  for (const RestClass of candidates) {
+  for (const RestClass of restNotesConstructors) {
     const instance = new RestClass();
     if (instance.beatDuration <= beatDuration) {
       return instance;
@@ -122,6 +109,7 @@ export const fillBdWithRests = (beatDuration: number): (NoteTemplate | RestTempl
 
   return notes;
 };
+
 /**
  * Splits a note or rest between two measures.
  *
@@ -140,7 +128,7 @@ export const splitNote = (
   firstMeasure: MeasureTemplate,
   secondMeasure: MeasureTemplate | undefined
 ) => {
-  const crMsDr = measureDuration - getMsNotesDr(firstMeasure.notes);
+  const crMsDr = measureDuration - getNotesDuration(firstMeasure.notes);
 
   if (note instanceof NoteBase) {
     const crMsNotes = fillBdWithNotes(crMsDr, note.note, note.octave, note.accidental)
@@ -183,12 +171,12 @@ export function normalizeMeasure(
   secondMeasure: MeasureTemplate | undefined,
   measureDuration: number
 ) {
-  if (getMsNotesDr(firstMeasure.notes) === measureDuration) return;
+  if (getNotesDuration(firstMeasure.notes) === measureDuration) return;
 
-  else if (getMsNotesDr(firstMeasure.notes) > measureDuration) {
+  else if (getNotesDuration(firstMeasure.notes) > measureDuration) {
     const popNote = firstMeasure.notes.pop() as NotesTemplate;
 
-    if (getMsNotesDr(firstMeasure.notes) >= measureDuration) {
+    if (getNotesDuration(firstMeasure.notes) >= measureDuration) {
       if (secondMeasure) {
         secondMeasure.notes.unshift(popNote);
       } else {
@@ -211,21 +199,40 @@ export function normalizeMeasure(
     }
   }
 
-  else if (getMsNotesDr(firstMeasure.notes) < measureDuration) {
+  else if (getNotesDuration(firstMeasure.notes) < measureDuration) {
     if (secondMeasure && secondMeasure.notes.length > 0) {
       const popNote = secondMeasure.notes.shift() as NoteTemplate;
-      if (getMsNotesDr(firstMeasure.notes) + popNote.beatDuration <= measureDuration) {
+      if (getNotesDuration(firstMeasure.notes) + popNote.beatDuration <= measureDuration) {
         firstMeasure.notes.push(popNote);
       } else {
         splitNote(measureDuration, popNote, firstMeasure, secondMeasure);
       }
     }
     else {
-      firstMeasure.notes.push(...fillBdWithRests(measureDuration - getMsNotesDr(firstMeasure.notes)));
+      firstMeasure.notes.push(...fillBdWithRests(measureDuration - getNotesDuration(firstMeasure.notes)));
     }
   }
 
   normalizeMeasure(measureList, firstMeasure, secondMeasure, measureDuration);
+}
+
+/**
+ * Normalizes all measures in a sheet music.
+ *
+ * Iterates over the provided list of measures and ensures each measure's total duration
+ * matches the allowed measure duration. Uses `normalizeMeasure` to adjust each measure individually.
+ *
+ * @param measureList - Array of measures to normalize.
+ * @param measureDuration - Maximum allowed duration for each measure (in beats).
+ */
+export const normalizeMeasuresAcrossSheetMusic = (measureList: MeasureTemplate[], measureDuration: number) => {
+  let measureIndex = 0
+  while (true) {
+    const currentMs = measureList[measureIndex];
+    if (!currentMs) break;
+    normalizeMeasure(measureList, currentMs, measureList[measureIndex + 1], measureDuration)
+    measureIndex++;
+  }
 }
 
 /**
@@ -258,7 +265,7 @@ export const mergeTiesAcrossMeasures = (measureList: MeasureTemplate[]) => {
 
       const note = notes[mainIndex] as NoteTemplate
       const tiedNotes = notes.splice(mainIndex, tieCount + 1)
-      const newNotes = fillBdWithNotes(getMsNotesDr(tiedNotes), note.note, note.octave, note.accidental)
+      const newNotes = fillBdWithNotes(getNotesDuration(tiedNotes), note.note, note.octave, note.accidental)
       notes.splice(mainIndex, 0, ...newNotes);
 
       mainIndex += newNotes.length
@@ -303,7 +310,7 @@ export const mergeRestsAcrossMeasures = (measureList: MeasureTemplate[]) => {
       }
 
       const restNotes = notes.splice(mainIndex, restCount)
-      const newRests = fillBdWithRests(getMsNotesDr(restNotes))
+      const newRests = fillBdWithRests(getNotesDuration(restNotes))
       notes.splice(mainIndex, 0, ...newRests)
 
       mainIndex += newRests.length

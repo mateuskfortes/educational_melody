@@ -1,8 +1,6 @@
 import { Sampler } from "tone";
-import { AccidentalTemplate, CleanNoteType, NoteConstructorArgsTemplate, NoteTemplate, OctaveType, RestTemplate } from "../types/sheetMusicTemplates";
-
-// Returns the beat duration including the number of dots
-const getBeatDurationWithDots = (initialBeatDuration: number, dots: number) => initialBeatDuration * (2 - 1 / Math.pow(2, dots))
+import { AccidentalTemplate, CleanNoteType, NoteConstructorArgsTemplate, NoteConstructorTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../types/sheetMusicTemplates";
+import { getBeatDurationWithDots } from "../utils";
 
 export class NoteBase implements Omit<NoteTemplate, 'name'> {
   note: CleanNoteType;
@@ -16,7 +14,7 @@ export class NoteBase implements Omit<NoteTemplate, 'name'> {
   constructor(
     defaultBeatDuration: number,
     dotsLimit: number,
-    note: CleanNoteType, 
+    note: CleanNoteType,
     octave: OctaveType,
     accidental: AccidentalTemplate,
     dots: number = 0,
@@ -34,7 +32,7 @@ export class NoteBase implements Omit<NoteTemplate, 'name'> {
 
   getMusicalNote() {
     let accidentalDecorator = ''
-    switch(this.accidental) {
+    switch (this.accidental) {
       case 'sharp': accidentalDecorator = '#'; break;
       case 'flat': accidentalDecorator = 'b'; break;
     }
@@ -134,3 +132,21 @@ export class ThirtysecondRest extends RestBase implements RestTemplate {
   name = 'ThirtysecondRest'
   beatDuration = 1 / 8
 }
+
+export const notesConstructors: NoteConstructorTemplate[] = [
+  Whole,
+  Half,
+  Quarter,
+  Eighth,
+  Sixteenth,
+  Thirtysecond,
+];
+
+export const restNotesConstructors: RestConstructorTemplate[] = [
+  WholeRest,
+  HalfRest,
+  QuarterRest,
+  EighthRest,
+  SixteenthRest,
+  ThirtysecondRest,
+];

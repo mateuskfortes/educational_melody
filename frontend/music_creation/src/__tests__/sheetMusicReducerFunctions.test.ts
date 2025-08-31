@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
 import type { AccidentalTemplate, CleanNoteType, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
-import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getMsNotesDr, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
+import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getNotesDuration, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
 import { createMeasure } from "../utils";
 
 const note: CleanNoteType = 'C';
@@ -195,8 +195,8 @@ describe('splitNote (Whole = 4.0)', () => {
 
     splitNote(measureDuration, dottedHalf, m1, m2);
 
-    const d1 = getMsNotesDr(m1.notes);
-    const d2 = getMsNotesDr(m2.notes);
+    const d1 = getNotesDuration(m1.notes);
+    const d2 = getNotesDuration(m2.notes);
 
     expect(d1).toBeCloseTo(4.0);
     expect(d2).toBeCloseTo(2.0);
@@ -214,8 +214,8 @@ describe('splitNote (Whole = 4.0)', () => {
 
     splitNote(measureDuration, dottedQuarter, m1, m2);
 
-    const d1 = getMsNotesDr(m1.notes); // 3.0 (Half-dotted) + 1.0 (part of dottedQuarter) = 4.0
-    const d2 = getMsNotesDr(m2.notes); // 0.75
+    const d1 = getNotesDuration(m1.notes); // 3.0 (Half-dotted) + 1.0 (part of dottedQuarter) = 4.0
+    const d2 = getNotesDuration(m2.notes); // 0.75
 
     expect(d1).toBeLessThanOrEqual(4.0);
     expect(d2).toBeCloseTo(0.75);
@@ -254,8 +254,8 @@ describe('splitNote (Whole = 4.0)', () => {
 
     splitNote(measureDuration, dottedHalf, m1, m2);
 
-    const d1 = getMsNotesDr(m1.notes); // Should be 4.0
-    const d2 = getMsNotesDr(m2.notes); // Should be 2.5
+    const d1 = getNotesDuration(m1.notes); // Should be 4.0
+    const d2 = getNotesDuration(m2.notes); // Should be 2.5
 
     expect(d1).toBeCloseTo(4.0);
     expect(d2).toBeCloseTo(2.5);
@@ -392,9 +392,9 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
 
   it('does nothing if measure is already normalized', () => {
     const ms = createMeasure(new Whole({ note: 'C', octave: 4 }));
-    const original = getMsNotesDr(ms.notes);
+    const original = getNotesDuration(ms.notes);
     normalizeMeasure([], ms, undefined, measureDuration);
-    expect(getMsNotesDr(ms.notes)).toBe(original);
+    expect(getNotesDuration(ms.notes)).toBe(original);
   });
 
   it('normalize a measure with an extra thirtysecond note', () => {
@@ -405,7 +405,7 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
     );
     const all = [m1]
     normalizeMeasure(all, m1, undefined, measureDuration);
-    const dur1 = getMsNotesDr(m1.notes);
+    const dur1 = getNotesDuration(m1.notes);
 
     expect(dur1).toBe(measureDuration)
     expect(m1).toEqual(createMeasure(
@@ -423,8 +423,8 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
     const m1 = createMeasure(new Half({ note: 'C', octave: 4 }), new Half({ note: 'D', octave: 4 }), new Quarter({ note: 'E', octave: 4 }));
     const m2 = createMeasure();
     normalizeMeasure([], m1, m2, measureDuration);
-    const dur1 = getMsNotesDr(m1.notes);
-    const dur2 = getMsNotesDr(m2.notes);
+    const dur1 = getNotesDuration(m1.notes);
+    const dur2 = getNotesDuration(m2.notes);
 
     expect(dur1).toBeLessThanOrEqual(measureDuration);
     expect(dur2).toBeGreaterThan(0);
@@ -437,7 +437,7 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
     normalizeMeasure(all, m1, undefined, measureDuration);
     expect(all.length).toBe(2);
     const last = all[1];
-    expect(getMsNotesDr(last.notes)).toBe(measureDuration);
+    expect(getNotesDuration(last.notes)).toBe(measureDuration);
   });
 
   it('splits note across measures if it doesn’t fit completely', () => {
@@ -446,8 +446,8 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
     const m2 = createMeasure();
     normalizeMeasure([], m1, m2, measureDuration);
 
-    const d1 = getMsNotesDr(m1.notes);
-    const d2 = getMsNotesDr(m2.notes);
+    const d1 = getNotesDuration(m1.notes);
+    const d2 = getNotesDuration(m2.notes);
     expect(d1).toBeCloseTo(measureDuration);
     expect(d2).toBeGreaterThan(0);
   });
@@ -457,7 +457,7 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
     const m1 = createMeasure(new Whole({ note: 'C', octave: 4 }), rest);
     normalizeMeasure([m1], m1, undefined, measureDuration);
     expect(m1.notes.includes(rest)).toBe(false);
-    expect(getMsNotesDr(m1.notes)).toBeLessThanOrEqual(measureDuration);
+    expect(getNotesDuration(m1.notes)).toBeLessThanOrEqual(measureDuration);
   });
 
   it('recursively normalizes complex overflow', () => {
@@ -472,8 +472,8 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
 
     normalizeMeasure(all, m1, m2, measureDuration);
 
-    expect(getMsNotesDr(m1.notes)).toBeLessThanOrEqual(measureDuration);
-    expect(getMsNotesDr(m2.notes)).toBeGreaterThan(0);
+    expect(getNotesDuration(m1.notes)).toBeLessThanOrEqual(measureDuration);
+    expect(getNotesDuration(m2.notes)).toBeGreaterThan(0);
   });
 
   it('pulls a note from the next measure if it fits and current measure is underfilled', () => {
@@ -483,8 +483,8 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
 
     normalizeMeasure(all, m1, m2, measureDuration);
 
-    expect(getMsNotesDr(m1.notes)).toBe(4.0); // 2.0 + 1.0 + 1.0 (rest)
-    expect(getMsNotesDr(m2.notes)).toBe(0.0); // Emptied
+    expect(getNotesDuration(m1.notes)).toBe(4.0); // 2.0 + 1.0 + 1.0 (rest)
+    expect(getNotesDuration(m2.notes)).toBe(0.0); // Emptied
   });
 
   it('splits a note from next measure if it does not fully fit', () => {
@@ -493,8 +493,8 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
 
     normalizeMeasure([m1, m2], m1, m2, measureDuration);
 
-    expect(getMsNotesDr(m1.notes)).toBeCloseTo(4.0);
-    expect(getMsNotesDr(m2.notes)).toBeLessThan(2.0); // Some of it got split
+    expect(getNotesDuration(m1.notes)).toBeCloseTo(4.0);
+    expect(getNotesDuration(m2.notes)).toBeLessThan(2.0); // Some of it got split
   });
 
   it('fills with rests if underfilled and there is no next measure', () => {
@@ -503,7 +503,7 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
 
     normalizeMeasure(all, m1, undefined, measureDuration);
 
-    expect(getMsNotesDr(m1.notes)).toBe(measureDuration);
+    expect(getNotesDuration(m1.notes)).toBe(measureDuration);
     const rests = m1.notes.filter(n => n instanceof RestBase);
     expect(rests.length).toBeGreaterThan(0); // Confirm rests were added
   });
@@ -514,8 +514,8 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
 
     normalizeMeasure([m1, m2], m1, m2, measureDuration);
 
-    expect(getMsNotesDr(m1.notes)).toBeCloseTo(measureDuration);
-    expect(getMsNotesDr(m2.notes)).toBeLessThan(4.0); // Note was split
+    expect(getNotesDuration(m1.notes)).toBeCloseTo(measureDuration);
+    expect(getNotesDuration(m2.notes)).toBeLessThan(4.0); // Note was split
   });
 
   it('handles recursive pulling and splitting from next measures', () => {
@@ -526,9 +526,9 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
 
     normalizeMeasure(all, m1, m2, measureDuration);
 
-    expect(getMsNotesDr(m1.notes)).toBeCloseTo(measureDuration);
-    expect(getMsNotesDr(m2.notes)).toBeLessThan(measureDuration);
-    expect(getMsNotesDr(m3.notes)).toBeGreaterThan(0); // still has something
+    expect(getNotesDuration(m1.notes)).toBeCloseTo(measureDuration);
+    expect(getNotesDuration(m2.notes)).toBeLessThan(measureDuration);
+    expect(getNotesDuration(m3.notes)).toBeGreaterThan(0); // still has something
   });
 
   it('normalize measure with 1.5 overflow', () => {

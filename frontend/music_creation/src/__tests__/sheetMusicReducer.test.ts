@@ -4,7 +4,7 @@ import { Whole, Quarter, QuarterRest, Half, HalfRest } from '../classes/notes'
 import type { MusicTemplate, NotesTemplate, NoteTemplate } from '../types/sheetMusicTemplates'
 import * as SheetMusicFunctions from '../hooks/helpers/useSheetMusicFunctions'
 
-const normalizeMeasureMock = vi.spyOn(SheetMusicFunctions, 'normalizeMeasure')
+const normalizeMeasureMock = vi.spyOn(SheetMusicFunctions, 'normalizeMeasuresAcrossSheetMusic')
 
 const createMusicTemplate = (notesPerMeasure: NotesTemplate[][]): MusicTemplate => ({
   bpm: 100,
@@ -66,7 +66,7 @@ describe('sheetMusicReducer - ADD_NOTE', () => {
     expect(state).toEqual(initialState)
   })
 
-  it('adds note correctly at the end of the sheet music and calls normalizeMeasure', () => {
+  it('adds note correctly at the end of the sheet music and calls normalizeMeasuresAcrossSheetMusic', () => {
     const note: NoteTemplate = new Quarter({ note: 'D', octave: 4 })
     const action = {
       type: 'ADD_NOTE' as const,
@@ -81,8 +81,8 @@ describe('sheetMusicReducer - ADD_NOTE', () => {
     expect(state.measures[1].notes).toEqual([new Quarter({ note: 'D', octave: 4 }), new HalfRest(), new QuarterRest()])
     expect(state.measures[1].notes[0]).toBe(note)
 
-    // Verify normalizeMeasure was called at least once
-    expect(SheetMusicFunctions.normalizeMeasure).toHaveBeenCalled()
+    // Verify normalizeMeasuresAcrossSheetMusic was called at least once
+    expect(SheetMusicFunctions.normalizeMeasuresAcrossSheetMusic).toHaveBeenCalled()
 
     // Check that a new state object is returned (immutability)
     expect(state).not.toBe(initialState)

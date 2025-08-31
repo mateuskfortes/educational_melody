@@ -5,6 +5,9 @@ import { MeasureTemplate, MusicTemplate, NotesTemplate, NoteTemplate } from "./t
 // These represent the natural musical notes in ascending order.
 const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const;
 
+// Returns the beat duration including the number of dots
+export const getBeatDurationWithDots = (initialBeatDuration: number, dots: number) => initialBeatDuration * (2 - 1 / Math.pow(2, dots))
+
 // Returns a measure with the given notes
 export function createMeasure(...notes: NotesTemplate[]): MeasureTemplate {
   return { notes: [...notes] };

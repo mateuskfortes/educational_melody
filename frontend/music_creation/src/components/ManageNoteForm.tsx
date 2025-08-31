@@ -1,27 +1,7 @@
 import { useEffect, useState } from "react"
 import { AccidentalTemplate, CleanNoteType, MusicManageModeType, NotesTemplate, OctaveType } from "../types/sheetMusicTemplates"
-import { Whole, Half, Quarter, Eighth, Sixteenth, Thirtysecond, WholeRest, HalfRest, QuarterRest, EighthRest, SixteenthRest, ThirtysecondRest } from "../classes/notes"
 import { useSheetMusicLibraryContext } from "../hooks/useSheetMusicLibraryContext";
-
-const restClasses = {
-  whole: WholeRest,
-  half: HalfRest,
-  quarter: QuarterRest,
-  eighth: EighthRest,
-  sixteenth: SixteenthRest,
-  thirtysecond: ThirtysecondRest,
-}
-
-const noteClasses = {
-  whole: Whole,
-  half: Half,
-  quarter: Quarter,
-  eighth: Eighth,
-  sixteenth: Sixteenth,
-  thirtysecond: Thirtysecond
-};
-
-type NoteTypeKey = keyof typeof noteClasses;
+import { notesConstructors, restNotesConstructors } from "../classes/notes";
 
 const ManageNoteForm = () => {
   const { addSheetMusic, runAll, selectNote, musicManageMode, setMusicManageMode, insertNote, removeNote } = useSheetMusicLibraryContext()
@@ -34,7 +14,7 @@ const ManageNoteForm = () => {
   const [sheetMusicIndex, setSheetMusicIndex] = useState(0)
   const [measureIndex, setMeasureIndex] = useState(0);
   const [noteIndex, setNoteIndex] = useState(0);
-  const [noteType, setNoteType] = useState<NoteTypeKey>("eighth");
+  const [noteType, setNoteType] = useState<number>(3);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,23 +23,23 @@ const ManageNoteForm = () => {
     else if (musicManageMode === "REMOVE") removeNote(sheetMusicIndex, measureIndex, noteIndex)
   }
 
- useEffect(() => {
-  if (musicManageMode === "ADD") {
-    let noteObj: NotesTemplate;
-    if (note === "REST") {
-      const RestClass = restClasses[noteType];
-      noteObj = new RestClass();
+  useEffect(() => {
+    if (musicManageMode === "ADD") {
+      let noteObj: NotesTemplate;
+      if (note === "REST") {
+        const RestClass = restNotesConstructors[noteType];
+        noteObj = new RestClass();
+      } else {
+        const NoteClass = notesConstructors[noteType];
+        noteObj = new NoteClass({ note, octave, accidental, dots, isTied });
+      }
+      selectNote(noteObj);
+      setMusicManageMode("ADD");
     } else {
-      const NoteClass = noteClasses[noteType];
-      noteObj = new NoteClass({ note, octave, accidental, dots, isTied });
+      selectNote(undefined);
+      setMusicManageMode("REMOVE");
     }
-    selectNote(noteObj);
-    setMusicManageMode("ADD");
-  } else {
-    selectNote(undefined);
-    setMusicManageMode("REMOVE");
-  }
-}, [note, octave, accidental, dots, isTied, noteType, musicManageMode]);
+  }, [note, octave, accidental, dots, isTied, noteType, musicManageMode]);
 
   return (
     <>
@@ -100,7 +80,7 @@ const ManageNoteForm = () => {
                 <input
                   type="number"
                   min={0}
-                  max={new noteClasses[noteType]({ note, octave }).dotsLimit}
+                  max={new notesConstructors[noteType]({ note, octave }).dotsLimit}
                   value={dots}
                   onChange={e => setDots(Number(e.target.value))}
                   placeholder="Pontos de aumento"
@@ -115,7 +95,7 @@ const ManageNoteForm = () => {
                     <option value="natural">♮</option>
                   </select>
                 </label>
-                
+
                 <label>
                   Tie
                   <input
@@ -127,13 +107,13 @@ const ManageNoteForm = () => {
               </>
             )}
 
-            <select value={noteType} onChange={e => setNoteType(e.target.value as NoteTypeKey)}>
-              <option value="whole">Whole</option>
-              <option value="half">Half</option>
-              <option value="quarter">Quarter</option>
-              <option value="eighth">Eighth</option>
-              <option value="sixteenth">Sixteenth</option>
-              <option value="thirtysecond">Thirtysecond</option>
+            <select value={noteType} onChange={e => setNoteType(Number(e.target.value))}>
+              <option value="0">Whole</option>
+              <option value="1">Half</option>
+              <option value="2">Quarter</option>
+              <option value="3">Eighth</option>
+              <option value="4">Sixteenth</option>
+              <option value="5">Thirtysecond</option>
             </select>
           </>
         )}

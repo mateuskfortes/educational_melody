@@ -1,5 +1,5 @@
 import { Sampler } from "tone";
-import { AccidentalTemplate, CleanNoteType, NoteConstructorArgsTemplate, NoteConstructorTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../types/sheetMusicTemplates";
+import { AccidentalTemplate, ChordConstructorArgsTemplate, ChordTemplate, CleanNoteType, NoteConstructorArgsTemplate, NoteConstructorTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../types/sheetMusicTemplates";
 import { getBeatDurationWithDots } from "../utils";
 
 export class NoteBase implements Omit<NoteTemplate, 'name'> {
@@ -131,6 +131,18 @@ export class SixteenthRest extends RestBase implements RestTemplate {
 export class ThirtysecondRest extends RestBase implements RestTemplate {
   name = 'ThirtysecondRest'
   beatDuration = 1 / 8
+}
+
+export class Chord implements ChordTemplate {
+  notes: NoteTemplate[];
+  beatDuration: number;
+  constructor(args: ChordConstructorArgsTemplate) {
+    this.notes = args.notes.map(noteArgs => new args.noteConstructor(noteArgs));
+    this.beatDuration = this.notes[0].beatDuration;
+  }
+  play(sampler: Sampler, now: number, beat: number) {
+    this.notes.forEach(note => note.play(sampler, now, beat));
+  }
 }
 
 export const notesConstructors: NoteConstructorTemplate[] = [

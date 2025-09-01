@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
+import { Chord, Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
 import type { AccidentalTemplate, CleanNoteType, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
-import { fillBdWithNotes, fillBdWithRests, getMaxFittingNote, getMaxFittingRest, getNotesDuration, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
+import { fillBdWithChords, fillBdWithNotes, fillBdWithRests, getMaxFittingChord, getMaxFittingNote, getMaxFittingRest, getNotesDuration, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
 import { createMeasure } from "../utils";
 
 const note: CleanNoteType = 'C';
@@ -39,6 +39,47 @@ describe('getMaxFittingNote (Whole = 4.0)', () => {
   it('throws an error when no note fits', () => {
     expect(() => {
       getMaxFittingNote(0.001, note, octave, accidental);
+    }).toThrow('No fitting note found');
+  });
+});
+
+describe('getMaxFittingChord (Whole = 4.0)', () => {
+  it('returns a whole chord for 4 duration', () => {
+    const result = getMaxFittingChord(4, [{note, octave, accidental}, {note: 'E', octave: 4, accidental: undefined}]);
+    expect(result.notes[0]).toBeInstanceOf(Whole);
+    expect(result.notes[1]).toBeInstanceOf(Whole);
+
+    expect(result.notes[0].note).toEqual(note);
+    expect(result.notes[0].octave).toEqual(octave);
+    expect(result.notes[0].accidental).toEqual(accidental);
+
+    expect(result.notes[1].note).toEqual('E');
+    expect(result.notes[1].octave).toEqual(4);
+    expect(result.notes[1].accidental).toEqual(undefined);
+    expect(result.beatDuration).toBe(4);
+  });
+
+  it('returns a dotted half chord for 3 duration', () => {
+    const result = getMaxFittingChord(3, [{note, octave, accidental}]);
+    expect(result.notes[0]).toBeInstanceOf(Half);
+    expect(result.beatDuration).toBe(2);
+  });
+
+  it('returns a quarter chord for 1 duration', () => {
+    const result = getMaxFittingChord(1, [{note, octave, accidental}]);
+    expect(result.notes[0]).toBeInstanceOf(Quarter);
+    expect(result.beatDuration).toBe(1);
+  });
+
+  it('returns a eighth chord for 0.75 duration', () => {
+    const result = getMaxFittingChord(0.75, [{note, octave, accidental}]);
+    expect(result.notes[0]).toBeInstanceOf(Eighth);
+    expect(result.beatDuration).toBe(0.5);
+  });
+
+  it('throws an error when no note fits', () => {
+    expect(() => {
+      getMaxFittingChord(0.001, [{note, octave, accidental}]);
     }).toThrow('No fitting note found');
   });
 });
@@ -128,6 +169,49 @@ describe('fillBdWithNotes (Whole = 4.0)', () => {
   });
 });
 
+describe('fillBdWithChords (Whole = 4.0)', () => {
+  it('returns only the chord when it fits exactly', () => {
+    const result = fillBdWithChords(2.0, [{note, octave, accidental}]);
+    expect(result.length).toBe(1);
+    const fitChord = result[0]
+    expect(fitChord.notes[0]).toBeInstanceOf(Half);
+    expect(fitChord.beatDuration).toBe(2.0);
+  });
+
+  it('returns chord when just one note does not fill the full duration', () => {
+    const result = fillBdWithChords(2.5, [{note, octave, accidental}]);
+    expect(result.length).toBe(2);
+    expect(result[0].notes[0]).toBeInstanceOf(Half);
+    expect(result[0].notes[0].isTied).toBe(true)
+    expect(result[1].notes[0]).toBeInstanceOf(Eighth);
+    expect(result[1].notes[0].isTied).toBe(false)
+    const total = result.reduce((acc, el) => acc + el.beatDuration, 0);
+    expect(total).toBeCloseTo(2.5);
+  });
+
+  it('fills with tied notes at the end', () => {
+    const result = fillBdWithChords(3.625, [{note, octave, accidental}]);
+    const total = result.reduce((sum, el) => sum + el.beatDuration, 0);
+    expect(result[0].notes[0]).toBeInstanceOf(Half); // 2.0
+    expect(result[0].notes[0].isTied).toBe(true)
+    expect(result[1].notes[0]).toBeInstanceOf(Quarter); // 1.0
+    expect(result[1].notes[0].isTied).toBe(true)
+    expect(result[2].notes[0]).toBeInstanceOf(Eighth); // 0.5
+    expect(result[2].notes[0].isTied).toBe(true)
+    expect(result[3].notes[0]).toBeInstanceOf(Thirtysecond); // 0.125
+    expect(result[3].notes[0].isTied).toBe(false)
+    expect(result.length).toBe(4)
+    // Remaining: 1.625 -> Quarter (1.0), Eighth (0.5), Sixteenth (0.25), Thirtysecond (0.125)
+    expect(total).toBe(3.625);
+  });
+
+  it('returns only a note when beatDuration = 4.0 and note = Whole', () => {
+    const result = fillBdWithChords(4.0, [{note, octave, accidental}]);
+    expect(result.length).toBe(1);
+    expect(result[0].notes[0]).toBeInstanceOf(Whole);
+  });
+});
+
 describe('fillBdWithRests (WholeRest = 4.0)', () => {
   it('returns a single whole rest for 4.0 duration', () => {
     const result = fillBdWithRests(4.0);
@@ -164,6 +248,26 @@ describe('fillBdWithRests (WholeRest = 4.0)', () => {
 });
 
 describe('splitNote (Whole = 4.0)', () => {
+  it('splits a chord', () => {
+    const chord = new Chord({ noteConstructor: Eighth, notes: [{ note: 'C', octave: 5, isTied: true}, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }] })
+
+    const m1 = createMeasure(new Eighth({ note: 'C', octave: 5 }), new Thirtysecond({ note: 'C', octave: 5 }))
+    const m2 = createMeasure(new Sixteenth({ note: 'C', octave: 5, dots: 1 }))
+
+    splitNote(1, chord, m1, m2)
+
+    expect(m1).toEqual(createMeasure(
+      new Eighth({ note: 'C', octave: 5 }),
+      new Thirtysecond({ note: 'C', octave: 5 }),
+      new Chord({noteConstructor: Sixteenth, notes: [{ note: 'C', octave: 5, isTied: true}, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }]})
+    ))
+    expect(m2).toEqual(createMeasure(
+      new Chord({noteConstructor: Eighth, notes: [{ note: 'C', octave: 5, isTied: true}, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }]})
+      new Thirtysecond({ note: 'C', octave: 5, isTied: true }),
+      new Sixteenth({ note: 'C', octave: 5, dots: 1 })
+    ))
+  });
+
   it('splits a tied note', () => {
     const quarterNote = new Quarter(({ note: 'C', octave: 5, isTied: true }))
 

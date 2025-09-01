@@ -3,7 +3,7 @@ import './assets/main.scss';
 import ManageNoteForm from "./components/ManageNoteForm";
 import { useState } from "react";
 import { MusicManageModeType, MusicTemplate, NotesTemplate, SheetMusicItem } from "./types/sheetMusicTemplates";
-import { Eighth, EighthRest, Quarter, Whole } from "./classes/notes";
+import { Chord, Eighth, EighthRest, Quarter, Whole } from "./classes/notes";
 import SheetMusicLibraryContext from "./hooks/useSheetMusicLibraryContext";
 
 const musicDefault: MusicTemplate = {
@@ -16,9 +16,18 @@ const musicDefault: MusicTemplate = {
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth({ note: 'C', octave: 5, accidental: undefined, isTied: false, dots: 0 }),
-				new Eighth({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'E', octave: 5 }),
+				new Chord({
+					noteConstructor: Eighth,
+					notes: [{ note: 'C', octave: 5}, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }]
+				}),
+				new Chord({
+					noteConstructor: Eighth,
+					notes: [{ note: 'D', octave: 5}, { note: 'F', octave: 5 }, { note: 'A', octave: 5 }]
+				}),
+				new Chord({
+					noteConstructor: Eighth,
+					notes: [{ note: 'E', octave: 5}, { note: 'G', octave: 5 }, { note: 'B', octave: 5 }]
+				}),
 			],
 		},
 		{

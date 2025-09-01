@@ -1,10 +1,10 @@
 import { useReducer } from "react"
-import { AddNotePayload, MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RemoveNotePayload, RestTemplate } from "../types/sheetMusicTemplates"
+import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload } from "../types/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { copySheetMusic, createMeasure, getMeasureDurationByMeter } from "../utils";
 import { mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
-import { NoteBase } from "../classes/notes";
+import { Chord, NoteBase } from "../classes/notes";
 
 export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
   const measureDuration = getMeasureDurationByMeter(prevState.meter.top, prevState.meter.bottom)
@@ -120,7 +120,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
      *   - tiedNotesCount: The number of tied notes that were counted.
      */
     function increaseBeatDuration(
-      note: NoteTemplate,
+      note: NoteTemplate | ChordTemplate,
       measureIndex: number,
       noteIndex: number,
     ) {
@@ -149,7 +149,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
     let skipNotesCount = 0
 
     music.measures.map((measure: MeasureTemplate, measureIndex: number) => {
-      measure.notes.map((note: NoteTemplate | RestTemplate, NoteIndex: number) => {
+      measure.notes.map((note: NotesTemplate, NoteIndex: number) => {
         if (skipNotesCount > 0) return skipNotesCount--
 
         let extraTiedDuration = 0
@@ -160,6 +160,9 @@ const useSheetMusic = (initialState: MusicTemplate) => {
             extraTiedDuration = extraBeatDuration
           }
           note.play(sampler, now, beat, extraTiedDuration)
+        }
+        else if (note instanceof Chord) {
+          note.play(sampler, now, beat)
         }
         now += beat * (note.beatDuration + extraTiedDuration)
       })

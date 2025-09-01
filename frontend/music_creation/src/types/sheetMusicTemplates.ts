@@ -11,6 +11,8 @@ export type NoteConstructorTemplate = new (args: NoteConstructorArgsTemplate) =>
 
 export type RestConstructorTemplate = new () => RestTemplate;
 
+export type ChordConstructorTemplate = new (args: ChordConstructorArgsTemplate) => ChordTemplate;
+
 export type AccidentalTemplate = undefined | "sharp" | "flat" | "natural";
 
 export type NoteConstructorArgsTemplate = {
@@ -19,6 +21,11 @@ export type NoteConstructorArgsTemplate = {
     accidental?: AccidentalTemplate;
     isTied?: boolean; // If the note is tied with the next one
     dots?: number; // Number of dots
+}
+
+export type ChordConstructorArgsTemplate = {
+    notes: Omit<NoteConstructorArgsTemplate, 'dots'>[];
+    noteConstructor: NoteConstructorTemplate;
 }
 
 export interface NoteTemplate {
@@ -38,7 +45,13 @@ export interface RestTemplate {
     beatDuration: number;
 }
 
-export type NotesTemplate = NoteTemplate | RestTemplate
+export interface ChordTemplate {
+    beatDuration: number;
+    notes: NoteTemplate[];
+    play: (sampler: Sampler, now: number, beat: number) => void
+}
+
+export type NotesTemplate = NoteTemplate | RestTemplate | ChordTemplate;
 
 export interface MeasureTemplate {
     notes: NotesTemplate[]
@@ -56,7 +69,6 @@ export interface MusicTemplate {
 export interface GlobalTemplate {
     music: MusicTemplate
 }
-
 
 export type AddNotePayload = {
     note: NotesTemplate

@@ -45,7 +45,7 @@ describe('getMaxFittingNote (Whole = 4.0)', () => {
 
 describe('getMaxFittingChord (Whole = 4.0)', () => {
   it('returns a whole chord for 4 duration', () => {
-    const result = getMaxFittingChord(4, [{note, octave, accidental}, {note: 'E', octave: 4, accidental: undefined}]);
+    const result = getMaxFittingChord(4, [{ note, octave, accidental }, { note: 'E', octave: 4, accidental: undefined }]);
     expect(result.notes[0]).toBeInstanceOf(Whole);
     expect(result.notes[1]).toBeInstanceOf(Whole);
 
@@ -60,26 +60,26 @@ describe('getMaxFittingChord (Whole = 4.0)', () => {
   });
 
   it('returns a dotted half chord for 3 duration', () => {
-    const result = getMaxFittingChord(3, [{note, octave, accidental}]);
+    const result = getMaxFittingChord(3, [{ note, octave, accidental }]);
     expect(result.notes[0]).toBeInstanceOf(Half);
     expect(result.beatDuration).toBe(2);
   });
 
   it('returns a quarter chord for 1 duration', () => {
-    const result = getMaxFittingChord(1, [{note, octave, accidental}]);
+    const result = getMaxFittingChord(1, [{ note, octave, accidental }]);
     expect(result.notes[0]).toBeInstanceOf(Quarter);
     expect(result.beatDuration).toBe(1);
   });
 
   it('returns a eighth chord for 0.75 duration', () => {
-    const result = getMaxFittingChord(0.75, [{note, octave, accidental}]);
+    const result = getMaxFittingChord(0.75, [{ note, octave, accidental }]);
     expect(result.notes[0]).toBeInstanceOf(Eighth);
     expect(result.beatDuration).toBe(0.5);
   });
 
   it('throws an error when no note fits', () => {
     expect(() => {
-      getMaxFittingChord(0.001, [{note, octave, accidental}]);
+      getMaxFittingChord(0.001, [{ note, octave, accidental }]);
     }).toThrow('No fitting note found');
   });
 });
@@ -171,7 +171,7 @@ describe('fillBdWithNotes (Whole = 4.0)', () => {
 
 describe('fillBdWithChords (Whole = 4.0)', () => {
   it('returns only the chord when it fits exactly', () => {
-    const result = fillBdWithChords(2.0, [{note, octave, accidental}]);
+    const result = fillBdWithChords(2.0, [{ note, octave, accidental }]);
     expect(result.length).toBe(1);
     const fitChord = result[0]
     expect(fitChord.notes[0]).toBeInstanceOf(Half);
@@ -179,7 +179,7 @@ describe('fillBdWithChords (Whole = 4.0)', () => {
   });
 
   it('returns chord when just one note does not fill the full duration', () => {
-    const result = fillBdWithChords(2.5, [{note, octave, accidental}]);
+    const result = fillBdWithChords(2.5, [{ note, octave, accidental }]);
     expect(result.length).toBe(2);
     expect(result[0].notes[0]).toBeInstanceOf(Half);
     expect(result[0].notes[0].isTied).toBe(true)
@@ -190,7 +190,7 @@ describe('fillBdWithChords (Whole = 4.0)', () => {
   });
 
   it('fills with tied notes at the end', () => {
-    const result = fillBdWithChords(3.625, [{note, octave, accidental}]);
+    const result = fillBdWithChords(3.625, [{ note, octave, accidental }]);
     const total = result.reduce((sum, el) => sum + el.beatDuration, 0);
     expect(result[0].notes[0]).toBeInstanceOf(Half); // 2.0
     expect(result[0].notes[0].isTied).toBe(true)
@@ -206,7 +206,7 @@ describe('fillBdWithChords (Whole = 4.0)', () => {
   });
 
   it('returns only a note when beatDuration = 4.0 and note = Whole', () => {
-    const result = fillBdWithChords(4.0, [{note, octave, accidental}]);
+    const result = fillBdWithChords(4.0, [{ note, octave, accidental }]);
     expect(result.length).toBe(1);
     expect(result[0].notes[0]).toBeInstanceOf(Whole);
   });
@@ -249,7 +249,7 @@ describe('fillBdWithRests (WholeRest = 4.0)', () => {
 
 describe('splitNote (Whole = 4.0)', () => {
   it('splits a chord', () => {
-    const chord = new Chord({ noteConstructor: Eighth, notes: [{ note: 'C', octave: 5, isTied: true}, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }] })
+    const chord = new Chord({ noteConstructor: Quarter, notes: [{ note: 'C', octave: 5, isTied: true }, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }] })
 
     const m1 = createMeasure(new Eighth({ note: 'C', octave: 5 }), new Thirtysecond({ note: 'C', octave: 5 }))
     const m2 = createMeasure(new Sixteenth({ note: 'C', octave: 5, dots: 1 }))
@@ -259,11 +259,12 @@ describe('splitNote (Whole = 4.0)', () => {
     expect(m1).toEqual(createMeasure(
       new Eighth({ note: 'C', octave: 5 }),
       new Thirtysecond({ note: 'C', octave: 5 }),
-      new Chord({noteConstructor: Sixteenth, notes: [{ note: 'C', octave: 5, isTied: true}, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }]})
+      new Chord({ noteConstructor: Sixteenth, notes: [{ note: 'C', octave: 5, isTied: true }, { note: 'E', octave: 5, isTied: true }, { note: 'G', octave: 5, isTied: true }] }),
+      new Chord({ noteConstructor: Thirtysecond, notes: [{ note: 'C', octave: 5, isTied: true }, { note: 'E', octave: 5, isTied: true }, { note: 'G', octave: 5, isTied: true }] })
     ))
     expect(m2).toEqual(createMeasure(
-      new Chord({noteConstructor: Eighth, notes: [{ note: 'C', octave: 5, isTied: true}, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }]})
-      new Thirtysecond({ note: 'C', octave: 5, isTied: true }),
+      new Chord({ noteConstructor: Eighth, notes: [{ note: 'C', octave: 5, isTied: true }, { note: 'E', octave: 5, isTied: true }, { note: 'G', octave: 5, isTied: true }] }),
+      new Chord({ noteConstructor: Thirtysecond, notes: [{ note: 'C', octave: 5, isTied: true }, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }] }),
       new Sixteenth({ note: 'C', octave: 5, dots: 1 })
     ))
   });
@@ -444,6 +445,30 @@ describe('mergeTiesAcrossMeasures (Whole = 4.0)', () => {
     expect(measures[1]).toEqual(createMeasure(new Whole({ note: 'C', octave: 4 })))
   })
 
+  it('Should merge ties in chords across measures', () => {
+    const measures = [
+      createMeasure(
+        new Quarter({ note: 'C', octave: 4, dots: 1 }),
+        new Quarter({ note: 'C', octave: 4, isTied: true }),
+        new Chord({ noteConstructor: Eighth, notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'E', octave: 4, isTied: true }] }),
+        new Chord({ noteConstructor: Eighth, notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'E', octave: 4 }] }),
+        new Eighth({ note: 'C', octave: 4, isTied: true })
+      ),
+      createMeasure(new Whole({ note: 'C', octave: 4 }))
+    ]
+    mergeTiesAcrossMeasures(measures)
+
+    expect(measures.length).toBe(2)
+    expect(measures[0].notes.length).toBe(4)
+    expect(measures[0]).toEqual(createMeasure(
+      new Quarter({ note: 'C', octave: 4, dots: 1 }),
+      new Quarter({ note: 'C', octave: 4, isTied: true }),
+      new Chord({ noteConstructor: Quarter, notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'E', octave: 4 }] }),
+      new Eighth({ note: 'C', octave: 4, isTied: true })
+    ))
+    expect(measures[1]).toEqual(createMeasure(new Whole({ note: 'C', octave: 4 })))
+  })
+
 })
 
 describe('mergeRestsAcrossMeasures (Whole = 4.0)', () => {
@@ -504,7 +529,7 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
   it('normalize a measure with an extra thirtysecond note', () => {
     const m1 = createMeasure(
       new Thirtysecond({ note: 'C', octave: 4 }),
-      new Half({ note: 'C', octave: 4 }),
+      new Chord({ noteConstructor: Half, notes: [{ note: 'C', octave: 4 }, { note: 'E', octave: 4 }] }),
       new Half({ note: 'C', octave: 4 }),
     );
     const all = [m1]
@@ -514,7 +539,7 @@ describe('normalizeMeasure (Whole = 4.0)', () => {
     expect(dur1).toBe(measureDuration)
     expect(m1).toEqual(createMeasure(
       new Thirtysecond({ note: 'C', octave: 4 }),
-      new Half({ note: 'C', octave: 4 }),
+      new Chord({ noteConstructor: Half, notes: [{ note: 'C', octave: 4 }, { note: 'E', octave: 4 }] }),
       new Quarter({ note: 'C', octave: 4, isTied: true, dots: 3 })
     ))
     expect(all.length).toBe(2)

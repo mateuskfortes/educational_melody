@@ -12,6 +12,31 @@ export const getNotesDuration = (notes: NotesTemplate[]): number => {
 }
 
 /**
+ * Finds the constructor of the largest note type
+ * that can fit within the given beat duration.
+ *
+ * Iterates over the available `notesConstructors`, creates a temporary 
+ * instance of each, and checks if its `beatDuration` is less than or 
+ * equal to the given duration. The first valid constructor found is returned.
+ *
+ * @param beatDuration - The duration that the note must fit into.
+ * @returns A note constructor capable of fitting 
+ *          within the specified duration.
+ * @throws Error if no suitable constructor is found.
+ */
+export const getMaxFittingNoteConstructor = (beatDuration: number): NoteConstructorTemplate => {
+  for (const NoteClass of notesConstructors) {
+    const instance = new NoteClass({ note: 'C', octave: 4 });
+
+    if (instance.beatDuration <= beatDuration) {
+      return NoteClass
+    }
+  }
+
+  throw new Error("No fitting note constructor found");
+}
+
+/**
  * Returns the largest possible note (including dotted versions) 
  * that fits within the given beat duration.
  *
@@ -20,7 +45,6 @@ export const getNotesDuration = (notes: NotesTemplate[]): number => {
  * @param octave - The octave of the note.
  * @param accidental - Note accidental.
  * @returns The best fitting NoteTemplate instance.
- * @throws Error if no fitting note is found.
  */
 export const getMaxFittingNote = (
   beatDuration: number,
@@ -29,22 +53,20 @@ export const getMaxFittingNote = (
   accidental: AccidentalTemplate,
   isTied: boolean = false,
 ): NoteTemplate => {
-  for (const NoteClass of notesConstructors) {
-    let instance = new NoteClass({ note, octave, accidental });
+  const NoteClass = getMaxFittingNoteConstructor(beatDuration)
+  let instance = new NoteClass({ note, octave, accidental });
 
-    if (instance.beatDuration <= beatDuration) {
-      for (let dots = 1; dots <= instance.dotsLimit; dots++) {
-        const instanceWithDots = new NoteClass({ note, octave, accidental, dots });
-        if (instanceWithDots.beatDuration <= beatDuration) {
-          instance = instanceWithDots;
-        }
+  if (instance.beatDuration <= beatDuration) {
+    for (let dots = 1; dots <= instance.dotsLimit; dots++) {
+      const instanceWithDots = new NoteClass({ note, octave, accidental, dots });
+      if (instanceWithDots.beatDuration <= beatDuration) {
+        instance = instanceWithDots;
       }
-
-      instance.isTied = isTied
-      return instance;
     }
+
   }
-  throw new Error("No fitting note found");
+  instance.isTied = isTied
+  return instance;
 };
 
 /**
@@ -55,7 +77,7 @@ export const getMaxFittingNote = (
  * that fits within the specified duration.
  *
  * @param beatDuration - The remaining duration each note must fit within.
- * @param notes - An array of note definitions (note, octave, accidental) for the chord.
+ * @param notes - An array of note definitions (note, octave, accidental, isTied) for the chord.
  * @returns A ChordTemplate composed of NoteTemplates that best fit the beat duration.
  * @throws Error if no fitting note is found for any note in the chord.
  */
@@ -63,17 +85,8 @@ export const getMaxFittingChord = (
   beatDuration: number,
   notesArgs: Omit<NoteConstructorArgsTemplate, 'dots'>[]
 ): ChordTemplate => {
-  const notesContructorArgs = notesArgs.map(noteArgs => {
-    const note = getMaxFittingNote(beatDuration, noteArgs.note, noteArgs.octave, noteArgs.accidental, noteArgs.isTied || false)
-    return {
-      noteObj: note,
-      note: note.note,
-      octave: note.octave,
-      accidental: note.accidental,
-      isTied: note.isTied
-    }
-  })
-  return new Chord({ notes: notesContructorArgs, noteConstructor: notesContructorArgs[0].noteObj.constructor as NoteConstructorTemplate });
+  const noteConstructor = getMaxFittingNoteConstructor(beatDuration)
+  return new Chord({ notes: notesArgs, noteConstructor });
 }
 
 /**
@@ -101,6 +114,7 @@ export const getMaxFittingRest = (beatDuration: number): RestTemplate => {
  * @param note - The base note.
  * @param octave - The octave of the note.
  * @param accidental - Note accidenal.
+ * @param isTied - If the last note must to be tied.
  * @returns An array of NoteTemplate instances.
  */
 export const fillBdWithNotes = (
@@ -192,27 +206,22 @@ export const splitNote = (
   const crMsDr = measureDuration - getNotesDuration(firstMeasure.notes);
 
   if (note instanceof NoteBase) {
-    const crMsNotes = fillBdWithNotes(crMsDr, note.note, note.octave, note.accidental)
-    crMsNotes[crMsNotes.length - 1].isTied = true
+    const crMsNotes = fillBdWithNotes(crMsDr, note.note, note.octave, note.accidental, true)
     firstMeasure.notes.push(...crMsNotes);
 
-    const nextMsNotes = fillBdWithNotes(note.beatDuration - crMsDr, note.note, note.octave, note.accidental)
-    if (note.isTied) nextMsNotes[nextMsNotes.length - 1].isTied = true
+    const nextMsNotes = fillBdWithNotes(note.beatDuration - crMsDr, note.note, note.octave, note.accidental, note.isTied)
     secondMeasure?.notes.unshift(...nextMsNotes)
     return
   }
 
   else if (note instanceof Chord) {
-    const chordArgs = note.notes.map(n => ({ note: n.note, octave: n.octave, accidental: n.accidental }))
-    const crMsNotes = fillBdWithChords(crMsDr, chordArgs)
-    crMsNotes[crMsNotes.length - 1].notes.forEach(n => n.isTied = true)
-    firstMeasure.notes.push(...crMsNotes);
+    const crMsChordArgs = note.notes.map(n => ({ note: n.note, octave: n.octave, accidental: n.accidental, isTied: true }))
+    const crMsChords = fillBdWithChords(crMsDr, crMsChordArgs)
+    firstMeasure.notes.push(...crMsChords);
 
-    const nextMsNotes = fillBdWithChords(note.beatDuration - crMsDr, chordArgs)
-    for (const [i, cNote] of note.notes.entries()) {
-      if (cNote.isTied) nextMsNotes[nextMsNotes.length - 1].notes[i].isTied = true
-    }
-    secondMeasure?.notes.unshift(...nextMsNotes)
+    const nextMsChordArgs = note.notes.map(n => ({ note: n.note, octave: n.octave, accidental: n.accidental, isTied: n.isTied }))
+    const nextMsChords = fillBdWithChords(note.beatDuration - crMsDr, nextMsChordArgs)
+    secondMeasure?.notes.unshift(...nextMsChords)
     return
   }
 
@@ -313,7 +322,7 @@ export const normalizeMeasuresAcrossSheetMusic = (measureList: MeasureTemplate[]
  *
  * - Iterates through all measures in the list.
  * - Detects consecutive tied notes of the same pitch.
- * - Combines their total duration into the smallest possible number of notes
+ * - Combines their total duration into the smallest possible number of notes/chords
  *   that represent the same duration (may be more than one note).
  * - Preserves the tie status of the resulting last note in the sequence.
  *
@@ -330,7 +339,6 @@ export const mergeTiesAcrossMeasures = (measureList: MeasureTemplate[]) => {
   for (const measure of measureList) {
     let mainIndex = 0
     const notes = measure.notes
-    const lastNote = notes[notes.length - 1]
 
     while (notes[mainIndex]) {
       const note = notes[mainIndex]
@@ -363,15 +371,6 @@ export const mergeTiesAcrossMeasures = (measureList: MeasureTemplate[]) => {
 
       notes.splice(mainIndex, 0, ...newNotes);
       mainIndex += newNotes.length
-    }
-
-    if (lastNote instanceof NoteBase && lastNote.isTied) {
-      (notes[notes.length - 1] as NoteTemplate).isTied = true
-    }
-    else if (lastNote instanceof Chord) {
-      for (const [i, note] of lastNote.notes.entries()) {
-        if (note.isTied) (notes[notes.length - 1] as ChordTemplate).notes[i].isTied = true
-      }
     }
   }
 }

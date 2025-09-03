@@ -48,6 +48,7 @@ export interface RestTemplate {
 export interface ChordTemplate {
     beatDuration: number;
     notes: NoteTemplate[];
+    noteConstructor: NoteConstructorTemplate;
     play: (sampler: Sampler, now: number, beat: number) => void
 }
 
@@ -84,6 +85,7 @@ export type AddNoteAction = {
 export type RemoveNotePayload = {
     measureIndex: number
     noteIndex: number
+    chordNoteIndex?: number
 }
 
 export type RemoveNoteAction = {

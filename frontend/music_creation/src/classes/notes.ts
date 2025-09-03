@@ -136,9 +136,11 @@ export class ThirtysecondRest extends RestBase implements RestTemplate {
 export class Chord implements ChordTemplate {
   notes: NoteTemplate[];
   beatDuration: number;
+  noteConstructor: NoteConstructorTemplate;
   constructor(args: ChordConstructorArgsTemplate) {
     this.notes = args.notes.map(noteArgs => new args.noteConstructor(noteArgs));
-    this.beatDuration = this.notes[0].beatDuration;
+    this.beatDuration = this.notes[0]?.beatDuration ?? 0;
+    this.noteConstructor = args.noteConstructor
   }
   play(sampler: Sampler, now: number, beat: number) {
     this.notes.forEach(note => note.play(sampler, now, beat));

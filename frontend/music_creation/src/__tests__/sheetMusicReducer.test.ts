@@ -1,8 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
 import { sheetMusicReducer } from '../hooks/useSheetMusic'
-import { Whole, Quarter, QuarterRest, Half, HalfRest } from '../classes/notes'
+import { Whole, Quarter, QuarterRest, Half, HalfRest, Chord } from '../classes/notes'
 import type { MusicTemplate, NotesTemplate, NoteTemplate } from '../types/sheetMusicTemplates'
 import * as SheetMusicFunctions from '../hooks/helpers/useSheetMusicFunctions'
+import { createMeasure } from '../utils'
 
 const normalizeMeasureMock = vi.spyOn(SheetMusicFunctions, 'normalizeMeasuresAcrossSheetMusic')
 
@@ -27,6 +28,59 @@ describe('sheetMusicReducer - ADD_NOTE', () => {
       type: 'ADD_NOTE' as const,
       payload: { note, measureIndex: 10, noteIndex: 0 },
     }
+    const state = sheetMusicReducer(initialState, action)
+    expect(state).toEqual(initialState)
+  })
+
+  it('Should add a chord', () => {
+    const chord = new Chord({ noteConstructor: Quarter, notes: [{ note: 'C', octave: 4 }, { note: 'E', octave: 4 }] })
+    const action = {
+      type: 'ADD_NOTE' as const,
+      payload: { note: chord, measureIndex: 0, noteIndex: 0 }
+    }
+
+    const state = sheetMusicReducer(initialState, action)
+    expect(state.measures).toEqual([
+      createMeasure(
+        new Chord({ noteConstructor: Quarter, notes: [{ note: 'C', octave: 4 }, { note: 'E', octave: 4 }] }),
+        new Half({ note: 'C', octave: 4, dots: 1, isTied: true })
+      ),
+      createMeasure(
+        new Quarter({ note: 'C', octave: 4 }),
+        new HalfRest(),
+        new QuarterRest(),
+      )
+    ])
+  })
+
+  it('should convert the chord into a single note if the chord has only one note', () => {
+    const chord = new Chord({ noteConstructor: Quarter, notes: [{ note: 'C', octave: 4 }] })
+    const action = {
+      type: 'ADD_NOTE' as const,
+      payload: { note: chord, measureIndex: 0, noteIndex: 0 }
+    }
+
+    const state = sheetMusicReducer(initialState, action)
+    expect(state.measures).toEqual([
+      createMeasure(
+        new Quarter({ note: 'C', octave: 4 }),
+        new Half({ note: 'C', octave: 4, dots: 1, isTied: true })
+      ),
+      createMeasure(
+        new Quarter({ note: 'C', octave: 4 }),
+        new HalfRest(),
+        new QuarterRest(),
+      )
+    ])
+  })
+
+  it('should not add a chord if it has no notes', () => {
+    const chord = new Chord({ noteConstructor: Quarter, notes: [] })
+    const action = {
+      type: 'ADD_NOTE' as const,
+      payload: { note: chord, measureIndex: 0, noteIndex: 0 }
+    }
+
     const state = sheetMusicReducer(initialState, action)
     expect(state).toEqual(initialState)
   })
@@ -172,6 +226,106 @@ describe('sheetMusicReducer - REMOVE_NOTE', () => {
       new Quarter({ note: 'F', octave: 4 })
     ]);
   });
+
+  it('should covert a chord into a note if only one note remains', () => {
+    const initial = createMusicTemplate([
+      [
+        new Half({ note: 'C', octave: 4 }),
+        new Quarter({ note: 'D', octave: 4 }),
+        new Quarter({ note: 'E', octave: 4 })
+      ],
+      [
+        new Chord({ noteConstructor: Quarter, notes: [{ note: 'F', octave: 4 }, { note: 'A', octave: 4 }] }),
+        new HalfRest(),
+        new QuarterRest()
+      ],
+    ]);
+
+    const action = {
+      type: 'REMOVE_NOTE',
+      payload: { measureIndex: 1, noteIndex: 0, chordNoteIndex: 1 },
+    } as const;
+
+    const state = sheetMusicReducer(initial, action);
+
+    expect(state).toEqual(createMusicTemplate([
+      [
+        new Half({ note: 'C', octave: 4 }),
+        new Quarter({ note: 'D', octave: 4 }),
+        new Quarter({ note: 'E', octave: 4 })
+      ],
+      [
+        new Quarter({ note: 'F', octave: 4 }),
+        new HalfRest(),
+        new QuarterRest()
+      ],
+    ]))
+  })
+
+  it('Removes the entire chord if no chordNoteIndex is provided', () => {
+    const initial = createMusicTemplate([
+      [
+        new Half({ note: 'C', octave: 4 }),
+        new Quarter({ note: 'D', octave: 4 }),
+        new Quarter({ note: 'E', octave: 4 })
+      ],
+      [
+        new Chord({ noteConstructor: Quarter, notes: [{ note: 'F', octave: 4 }, { note: 'A', octave: 4 }] }),
+        new HalfRest(),
+        new QuarterRest()
+      ],
+    ]);
+
+    const action = {
+      type: 'REMOVE_NOTE',
+      payload: { measureIndex: 1, noteIndex: 0 },
+    } as const;
+
+    const state = sheetMusicReducer(initial, action);
+
+    expect(state).toEqual(createMusicTemplate([
+      [
+        new Half({ note: 'C', octave: 4 }),
+        new Quarter({ note: 'D', octave: 4 }),
+        new Quarter({ note: 'E', octave: 4 })
+      ],
+    ]))
+  })
+
+  it('should remove a note from a chord', () => {
+    const initial = createMusicTemplate([
+      [
+        new Half({ note: 'C', octave: 4 }),
+        new Quarter({ note: 'D', octave: 4 }),
+        new Quarter({ note: 'E', octave: 4 })
+      ],
+      [
+        new Chord({ noteConstructor: Quarter, notes: [{ note: 'F', octave: 4 }, { note: 'A', octave: 4 }, { note: 'C', octave: 5 }] }),
+        new HalfRest(),
+        new QuarterRest()
+      ],
+    ]);
+
+    const action = {
+      type: 'REMOVE_NOTE',
+      payload: { measureIndex: 1, noteIndex: 0, chordNoteIndex: 1 },
+    } as const;
+
+    const state = sheetMusicReducer(initial, action);
+
+    expect(state).toEqual(createMusicTemplate([
+      [
+        new Half({ note: 'C', octave: 4 }),
+        new Quarter({ note: 'D', octave: 4 }),
+        new Quarter({ note: 'E', octave: 4 })
+      ],
+      [
+        new Chord({ noteConstructor: Quarter, notes: [{ note: 'F', octave: 4 }, { note: 'C', octave: 5 }] }),
+        new HalfRest(),
+        new QuarterRest()
+      ],
+    ]))
+  })
 
   it('clears measure', () => {
     const initial = createMusicTemplate([[new Whole({ note: 'C', octave: 4 })], [new Whole({ note: 'C', octave: 5 })]]);

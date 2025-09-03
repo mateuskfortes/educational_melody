@@ -3,7 +3,7 @@ import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTempl
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { copySheetMusic, createMeasure, getMeasureDurationByMeter } from "../utils";
-import { mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
+import { mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
 import { Chord, NoteBase } from "../classes/notes";
 
 export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
@@ -19,13 +19,21 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
       (!finalState.measures[measureIndex] && !isFinalPosition) // If there is no measure at the index
       || measureDuration < note.beatDuration // If there is not enough space in the measure
       || measureSpace < noteIndex + 1 // If there is not enough space in the measure
+      || (note instanceof Chord && note.notes.length === 0) // If there is no notes inside the chord
     ) {
       return prevState
     }
 
+    let insertNote = note
+
+    // If the chord has only one note, convert it into a single note.
+    if (note instanceof Chord && note.notes.length === 1) {
+      insertNote = new note.noteConstructor(note.notes[0])
+    }
+
     // Add the note to the measure
-    if (isFinalPosition) finalState.measures[measureIndex] = createMeasure(note)
-    else finalState.measures[measureIndex].notes.splice(noteIndex, 0, note)
+    if (isFinalPosition) finalState.measures[measureIndex] = createMeasure(insertNote)
+    else finalState.measures[measureIndex].notes.splice(noteIndex, 0, insertNote)
 
     normalizeMeasuresAcrossSheetMusic(finalState.measures, measureDuration)
     mergeTiesAcrossMeasures(finalState.measures)
@@ -36,24 +44,30 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
 
   function removeNote() {
     const finalState = copySheetMusic(prevState)
-    const { measureIndex, noteIndex } = action.payload as RemoveNotePayload
+    const { measureIndex, noteIndex, chordNoteIndex } = action.payload as RemoveNotePayload
 
+    const measureOnState = finalState.measures[measureIndex]
+    const noteOnState = measureOnState?.notes[noteIndex]
     if (
-      !finalState.measures[measureIndex]
-      || !finalState.measures[measureIndex].notes[noteIndex]
+      !measureOnState // If there is no measure at the given index
+      || !noteOnState // If there is no note at the given index
+      || (chordNoteIndex && noteOnState instanceof Chord && !noteOnState.notes[chordNoteIndex]) // If there is no note at the given chord index
     ) return prevState
 
     /// Remove the note from the measure
-    finalState.measures[measureIndex].notes.splice(noteIndex, 1)
+    if (chordNoteIndex && noteOnState instanceof Chord) {
+      noteOnState.notes.splice(chordNoteIndex, 1)
 
-    // Normalize the measures
-    let mi = measureIndex
-    while (true) {
-      const currentMs = finalState.measures[mi];
-      if (!currentMs) break;
-      normalizeMeasure(finalState.measures, currentMs, finalState.measures[mi + 1], measureDuration)
-      mi++;
+      // If only one note remains, convert the chord into a single note.
+      if (noteOnState.notes.length === 1) {
+        const newNote = new noteOnState.noteConstructor(noteOnState.notes[0])
+        measureOnState.notes.splice(noteIndex, 1, newNote)
+      }
     }
+    else
+      measureOnState.notes.splice(noteIndex, 1)
+
+    normalizeMeasuresAcrossSheetMusic(finalState.measures, measureDuration)
     mergeTiesAcrossMeasures(finalState.measures)
     mergeRestsAcrossMeasures(finalState.measures)
 

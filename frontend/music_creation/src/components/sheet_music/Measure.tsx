@@ -12,6 +12,7 @@ const Measure = ({ measure, ref, sheetMusicIndex, measureIndex }: MeasurePropsTe
 				<div className="notes_area">
 					{measure.notes.map((note, noteIndex) =>
 						<NoteContainer
+							key={noteIndex}
 							note={note}
 							sheetMusicIndex={sheetMusicIndex}
 							measureIndex={measureIndex}

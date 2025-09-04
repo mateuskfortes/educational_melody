@@ -23,8 +23,8 @@ const NoteContainer = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NoteC
     <div onClick={handleClick} className={containerClass} style={{ width }} >
       {note instanceof NoteBase && <SingleNote note={note as NoteTemplate} measureIndex={measureIndex} noteIndex={noteIndex} />}
       {note instanceof RestBase && <Rest rest={note as RestTemplate} />}
-      {note instanceof Chord && note.notes.map(note =>
-        <SingleNote note={note as NoteTemplate} measureIndex={measureIndex} noteIndex={noteIndex} />
+      {note instanceof Chord && note.notes.map((note, i) =>
+        <SingleNote key={i} note={note as NoteTemplate} measureIndex={measureIndex} noteIndex={noteIndex} />
       )}
     </div>
   )

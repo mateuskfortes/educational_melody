@@ -1,5 +1,5 @@
-import { Eighth, Half, NoteBase, Quarter, Sixteenth, Whole } from "./classes/notes";
-import { MeasureTemplate, MusicTemplate, NotesTemplate, NoteTemplate } from "./types/sheetMusicTemplates";
+import { Chord, Eighth, Half, NoteBase, Quarter, Sixteenth, Whole } from "./classes/notes";
+import { MeasureTemplate, MusicTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, RestConstructorTemplate } from "./types/sheetMusicTemplates";
 
 // List of note names used for vertical positioning calculations.
 // These represent the natural musical notes in ascending order.
@@ -157,7 +157,16 @@ export const copySheetMusic = (sheetMusic: MusicTemplate) => {
     bpm: sheetMusic.bpm,
     measures: sheetMusic.measures.map(measure => ({
       ...measure,
-      notes: Array.from(measure.notes)
+      notes: measure.notes.map(note => {
+        if (note instanceof Chord)
+          return new Chord({ noteConstructor: note.noteConstructor, notes: Array.from(note.notes) })
+        else if (note instanceof NoteBase) {
+          const NoteClass = Object.getPrototypeOf(note).constructor as NoteConstructorTemplate
+          return new NoteClass(note);
+        }
+        const RestClass = Object.getPrototypeOf(note).constructor as RestConstructorTemplate
+        return new RestClass()
+      })
     }))
   }
 

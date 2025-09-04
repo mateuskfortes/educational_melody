@@ -262,7 +262,7 @@ describe('sheetMusicReducer - REMOVE_NOTE', () => {
     ]))
   })
 
-  it('Removes the entire chord if no chordNoteIndex is provided', () => {
+  it('Should remove the entire chord if no chordNoteIndex is provided', () => {
     const initial = createMusicTemplate([
       [
         new Half({ note: 'C', octave: 4 }),
@@ -325,6 +325,30 @@ describe('sheetMusicReducer - REMOVE_NOTE', () => {
         new QuarterRest()
       ],
     ]))
+  })
+
+  it('Should not remove a note from a chord if the chordNoteIndex does not exist', () => {
+    const initial = createMusicTemplate([
+      [
+        new Half({ note: 'C', octave: 4 }),
+        new Quarter({ note: 'D', octave: 4 }),
+        new Quarter({ note: 'E', octave: 4 })
+      ],
+      [
+        new Chord({ noteConstructor: Quarter, notes: [{ note: 'F', octave: 4 }, { note: 'A', octave: 4 }, { note: 'C', octave: 5 }] }),
+        new HalfRest(),
+        new QuarterRest()
+      ],
+    ]);
+
+    const action = {
+      type: 'REMOVE_NOTE',
+      payload: { measureIndex: 1, noteIndex: 0, chordNoteIndex: 3 },
+    } as const;
+
+    const state = sheetMusicReducer(initial, action);
+
+    expect(state).toEqual(initial)
   })
 
   it('clears measure', () => {

@@ -142,9 +142,6 @@ export class Chord implements ChordTemplate {
     this.beatDuration = this.notes[0]?.beatDuration ?? 0;
     this.noteConstructor = args.noteConstructor
   }
-  play(sampler: Sampler, now: number, beat: number) {
-    this.notes.forEach(note => note.play(sampler, now, beat));
-  }
 }
 
 export const notesConstructors: NoteConstructorTemplate[] = [

@@ -1,10 +1,11 @@
 import { useReducer } from "react"
-import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload } from "../types/sheetMusicTemplates"
+import { AddNotePayload, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload } from "../types/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { copySheetMusic, createMeasure, getMeasureDurationByMeter } from "../utils";
 import { mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
-import { Chord, NoteBase } from "../classes/notes";
+import { Chord, NoteBase, RestBase } from "../classes/notes";
+import PlayingNotes from "../classes/PlayingNotes";
 
 export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
   const measureDuration = getMeasureDurationByMeter(prevState.meter.top, prevState.meter.bottom)
@@ -111,7 +112,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
      * @param noteIndex - The index of the current note within the measure's `notes` array.
      * @returns The next note object if found, otherwise `undefined`.
      */
-    function getNextNote(measureIndex: number, noteIndex: number) {
+    function getNextNote(measureIndex: number, noteIndex: number): NotesTemplate | undefined {
       let next = music.measures[measureIndex].notes[noteIndex + 1]
       if (next) return next
 
@@ -122,63 +123,92 @@ const useSheetMusic = (initialState: MusicTemplate) => {
     }
 
     /**
-     * Calculates the total extra beat duration contributed by all tied notes
-     * starting from the given note, as well as the number of tied notes encountered.
+     * Calculates the total extra beat duration contributed 
+     * by all tied notes starting from the given note.
      *
      * @param note - The starting note to evaluate ties from.
      * @param measureIndex - The index of the measure where the starting note is located.
      * @param noteIndex - The index of the note within the measure.
-     * @returns A tuple:
-     *   [ totalExtraBeatDuration, tiedNotesCount ]
-     *   - totalExtraBeatDuration: The sum of beat durations of all tied notes following the start note.
-     *   - tiedNotesCount: The number of tied notes that were counted.
+     * @returns The sum of beat durations of all tied notes following the start note.
      */
     function increaseBeatDuration(
-      note: NoteTemplate | ChordTemplate,
+      initialNote: NoteTemplate,
       measureIndex: number,
       noteIndex: number,
     ) {
       let totalExtraBeatDuration = 0
-      let tiedNotesCount = 0
+      let nextNote: NotesTemplate | undefined
+      let stop = false
 
-      do {
-        note = getNextNote(measureIndex, noteIndex) as NoteTemplate
-        if (!note) return [totalExtraBeatDuration, tiedNotesCount]
+      while (!stop) {
+        nextNote = getNextNote(measureIndex, noteIndex)
+        if (!nextNote || nextNote instanceof RestBase) return totalExtraBeatDuration
 
-        const measure = music.measures[measureIndex]
-        tiedNotesCount++
-        if (music.measures[measureIndex].notes.length - 1 <= noteIndex) measureIndex++
-        noteIndex = measure.notes.length - 1 === noteIndex
-          ? 0
-          : noteIndex + 1
-        totalExtraBeatDuration += note.beatDuration
-      } while (note.isTied)
+        if (nextNote instanceof Chord) {
+          for (const chordNote of nextNote.notes) {
+            if (
+              chordNote.note === initialNote.note
+              && chordNote.octave === initialNote.octave
+              && chordNote.accidental === initialNote.accidental
+            ) {
+              const measure = music.measures[measureIndex]
+              if (music.measures[measureIndex].notes.length - 1 <= noteIndex) measureIndex++
+              noteIndex = measure.notes.length - 1 === noteIndex
+                ? 0
+                : noteIndex + 1
+              totalExtraBeatDuration += nextNote.beatDuration
 
-      return [totalExtraBeatDuration, tiedNotesCount]
+              if (!chordNote.isTied) stop = true
+            }
+          }
+        }
+
+        else if (
+          nextNote instanceof NoteBase
+          && nextNote.note === initialNote.note
+          && nextNote.octave === initialNote.octave
+          && nextNote.accidental === initialNote.accidental
+        ) {
+          const measure = music.measures[measureIndex]
+          if (music.measures[measureIndex].notes.length - 1 <= noteIndex) measureIndex++
+          noteIndex = measure.notes.length - 1 === noteIndex
+            ? 0
+            : noteIndex + 1
+          totalExtraBeatDuration += nextNote.beatDuration
+
+          if (!nextNote.isTied) stop = true
+        }
+      }
+
+      return totalExtraBeatDuration
     }
-
 
     const beat = 60 / music.bpm
     let now = Tone.now();
-    let skipNotesCount = 0
+    const playingNotes = new PlayingNotes()
 
     music.measures.map((measure: MeasureTemplate, measureIndex: number) => {
       measure.notes.map((note: NotesTemplate, NoteIndex: number) => {
-        if (skipNotesCount > 0) return skipNotesCount--
 
-        let extraTiedDuration = 0
         if (note instanceof NoteBase) {
+          let extraTiedDuration = 0
           if (note.isTied) {
-            const [extraBeatDuration, newSkipNotesCount] = increaseBeatDuration(note, measureIndex, NoteIndex)
-            skipNotesCount = newSkipNotesCount
-            extraTiedDuration = extraBeatDuration
+            extraTiedDuration = increaseBeatDuration(note as NoteTemplate, measureIndex, NoteIndex)
           }
-          note.play(sampler, now, beat, extraTiedDuration)
+          playingNotes.addToPlay(note as NoteTemplate, sampler, now, beat, extraTiedDuration)
         }
+
         else if (note instanceof Chord) {
-          note.play(sampler, now, beat)
+          note.notes.forEach(n => {
+            let extraTiedDuration = 0
+            if (n.isTied) {
+              extraTiedDuration = increaseBeatDuration(n as NoteTemplate, measureIndex, NoteIndex)
+            }
+            playingNotes.addToPlay(n as NoteTemplate, sampler, now, beat, extraTiedDuration)
+          })
         }
-        now += beat * (note.beatDuration + extraTiedDuration)
+
+        now += beat * note.beatDuration
       })
     })
 

@@ -37,7 +37,7 @@ export interface NoteTemplate {
     beatDuration: number;
     dots: number; // Number of dots
     dotsLimit: number // Max number of dots
-    play: (sampler: Sampler, now: number, beat: number) => void
+    play: (sampler: Sampler, now: number, beat: number, extraTieDuration?: number) => void
 }
 
 export interface RestTemplate {
@@ -49,7 +49,6 @@ export interface ChordTemplate {
     beatDuration: number;
     notes: NoteTemplate[];
     noteConstructor: NoteConstructorTemplate;
-    play: (sampler: Sampler, now: number, beat: number) => void
 }
 
 export type NotesTemplate = NoteTemplate | RestTemplate | ChordTemplate;
@@ -118,4 +117,11 @@ export type SheetMusicContextType = {
     music: MusicTemplate
     measureWidth: number
     measureDuration: number
+}
+
+export type PlayingNoteTemplate = {
+    cleanNote: CleanNoteType;
+    octave: OctaveType;
+    accidental: AccidentalTemplate;
+    end: number;
 }

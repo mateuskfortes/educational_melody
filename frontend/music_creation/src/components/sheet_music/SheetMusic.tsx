@@ -35,13 +35,13 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 	function calculateLayout() {
 		if (!measureRef.current || !sheetMusicRef.current) return;
 
-		const measurePerLine = Math.floor(
+		const newMeasuresPerLine = Math.floor(
 			sheetMusicRef.current.offsetWidth / measureRef.current.offsetWidth
 		);
 
 		setMeasureHeight(measureRef.current.offsetHeight);
 		setMeasureWidth(measureRef.current.offsetWidth);
-		setMeasuresPerLine(measurePerLine);
+		setMeasuresPerLine(newMeasuresPerLine === 0 ? 1 : newMeasuresPerLine);
 	}
 
 	const sheetMusicLines = Math.ceil(music.measures.length / measuresPerLine)

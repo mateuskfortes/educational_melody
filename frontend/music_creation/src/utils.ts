@@ -193,10 +193,18 @@ export const calculateMeasureLineMargin = (lineMeasures: MeasureTemplate[], meas
 
   lineMeasures.forEach((measure) =>
     measure.notes.forEach((note) => {
-      if (!(note instanceof NoteBase)) return;
-      const [isTop, extra] = getExtraDistance(note);
-      if (isTop && extra > maxExtraTop) maxExtraTop = extra;
-      if (!isTop && extra > maxExtraBottom) maxExtraBottom = extra;
+      if (note instanceof NoteBase) {
+        const [isTop, extra] = getExtraDistance(note as NoteTemplate);
+        if (isTop && extra > maxExtraTop) maxExtraTop = extra;
+        if (!isTop && extra > maxExtraBottom) maxExtraBottom = extra;
+      }
+      else if (note instanceof Chord) {
+        note.notes.forEach(n => {
+          const [isTop, extra] = getExtraDistance(n);
+          if (isTop && extra > maxExtraTop) maxExtraTop = extra;
+          if (!isTop && extra > maxExtraBottom) maxExtraBottom = extra;
+        })
+      }
     })
   );
 

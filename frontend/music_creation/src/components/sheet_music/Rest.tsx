@@ -1,13 +1,7 @@
 import { EighthRest, HalfRest, QuarterRest, SixteenthRest, ThirtysecondRest, WholeRest } from "../../classes/notes";
 import { RestPropsTemplate } from "../../types/ComponentsPropsTypes";
-import { useSheetMusicContext } from "../../hooks/useSheetMusicContext";
-import { useSheetMusicLibraryContext } from "../../hooks/useSheetMusicLibraryContext";
 
-const Rest = ({ rest, sheetMusicIndex, measureIndex, noteIndex }: RestPropsTemplate) => {
-  const { musicManageMode, insertNote, removeNote } = useSheetMusicLibraryContext()
-  const { measureDuration } = useSheetMusicContext()
-
-  const width = `${rest.beatDuration / measureDuration * 100}%`;
+const Rest = ({ rest }: RestPropsTemplate) => {
 
   let offset = 0;
 
@@ -20,25 +14,12 @@ const Rest = ({ rest, sheetMusicIndex, measureIndex, noteIndex }: RestPropsTempl
 
   const top = `${50 + offset}%`
 
-  const containerClass = musicManageMode === "ADD" ? "note_container_on_insert" : "note_container_on_remove"
-
-  function handleNote() {
-    if (musicManageMode === 'ADD') insertNote(sheetMusicIndex, measureIndex, noteIndex)
-    else if (musicManageMode === 'REMOVE') removeNote(sheetMusicIndex, measureIndex, noteIndex)
-  }
-
   return (
-    <div
-      onClick={handleNote}
-      className={containerClass}
-      style={{ width }}
-    >
-      <img
-        src={`img/${rest.name}.svg`}
-        className={`rest_note ${rest.name}`}
-        style={{ top }}
-      />
-    </div>
+    <img
+      src={`img/${rest.name}.svg`}
+      className={`rest_note ${rest.name}`}
+      style={{ top }}
+    />
   );
 }
 

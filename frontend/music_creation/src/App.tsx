@@ -18,15 +18,15 @@ const musicDefault: MusicTemplate = {
 				new EighthRest(),
 				new Chord({
 					noteConstructor: Eighth,
-					notes: [{ note: 'C', octave: 5}, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }]
+					notes: [{ note: 'C', octave: 5 }, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }]
 				}),
 				new Chord({
 					noteConstructor: Eighth,
-					notes: [{ note: 'D', octave: 5}, { note: 'F', octave: 5 }, { note: 'A', octave: 5 }]
+					notes: [{ note: 'D', octave: 5 }, { note: 'F', octave: 5 }, { note: 'A', octave: 5 }]
 				}),
 				new Chord({
 					noteConstructor: Eighth,
-					notes: [{ note: 'E', octave: 5}, { note: 'G', octave: 5 }, { note: 'B', octave: 5 }]
+					notes: [{ note: 'E', octave: 5 }, { note: 'G', octave: 5 }, { note: 'B', octave: 5 }]
 				}),
 			],
 		},

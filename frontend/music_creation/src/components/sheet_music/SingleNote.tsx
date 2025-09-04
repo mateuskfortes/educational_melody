@@ -1,17 +1,14 @@
 import { calculateTieWidth, getExtraDistance, getTopDistance } from "../../utils";
 import Tie from "./Tie";
-import { NotePropsTemplate } from "../../types/ComponentsPropsTypes";
+import { SingleNotePropsTemplate } from "../../types/ComponentsPropsTypes";
 import { useSheetMusicContext } from "../../hooks/useSheetMusicContext";
-import { useSheetMusicLibraryContext } from "../../hooks/useSheetMusicLibraryContext";
 
-const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTemplate) => {
-  const { musicManageMode, insertNote, removeNote } = useSheetMusicLibraryContext()
+const SingleNote = ({ note, measureIndex, noteIndex }: SingleNotePropsTemplate) => {
   const { measureDuration, measureWidth, music } = useSheetMusicContext()
 
   const topDistance = getTopDistance(note);
 
   const top = `${topDistance}%`;
-  const width = `${note.beatDuration / measureDuration * 100}%`;
 
   const [isTop, extraDistance] = getExtraDistance(note);
 
@@ -19,16 +16,9 @@ const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTempl
 
   const tieWidth = calculateTieWidth(measureWidth, measureDuration, music.measures, measureIndex, noteIndex)
 
-  const containerClass = musicManageMode === "ADD" ? "note_container_on_insert" : "note_container_on_remove"
-
-  function handleNote() {
-    if (musicManageMode === 'ADD') insertNote(sheetMusicIndex, measureIndex, noteIndex)
-    else if (musicManageMode === 'REMOVE') removeNote(sheetMusicIndex, measureIndex, noteIndex)
-  }
-
   return (
-    <div onClick={handleNote} className={containerClass} style={{ width }} >
-      {note.isTied && <Tie top={`${topDistance + 15}%`} width={tieWidth} />}
+    <>
+      {note.isTied && <Tie top={`${topDistance + 3}%`} width={tieWidth} />}
       <div className="note" style={{ top }} >
         {note.accidental === 'sharp' && (
           <div className="sharp_box">
@@ -70,8 +60,8 @@ const Note = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NotePropsTempl
             style={{ top: `${125 + i * 25}%` }}
           />
         ))}
-    </div>
+    </>
   );
 }
 
-export default Note;
+export default SingleNote;

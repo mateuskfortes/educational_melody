@@ -1,5 +1,5 @@
 import { ActionDispatch } from "react";
-import { MeasureTemplate, MusicAction, MusicTemplate, NoteTemplate, RestTemplate } from "./sheetMusicTemplates";
+import { MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RestTemplate } from "./sheetMusicTemplates";
 
 export type SheetMusicSetRunAndDispatchArgs = {
   music: MusicTemplate,
@@ -20,23 +20,26 @@ export type MeasurePropsTemplate = {
   measureIndex: number;
 };
 
-export type NotePropsTemplate = {
-  note: NoteTemplate;
-  sheetMusicIndex: number
+export type NoteContainerPropsTemplate = {
+  note: NotesTemplate;
+  sheetMusicIndex: number;
   measureIndex: number;
-  noteIndex: number
+  noteIndex: number;
+}
+
+export type SingleNotePropsTemplate = {
+  note: NoteTemplate;
+  measureIndex: number;
+  noteIndex: number;
 }
 
 export type RestPropsTemplate = {
   rest: RestTemplate;
-  sheetMusicIndex: number
-  measureIndex: number;
-  noteIndex: number
 }
 
 export type TiePropsTemplate = {
-  width: number,
-  height?: number,
-  left?: string,
-  top?: string
+  width: number;
+  height?: number;
+  left?: string;
+  top?: string;
 }

@@ -2,7 +2,8 @@ import { Sampler } from "tone";
 import { AccidentalTemplate, ChordConstructorArgsTemplate, ChordTemplate, CleanNoteType, NoteConstructorArgsTemplate, NoteConstructorTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../types/sheetMusicTemplates";
 import { getBeatDurationWithDots } from "../utils";
 
-export class NoteBase implements Omit<NoteTemplate, 'name'> {
+export class NoteBase implements NoteTemplate {
+  name = '';
   note: CleanNoteType;
   octave: OctaveType;
   accidental: AccidentalTemplate;
@@ -99,7 +100,8 @@ export class Thirtysecond extends NoteBase implements NoteTemplate {
   }
 }
 
-export class RestBase implements Omit<RestTemplate, 'name'> {
+export class RestBase implements RestTemplate {
+  name = '';
   beatDuration = 0;
 }
 

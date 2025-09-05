@@ -16,7 +16,7 @@ export type ChordConstructorTemplate = new (args: ChordConstructorArgsTemplate) 
 export type AccidentalTemplate = undefined | "sharp" | "flat" | "natural";
 
 export type NoteConstructorArgsTemplate = {
-    note: CleanNoteType;
+    cleanNote: CleanNoteType;
     octave: OctaveType;
     accidental?: AccidentalTemplate;
     isTied?: boolean; // If the note is tied with the next one
@@ -29,14 +29,14 @@ export type ChordConstructorArgsTemplate = {
 }
 
 export type EqualNoteArgsTemplate = {
-    note: CleanNoteType,
+    cleanNote: CleanNoteType,
     octave: OctaveType,
     accidental: AccidentalTemplate
 }
 
 export interface NoteTemplate {
     name: string
-    note: CleanNoteType;
+    cleanNote: CleanNoteType;
     octave: OctaveType;
     accidental: AccidentalTemplate;
     isTied: boolean; // If the note is tied with the next one
@@ -128,7 +128,7 @@ export type SheetMusicContextType = {
 }
 
 export type PlayingNoteTemplate = {
-    note: CleanNoteType;
+    cleanNote: CleanNoteType;
     octave: OctaveType;
     accidental: AccidentalTemplate;
     end: number;

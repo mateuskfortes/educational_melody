@@ -18,68 +18,68 @@ const musicDefault: MusicTemplate = {
 				new EighthRest(),
 				new Chord({
 					noteConstructor: Eighth,
-					notes: [{ note: 'C', octave: 5 }, { note: 'E', octave: 5 }, { note: 'G', octave: 5 }]
+					notes: [{ cleanNote: 'C', octave: 5 }, { cleanNote: 'E', octave: 5 }, { cleanNote: 'G', octave: 5 }]
 				}),
 				new Chord({
 					noteConstructor: Eighth,
-					notes: [{ note: 'D', octave: 5 }, { note: 'F', octave: 5 }, { note: 'A', octave: 5 }]
+					notes: [{ cleanNote: 'D', octave: 5 }, { cleanNote: 'F', octave: 5 }, { cleanNote: 'A', octave: 5 }]
 				}),
 				new Chord({
 					noteConstructor: Eighth,
-					notes: [{ note: 'E', octave: 5 }, { note: 'G', octave: 5 }, { note: 'B', octave: 5 }]
+					notes: [{ cleanNote: 'E', octave: 5 }, { cleanNote: 'G', octave: 5 }, { cleanNote: 'B', octave: 5 }]
 				}),
 			],
 		},
 		{
 			notes: [
-				new Quarter({ note: 'F', octave: 5 }),
-				new Eighth({ note: 'F', octave: 5 }),
-				new Eighth({ note: 'F', octave: 5 }),
+				new Quarter({ cleanNote: 'F', octave: 5 }),
+				new Eighth({ cleanNote: 'F', octave: 5 }),
+				new Eighth({ cleanNote: 'F', octave: 5 }),
 			],
 		},
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth({ note: 'C', octave: 5 }),
-				new Eighth({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'C', octave: 5 }),
+				new Eighth({ cleanNote: 'C', octave: 5 }),
+				new Eighth({ cleanNote: 'D', octave: 5 }),
+				new Eighth({ cleanNote: 'C', octave: 5 }),
 			]
 		},
 		{
 			notes: [
-				new Quarter({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'D', octave: 5 }),
+				new Quarter({ cleanNote: 'D', octave: 5 }),
+				new Eighth({ cleanNote: 'D', octave: 5 }),
+				new Eighth({ cleanNote: 'D', octave: 5 }),
 			]
 		},
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth({ note: 'C', octave: 5 }),
-				new Eighth({ note: 'G', octave: 5 }),
-				new Eighth({ note: 'F', octave: 5 }),
+				new Eighth({ cleanNote: 'C', octave: 5 }),
+				new Eighth({ cleanNote: 'G', octave: 5 }),
+				new Eighth({ cleanNote: 'F', octave: 5 }),
 			],
 		},
 		{
 			notes: [
-				new Quarter({ note: 'E', octave: 5 }),
-				new Eighth({ note: 'E', octave: 5 }),
-				new Eighth({ note: 'E', octave: 5 }),
+				new Quarter({ cleanNote: 'E', octave: 5 }),
+				new Eighth({ cleanNote: 'E', octave: 5 }),
+				new Eighth({ cleanNote: 'E', octave: 5 }),
 			],
 		},
 		{
 			notes: [
 				new EighthRest(),
-				new Eighth({ note: 'C', octave: 5 }),
-				new Eighth({ note: 'D', octave: 5 }),
-				new Eighth({ note: 'E', octave: 5 }),
+				new Eighth({ cleanNote: 'C', octave: 5 }),
+				new Eighth({ cleanNote: 'D', octave: 5 }),
+				new Eighth({ cleanNote: 'E', octave: 5 }),
 			],
 		},
 		{
 			notes: [
-				new Quarter({ note: 'F', octave: 5 }),
-				new Eighth({ note: 'F', octave: 5 }),
-				new Eighth({ note: 'F', octave: 5 }),
+				new Quarter({ cleanNote: 'F', octave: 5 }),
+				new Eighth({ cleanNote: 'F', octave: 5 }),
+				new Eighth({ cleanNote: 'F', octave: 5 }),
 			],
 		},
 	],
@@ -99,7 +99,7 @@ function App() {
 					bpm: 120,
 					measures: [
 						{
-							notes: [new Whole({ note: 'C', octave: 4 })]
+							notes: [new Whole({ cleanNote: 'C', octave: 4 })]
 						}
 					]
 				}

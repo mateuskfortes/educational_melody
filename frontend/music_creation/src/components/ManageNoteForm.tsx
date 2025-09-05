@@ -6,7 +6,7 @@ import { notesConstructors, restNotesConstructors } from "../classes/notes";
 const ManageNoteForm = () => {
   const { addSheetMusic, runAll, selectNote, musicManageMode, setMusicManageMode, insertNote, removeNote } = useSheetMusicLibraryContext()
 
-  const [note, setNote] = useState<CleanNoteType | "REST">("C");
+  const [cleanNote, setCleanNote] = useState<CleanNoteType | "REST">("C");
   const [octave, setOctave] = useState<OctaveType>(5);
   const [accidental, setAccidental] = useState<AccidentalTemplate>(undefined);
   const [dots, setDots] = useState<number>(0)
@@ -26,12 +26,12 @@ const ManageNoteForm = () => {
   useEffect(() => {
     if (musicManageMode === "ADD") {
       let noteObj: NotesTemplate;
-      if (note === "REST") {
+      if (cleanNote === "REST") {
         const RestClass = restNotesConstructors[noteType];
         noteObj = new RestClass();
       } else {
         const NoteClass = notesConstructors[noteType];
-        noteObj = new NoteClass({ note, octave, accidental, dots, isTied });
+        noteObj = new NoteClass({ cleanNote, octave, accidental, dots, isTied });
       }
       selectNote(noteObj);
       setMusicManageMode("ADD");
@@ -39,7 +39,7 @@ const ManageNoteForm = () => {
       selectNote(undefined);
       setMusicManageMode("REMOVE");
     }
-  }, [note, octave, accidental, dots, isTied, noteType, musicManageMode]);
+  }, [cleanNote, octave, accidental, dots, isTied, noteType, musicManageMode]);
 
   return (
     <>
@@ -55,7 +55,7 @@ const ManageNoteForm = () => {
 
         {musicManageMode === "ADD" && (
           <>
-            <select value={note} onChange={e => setNote(e.target.value as CleanNoteType)}>
+            <select value={cleanNote} onChange={e => setCleanNote(e.target.value as CleanNoteType)}>
               <option value="C">C</option>
               <option value="D">D</option>
               <option value="E">E</option>
@@ -66,7 +66,7 @@ const ManageNoteForm = () => {
               <option value="REST">Pausa</option>
             </select>
 
-            {note !== "REST" && (
+            {cleanNote !== "REST" && (
               <>
                 <input
                   type="number"
@@ -80,7 +80,7 @@ const ManageNoteForm = () => {
                 <input
                   type="number"
                   min={0}
-                  max={new notesConstructors[noteType]({ note, octave }).dotsLimit}
+                  max={new notesConstructors[noteType]({ cleanNote, octave }).dotsLimit}
                   value={dots}
                   onChange={e => setDots(Number(e.target.value))}
                   placeholder="Pontos de aumento"

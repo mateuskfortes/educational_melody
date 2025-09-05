@@ -4,7 +4,7 @@ import { getBeatDurationWithDots } from "../utils";
 
 export class NoteBase implements NoteTemplate {
   name = '';
-  note: CleanNoteType;
+  cleanNote: CleanNoteType;
   octave: OctaveType;
   accidental: AccidentalTemplate;
   isTied: boolean;
@@ -22,7 +22,7 @@ export class NoteBase implements NoteTemplate {
     isTied: boolean = false
   ) {
     this.dotsLimit = dotsLimit;
-    this.note = note
+    this.cleanNote = note
     this.octave = octave
     this.accidental = accidental
     this.isTied = isTied;
@@ -33,7 +33,7 @@ export class NoteBase implements NoteTemplate {
 
   equal(note: EqualNoteArgsTemplate) {
     if (
-      note.note === this.note
+      note.cleanNote === this.cleanNote
       && note.octave === this.octave
       && note.accidental === this.accidental
     ) return true
@@ -46,7 +46,7 @@ export class NoteBase implements NoteTemplate {
       case 'sharp': accidentalDecorator = '#'; break;
       case 'flat': accidentalDecorator = 'b'; break;
     }
-    return this.note + accidentalDecorator + this.octave;
+    return this.cleanNote + accidentalDecorator + this.octave;
   }
 
   play(sampler: Sampler, now: number, beat: number, extraTieDuration: number = 0) {
@@ -60,7 +60,7 @@ export class Whole extends NoteBase implements NoteTemplate {
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 4;
     const dotsLimit = 5;
-    super(defaultBeatDuration, dotsLimit, args.note, args.octave, args.accidental, args.dots, args.isTied);
+    super(defaultBeatDuration, dotsLimit, args.cleanNote, args.octave, args.accidental, args.dots, args.isTied);
   }
 }
 
@@ -69,7 +69,7 @@ export class Half extends NoteBase implements NoteTemplate {
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 2;
     const dotsLimit = 4;
-    super(defaultBeatDuration, dotsLimit, args.note, args.octave, args.accidental, args.dots, args.isTied);
+    super(defaultBeatDuration, dotsLimit, args.cleanNote, args.octave, args.accidental, args.dots, args.isTied);
   }
 }
 
@@ -78,7 +78,7 @@ export class Quarter extends NoteBase implements NoteTemplate {
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1;
     const dotsLimit = 3;
-    super(defaultBeatDuration, dotsLimit, args.note, args.octave, args.accidental, args.dots, args.isTied);
+    super(defaultBeatDuration, dotsLimit, args.cleanNote, args.octave, args.accidental, args.dots, args.isTied);
   }
 }
 
@@ -87,7 +87,7 @@ export class Eighth extends NoteBase implements NoteTemplate {
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1 / 2;
     const dotsLimit = 2;
-    super(defaultBeatDuration, dotsLimit, args.note, args.octave, args.accidental, args.dots, args.isTied);
+    super(defaultBeatDuration, dotsLimit, args.cleanNote, args.octave, args.accidental, args.dots, args.isTied);
   }
 }
 
@@ -96,7 +96,7 @@ export class Sixteenth extends NoteBase implements NoteTemplate {
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1 / 4;
     const dotsLimit = 1;
-    super(defaultBeatDuration, dotsLimit, args.note, args.octave, args.accidental, args.dots, args.isTied);
+    super(defaultBeatDuration, dotsLimit, args.cleanNote, args.octave, args.accidental, args.dots, args.isTied);
   }
 }
 
@@ -105,7 +105,7 @@ export class Thirtysecond extends NoteBase implements NoteTemplate {
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1 / 8;
     const dotsLimit = 0;
-    super(defaultBeatDuration, dotsLimit, args.note, args.octave, args.accidental, args.dots, args.isTied);
+    super(defaultBeatDuration, dotsLimit, args.cleanNote, args.octave, args.accidental, args.dots, args.isTied);
   }
 }
 

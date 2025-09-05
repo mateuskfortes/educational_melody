@@ -58,7 +58,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
         }
         else if (noteOnState instanceof NoteBase) {
           const notesWithAddedNote = fillBdWithChords(note.beatDuration, getChordArgsFromNotes([noteOnState, note]))
-          const notesWithoutAddedNote = fillBdWithNotes(noteOnState.beatDuration - note.beatDuration, noteOnState.note, noteOnState.octave, noteOnState.accidental, noteOnState.isTied)
+          const notesWithoutAddedNote = fillBdWithNotes(noteOnState.beatDuration - note.beatDuration, noteOnState.cleanNote, noteOnState.octave, noteOnState.accidental, noteOnState.isTied)
           notesWithAddedNote[notesWithAddedNote.length - 1].notes.forEach(n => {
             if (!note.equal(n)) {
               n.isTied = true
@@ -70,7 +70,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
       else if (note.beatDuration > noteOnState.beatDuration) {
         if (noteOnState instanceof Chord) {
           const notesWithPreviousNote = fillBdWithChords(noteOnState.beatDuration, getChordArgsFromNotes(noteOnState.notes.concat(note)))
-          const notesWithoutPreviousNote = fillBdWithNotes(note.beatDuration - noteOnState.beatDuration, note.note, note.octave, note.accidental, note.isTied)
+          const notesWithoutPreviousNote = fillBdWithNotes(note.beatDuration - noteOnState.beatDuration, note.cleanNote, note.octave, note.accidental, note.isTied)
           notesWithPreviousNote[notesWithPreviousNote.length - 1].notes.forEach(n => {
             if (note.equal(n)) {
               n.isTied = true
@@ -81,7 +81,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
         }
         else if (noteOnState instanceof NoteBase) {
           const notesWithPreviousNote = fillBdWithChords(noteOnState.beatDuration, getChordArgsFromNotes([noteOnState, note]))
-          const notesWithoutPreviousNote = fillBdWithNotes(note.beatDuration - noteOnState.beatDuration, note.note, note.octave, note.accidental, note.isTied)
+          const notesWithoutPreviousNote = fillBdWithNotes(note.beatDuration - noteOnState.beatDuration, note.cleanNote, note.octave, note.accidental, note.isTied)
           notesWithPreviousNote[notesWithPreviousNote.length - 1].notes.forEach(n => {
             if (note.equal(n)) {
               n.isTied = true

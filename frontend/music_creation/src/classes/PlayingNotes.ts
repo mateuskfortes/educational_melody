@@ -23,7 +23,7 @@ export default class PlayingNotes {
     if (!existingNote) {
       note.play(sampler, now, beat, extraTieDuration)
       this.notes.push({
-        note: note.note,
+        cleanNote: note.cleanNote,
         octave: note.octave,
         accidental: note.accidental,
         end: now + (note.beatDuration + extraTieDuration) * beat

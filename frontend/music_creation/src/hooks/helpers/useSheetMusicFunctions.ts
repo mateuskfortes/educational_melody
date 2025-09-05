@@ -26,7 +26,7 @@ export const getNotesDuration = (notes: NotesTemplate[]): number => {
  */
 export const getMaxFittingNoteConstructor = (beatDuration: number): NoteConstructorTemplate => {
   for (const NoteClass of notesConstructors) {
-    const instance = new NoteClass({ note: 'C', octave: 4 });
+    const instance = new NoteClass({ cleanNote: 'C', octave: 4 });
 
     if (instance.beatDuration <= beatDuration) {
       return NoteClass
@@ -41,24 +41,24 @@ export const getMaxFittingNoteConstructor = (beatDuration: number): NoteConstruc
  * that fits within the given beat duration.
  *
  * @param beatDuration - The remaining duration to fill.
- * @param note - The note pitch (e.g., C, D, E).
+ * @param cleanNote - The note pitch (e.g., C, D, E).
  * @param octave - The octave of the note.
  * @param accidental - Note accidental.
  * @returns The best fitting NoteTemplate instance.
  */
 export const getMaxFittingNote = (
   beatDuration: number,
-  note: CleanNoteType,
+  cleanNote: CleanNoteType,
   octave: OctaveType,
   accidental: AccidentalTemplate,
   isTied: boolean = false,
 ): NoteTemplate => {
   const NoteClass = getMaxFittingNoteConstructor(beatDuration)
-  let instance = new NoteClass({ note, octave, accidental });
+  let instance = new NoteClass({ cleanNote, octave, accidental });
 
   if (instance.beatDuration <= beatDuration) {
     for (let dots = 1; dots <= instance.dotsLimit; dots++) {
-      const instanceWithDots = new NoteClass({ note, octave, accidental, dots });
+      const instanceWithDots = new NoteClass({ cleanNote, octave, accidental, dots });
       if (instanceWithDots.beatDuration <= beatDuration) {
         instance = instanceWithDots;
       }
@@ -206,20 +206,20 @@ export const splitNote = (
   const crMsDr = measureDuration - getNotesDuration(firstMeasure.notes);
 
   if (note instanceof NoteBase) {
-    const crMsNotes = fillBdWithNotes(crMsDr, note.note, note.octave, note.accidental, true)
+    const crMsNotes = fillBdWithNotes(crMsDr, note.cleanNote, note.octave, note.accidental, true)
     firstMeasure.notes.push(...crMsNotes);
 
-    const nextMsNotes = fillBdWithNotes(note.beatDuration - crMsDr, note.note, note.octave, note.accidental, note.isTied)
+    const nextMsNotes = fillBdWithNotes(note.beatDuration - crMsDr, note.cleanNote, note.octave, note.accidental, note.isTied)
     secondMeasure?.notes.unshift(...nextMsNotes)
     return
   }
 
   else if (note instanceof Chord) {
-    const crMsChordArgs = note.notes.map(n => ({ note: n.note, octave: n.octave, accidental: n.accidental, isTied: true }))
+    const crMsChordArgs = note.notes.map(n => ({ cleanNote: n.cleanNote, octave: n.octave, accidental: n.accidental, isTied: true }))
     const crMsChords = fillBdWithChords(crMsDr, crMsChordArgs)
     firstMeasure.notes.push(...crMsChords);
 
-    const nextMsChordArgs = note.notes.map(n => ({ note: n.note, octave: n.octave, accidental: n.accidental, isTied: n.isTied }))
+    const nextMsChordArgs = note.notes.map(n => ({ cleanNote: n.cleanNote, octave: n.octave, accidental: n.accidental, isTied: n.isTied }))
     const nextMsChords = fillBdWithChords(note.beatDuration - crMsDr, nextMsChordArgs)
     secondMeasure?.notes.unshift(...nextMsChords)
     return
@@ -358,11 +358,11 @@ export const mergeTiesAcrossMeasures = (measureList: MeasureTemplate[]) => {
       let newNotes: (NoteTemplate | ChordTemplate)[] = []
 
       if (note instanceof NoteBase && lastTiedNote instanceof NoteBase) {
-        newNotes = fillBdWithNotes(tiedNotesDuration, lastTiedNote.note, lastTiedNote.octave, lastTiedNote.accidental, lastTiedNote.isTied)
+        newNotes = fillBdWithNotes(tiedNotesDuration, lastTiedNote.cleanNote, lastTiedNote.octave, lastTiedNote.accidental, lastTiedNote.isTied)
       }
       else if (note instanceof Chord && lastTiedNote instanceof Chord) {
         newNotes = fillBdWithChords(tiedNotesDuration, lastTiedNote.notes.map(n => ({
-          note: n.note,
+          cleanNote: n.cleanNote,
           octave: n.octave,
           accidental: n.accidental,
           isTied: n.isTied,

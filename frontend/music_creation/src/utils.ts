@@ -28,7 +28,7 @@ export function createMeasure(...notes: NotesTemplate[]): MeasureTemplate {
  * @returns The calculated vertical top distance for the note.
  */
 export const getTopDistance = (note: NoteTemplate) => {
-  const topDistance = 487.5 - note.octave * 87.5 - notes.indexOf(note.note) * 12.5;
+  const topDistance = 487.5 - note.octave * 87.5 - notes.indexOf(note.cleanNote) * 12.5;
   return topDistance;
 };
 
@@ -106,7 +106,7 @@ export const getMeasureDurationByMeter = (top: number, bottom: number): number =
   }
 
   // Calculate measure duration: number of beats * beat duration of one beat note
-  return top * new noteType({ note: 'C', octave: 4 }).beatDuration;
+  return top * new noteType({ cleanNote: 'C', octave: 4 }).beatDuration;
 };
 
 export const calculateTieWidth = (
@@ -247,7 +247,7 @@ export const getConstructor = (note: NotesTemplate) => {
 export const getChordArgsFromNotes = (notes: NoteTemplate[]) => {
   return notes.map(note =>
   ({
-    note: note.note,
+    cleanNote: note.cleanNote,
     octave: note.octave,
     accidental: note.accidental,
     isTied: note.isTied

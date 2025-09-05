@@ -1,5 +1,5 @@
 import { useReducer } from "react"
-import { AddNotePayload, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload } from "../types/sheetMusicTemplates"
+import { AddNotePayload, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, RemoveNotePayload } from "../types/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { copySheetMusic, createMeasure, getChordArgsFromNotes, getConstructor, getMeasureDurationByMeter } from "../utils";
@@ -186,52 +186,45 @@ const useSheetMusic = (initialState: MusicTemplate) => {
      * Calculates the total extra beat duration contributed 
      * by all tied notes starting from the given note.
      *
-     * @param note - The starting note to evaluate ties from.
+     * This function does not check if the next note is equal 
+     * to the current one, it only verifies if the current note 
+     * is tied to it.
+     * 
      * @param measureIndex - The index of the measure where the starting note is located.
      * @param noteIndex - The index of the note within the measure.
      * @returns The sum of beat durations of all tied notes following the start note.
      */
     function increaseBeatDuration(
-      initialNote: NoteTemplate,
       measureIndex: number,
       noteIndex: number,
     ) {
       let totalExtraBeatDuration = 0
       let nextNote: NotesTemplate | undefined
-      let stop = false
 
-      while (!stop) {
-        nextNote = getNextNote(measureIndex, noteIndex)
-        if (!nextNote || nextNote instanceof RestBase) return totalExtraBeatDuration
-
-        if (nextNote instanceof Chord) {
-          for (const chordNote of nextNote.notes) {
-            if (chordNote) {
-              const measure = music.measures[measureIndex]
-              if (music.measures[measureIndex].notes.length - 1 <= noteIndex) measureIndex++
-              noteIndex = measure.notes.length - 1 === noteIndex
-                ? 0
-                : noteIndex + 1
-              totalExtraBeatDuration += nextNote.beatDuration
-
-              if (!chordNote.isTied) stop = true
-            }
-          }
+      function goToNextNote() {
+        const measure = music.measures[measureIndex]
+        if (noteIndex === measure.notes.length - 1) {
+          measureIndex++
+          noteIndex = 0
         }
-
-        else if (nextNote instanceof NoteBase && nextNote.equal(initialNote)) {
-          const measure = music.measures[measureIndex]
-          if (music.measures[measureIndex].notes.length - 1 <= noteIndex) measureIndex++
-          noteIndex = measure.notes.length - 1 === noteIndex
-            ? 0
-            : noteIndex + 1
-          totalExtraBeatDuration += nextNote.beatDuration
-
-          if (!nextNote.isTied) stop = true
+        else {
+          noteIndex++
         }
       }
 
-      return totalExtraBeatDuration
+      while (true) {
+        nextNote = getNextNote(measureIndex, noteIndex)
+        totalExtraBeatDuration += nextNote?.beatDuration ?? 0
+        if (
+          !nextNote
+          || nextNote instanceof RestBase
+          || (nextNote instanceof NoteBase && !nextNote.isTied) // If the next note is not tied
+          || (nextNote instanceof Chord && nextNote.notes.every(n => !n.isTied)) // If none of the notes in the next chord are tied
+
+        ) return totalExtraBeatDuration
+
+        goToNextNote()
+      }
     }
 
     const beat = 60 / music.bpm
@@ -244,7 +237,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
         if (note instanceof NoteBase) {
           let extraTiedDuration = 0
           if (note.isTied) {
-            extraTiedDuration = increaseBeatDuration(note, measureIndex, NoteIndex)
+            extraTiedDuration = increaseBeatDuration(measureIndex, NoteIndex)
           }
           playingNotes.addToPlay(note, sampler, now, beat, extraTiedDuration)
         }
@@ -253,7 +246,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
           note.notes.forEach(n => {
             let extraTiedDuration = 0
             if (n.isTied) {
-              extraTiedDuration = increaseBeatDuration(n, measureIndex, NoteIndex)
+              extraTiedDuration = increaseBeatDuration(measureIndex, NoteIndex)
             }
             playingNotes.addToPlay(n, sampler, now, beat, extraTiedDuration)
           })

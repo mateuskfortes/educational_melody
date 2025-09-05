@@ -2,8 +2,8 @@ import { useReducer } from "react"
 import { AddNotePayload, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload } from "../types/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
-import { copySheetMusic, createMeasure, getMeasureDurationByMeter } from "../utils";
-import { mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
+import { copySheetMusic, createMeasure, getChordArgsFromNotes, getConstructor, getMeasureDurationByMeter } from "../utils";
+import { fillBdWithChords, fillBdWithNotes, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
 import { Chord, NoteBase, RestBase } from "../classes/notes";
 import PlayingNotes from "../classes/PlayingNotes";
 
@@ -12,15 +12,18 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
 
   function addNote() {
     const finalState = copySheetMusic(prevState)
-    const { note, measureIndex, noteIndex } = action.payload as AddNotePayload
+    const { note, measureIndex, noteIndex, addToChord } = action.payload as AddNotePayload
 
     const isFinalPosition = measureIndex === finalState.measures.length && noteIndex === 0 // If the note is at the end of the sheet music
     const measureSpace = measureDuration / note.beatDuration // How many notes can fit in the measure
+    const measureOnState = finalState.measures[measureIndex]
+    const noteOnState = measureOnState?.notes[noteIndex]
     if (
-      (!finalState.measures[measureIndex] && !isFinalPosition) // If there is no measure at the index
+      (!measureOnState && !isFinalPosition) // If there is no measure at the index
       || measureDuration < note.beatDuration // If there is not enough space in the measure
       || measureSpace < noteIndex + 1 // If there is not enough space in the measure
       || (note instanceof Chord && note.notes.length === 0) // If there is no notes inside the chord
+      || (addToChord && (noteOnState instanceof RestBase || !(note instanceof NoteBase))) // Prevent adding either a Rest to a chord or a Note to a chord when the target is a Rest
     ) {
       return prevState
     }
@@ -32,9 +35,66 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
       insertNote = new note.noteConstructor(note.notes[0])
     }
 
+    if (addToChord && note instanceof NoteBase) {
+      if (note.beatDuration === noteOnState.beatDuration) {
+        if (noteOnState instanceof Chord) noteOnState.notes.push(note as NoteTemplate)
+        else if (noteOnState instanceof NoteBase) {
+          measureOnState.notes[noteIndex] = new Chord({
+            noteConstructor: getConstructor(noteOnState),
+            notes: getChordArgsFromNotes([noteOnState, note] as NoteTemplate[])
+          })
+        }
+      }
+      else if (note.beatDuration < noteOnState.beatDuration) {
+        if (noteOnState instanceof Chord) {
+          const notesWithAddedNote = fillBdWithChords(note.beatDuration, getChordArgsFromNotes(noteOnState.notes.concat(note as NoteTemplate)))
+          const notesWithoutAddedNote = fillBdWithChords(noteOnState.beatDuration - note.beatDuration, getChordArgsFromNotes(noteOnState.notes))
+          notesWithAddedNote[notesWithAddedNote.length - 1].notes.forEach(n => {
+            if (!(n.note === note.note && n.octave === note.octave && n.accidental === note.accidental)) {
+              n.isTied = true
+            }
+          })
+          measureOnState.notes.splice(noteIndex, 1, ...notesWithAddedNote, ...notesWithoutAddedNote)
+        }
+        else if (noteOnState instanceof NoteBase) {
+          const notesWithAddedNote = fillBdWithChords(note.beatDuration, getChordArgsFromNotes([noteOnState, note] as NoteTemplate[]))
+          const notesWithoutAddedNote = fillBdWithNotes(noteOnState.beatDuration - note.beatDuration, noteOnState.note, noteOnState.octave, noteOnState.accidental, noteOnState.isTied)
+          notesWithAddedNote[notesWithAddedNote.length - 1].notes.forEach(n => {
+            if (!(n.note === note.note && n.octave === note.octave && n.accidental === note.accidental)) {
+              n.isTied = true
+            }
+          })
+          measureOnState.notes.splice(noteIndex, 1, ...notesWithAddedNote, ...notesWithoutAddedNote)
+        }
+      }
+      else if (note.beatDuration > noteOnState.beatDuration) {
+        if (noteOnState instanceof Chord) {
+          const notesWithPreviousNote = fillBdWithChords(noteOnState.beatDuration, getChordArgsFromNotes(noteOnState.notes.concat(note as NoteTemplate)))
+          const notesWithoutPreviousNote = fillBdWithNotes(note.beatDuration - noteOnState.beatDuration, note.note, note.octave, note.accidental, note.isTied)
+          notesWithPreviousNote[notesWithPreviousNote.length - 1].notes.forEach(n => {
+            if (n.note === note.note && n.octave === note.octave && n.accidental === note.accidental) {
+              n.isTied = true
+            }
+            else n.isTied = false
+          })
+          measureOnState.notes.splice(noteIndex, 1, ...notesWithPreviousNote, ...notesWithoutPreviousNote)
+        }
+        else if (noteOnState instanceof NoteBase) {
+          const notesWithPreviousNote = fillBdWithChords(noteOnState.beatDuration, getChordArgsFromNotes([noteOnState, note] as NoteTemplate[]))
+          const notesWithoutPreviousNote = fillBdWithNotes(note.beatDuration - noteOnState.beatDuration, note.note, note.octave, note.accidental, note.isTied)
+          notesWithPreviousNote[notesWithPreviousNote.length - 1].notes.forEach(n => {
+            if (n.note === note.note && n.octave === note.octave && n.accidental === note.accidental) {
+              n.isTied = true
+            }
+            else n.isTied = false
+          })
+          measureOnState.notes.splice(noteIndex, 1, ...notesWithPreviousNote, ...notesWithoutPreviousNote)
+        }
+      }
+    }
     // Add the note to the measure
-    if (isFinalPosition) finalState.measures[measureIndex] = createMeasure(insertNote)
-    else finalState.measures[measureIndex].notes.splice(noteIndex, 0, insertNote)
+    else if (isFinalPosition) finalState.measures[measureIndex] = createMeasure(insertNote)
+    else measureOnState.notes.splice(noteIndex, 0, insertNote)
 
     normalizeMeasuresAcrossSheetMusic(finalState.measures, measureDuration)
     mergeTiesAcrossMeasures(finalState.measures)

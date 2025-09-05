@@ -74,6 +74,7 @@ export type AddNotePayload = {
     note: NotesTemplate
     measureIndex: number
     noteIndex: number
+    addToChord?: boolean
 }
 
 export type AddNoteAction = {

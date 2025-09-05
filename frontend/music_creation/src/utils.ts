@@ -1,5 +1,5 @@
 import { Chord, Eighth, Half, NoteBase, Quarter, Sixteenth, Whole } from "./classes/notes";
-import { MeasureTemplate, MusicTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, RestConstructorTemplate } from "./types/sheetMusicTemplates";
+import { MeasureTemplate, MusicTemplate, NotesTemplate, NoteTemplate } from "./types/sheetMusicTemplates";
 
 // List of note names used for vertical positioning calculations.
 // These represent the natural musical notes in ascending order.
@@ -161,10 +161,10 @@ export const copySheetMusic = (sheetMusic: MusicTemplate) => {
         if (note instanceof Chord)
           return new Chord({ noteConstructor: note.noteConstructor, notes: Array.from(note.notes) })
         else if (note instanceof NoteBase) {
-          const NoteClass = Object.getPrototypeOf(note).constructor as NoteConstructorTemplate
+          const NoteClass = getConstructor(note)
           return new NoteClass(note);
         }
-        const RestClass = Object.getPrototypeOf(note).constructor as RestConstructorTemplate
+        const RestClass = getConstructor(note)
         return new RestClass()
       })
     }))
@@ -219,4 +219,37 @@ export const calculateMeasureLineMargin = (lineMeasures: MeasureTemplate[], meas
     marginTop: topPx,
     marginBottom: bottomPx
   }
+}
+
+/**
+ * Retrieves the constructor function of a given note instance.
+ *
+ * This is useful when re-instantiating notes while copying or transforming
+ * a MusicTemplate, ensuring the correct class type is preserved.
+ *
+ * @param note - A note instance (Note, Rest, or Chord) from which to extract the constructor.
+ * @returns The constructor function for the provided note instance.
+ */
+export const getConstructor = (note: NotesTemplate) => {
+  return Object.getPrototypeOf(note).constructor
+}
+
+/**
+ * Extracts the minimal set of arguments needed to recreate notes inside a Chord.
+ *
+ * This is useful when constructing a new Chord instance from existing Note objects,
+ * while avoiding carrying over extra properties not required for instantiation.
+ *
+ * @param notes - An array of NoteTemplate objects to extract arguments from.
+ * @returns An array of plain objects containing the minimal properties
+ *          required to instantiate notes in a Chord.
+ */
+export const getChordArgsFromNotes = (notes: NoteTemplate[]) => {
+  return notes.map(note =>
+  ({
+    note: note.note,
+    octave: note.octave,
+    accidental: note.accidental,
+    isTied: note.isTied
+  }))
 }

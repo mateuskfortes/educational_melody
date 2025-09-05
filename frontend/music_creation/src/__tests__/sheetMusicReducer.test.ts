@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { sheetMusicReducer } from '../hooks/useSheetMusic'
-import { Whole, Quarter, QuarterRest, Half, HalfRest, Chord } from '../classes/notes'
-import type { MusicTemplate, NotesTemplate, NoteTemplate } from '../types/sheetMusicTemplates'
+import { Whole, Quarter, QuarterRest, Half, HalfRest, Chord, Eighth } from '../classes/notes'
+import type { AddNoteAction, MusicTemplate, NotesTemplate, NoteTemplate } from '../types/sheetMusicTemplates'
 import * as SheetMusicFunctions from '../hooks/helpers/useSheetMusicFunctions'
 import { createMeasure } from '../utils'
 
@@ -140,6 +140,328 @@ describe('sheetMusicReducer - ADD_NOTE', () => {
 
     // Check that a new state object is returned (immutability)
     expect(state).not.toBe(initialState)
+  })
+
+  it('should merge to notes into a chord', () => {
+    const note: NoteTemplate = new Whole({ note: 'D', octave: 4 })
+    const action: AddNoteAction = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+    };
+
+    const state = sheetMusicReducer(initialState, action)
+
+    expect(state.measures[0]).toEqual(createMeasure(new Chord({
+      noteConstructor: Whole, notes: [{ note: 'C', octave: 4 }, { note: 'D', octave: 4 }]
+    })))
+  })
+
+  it('should add a note into a chord', () => {
+    const initial = createMusicTemplate([[new Chord({ noteConstructor: Whole, notes: [{ note: 'C', octave: 4 }] })]])
+    const note: NoteTemplate = new Whole({ note: 'D', octave: 4 })
+    const action: AddNoteAction = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+    };
+
+    const state = sheetMusicReducer(initial, action)
+
+    expect(state.measures[0]).toEqual(createMeasure(new Chord({
+      noteConstructor: Whole, notes: [{ note: 'C', octave: 4 }, { note: 'D', octave: 4 }]
+    })))
+  })
+
+
+
+
+  it('Should add a note into a chord with a different constructor when the added note duration is smaller than the existing chord', () => {
+    const initial = createMusicTemplate([[new Chord({ noteConstructor: Whole, notes: [{ note: 'C', octave: 4 }] })]])
+    const note: NoteTemplate = new Half({ note: 'D', octave: 4 })
+    const action: AddNoteAction = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+    };
+
+    const state = sheetMusicReducer(initial, action)
+
+    expect(state.measures[0]).toEqual(createMeasure(
+      new Chord({
+        noteConstructor: Half, notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'D', octave: 4 }]
+      }),
+      new Chord({
+        noteConstructor: Half, notes: [{ note: 'C', octave: 4 }]
+      })
+    ))
+  })
+
+  it('Should add a note into a tied chord with a different constructor when the added note duration is smaller than the existing chord', () => {
+    const initial = createMusicTemplate([
+      [
+        new Chord({
+          noteConstructor: Whole,
+          notes: [
+            { note: 'C', octave: 4, isTied: true }, { note: 'E', octave: 4 }
+          ]
+        })
+      ],
+      [
+        new Chord({
+          noteConstructor: Whole,
+          notes: [
+            { note: 'C', octave: 4 }
+          ]
+        })
+      ]
+    ])
+    const note: NoteTemplate = new Quarter({ note: 'D', octave: 4 })
+    const action: AddNoteAction = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+    };
+
+    const state = sheetMusicReducer(initial, action)
+
+    expect(state.measures[0]).toEqual(createMeasure(
+      new Chord({
+        noteConstructor: Quarter, notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'E', octave: 4, isTied: true }, { note: 'D', octave: 4 }]
+      }),
+      new Chord({
+        noteConstructor: Half, notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'E', octave: 4, isTied: true }]
+      }),
+      new Chord({
+        noteConstructor: Quarter, notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'E', octave: 4 }]
+      })
+    ))
+    expect(state.measures[1]).toEqual(initial.measures[1])
+  })
+
+  it('Should add a dotted note into a chord with a different constructor when the added note duration is smaller than the existing chord', () => {
+    const initial = createMusicTemplate([[new Chord({ noteConstructor: Whole, notes: [{ note: 'C', octave: 4 }] })]])
+    const note: NoteTemplate = new Quarter({ note: 'D', octave: 4, dots: 1 })
+    const action: AddNoteAction = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+    };
+
+    const state = sheetMusicReducer(initial, action);
+
+    expect(state.measures[0]).toEqual(createMeasure(
+      new Chord({
+        noteConstructor: Quarter,
+        notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'D', octave: 4, isTied: true }]
+      }),
+      new Chord({
+        noteConstructor: Eighth,
+        notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'D', octave: 4 }]
+      }),
+      new Chord({
+        noteConstructor: Half,
+        notes: [{ note: 'C', octave: 4, isTied: true }]
+      }),
+      new Chord({
+        noteConstructor: Eighth,
+        notes: [{ note: 'C', octave: 4 }]
+      })
+    ))
+  })
+
+
+
+
+
+  it('should add a note into another note with a different constructor merging into a chord when the added note duration is smaller than the existing note', () => {
+    const note: NoteTemplate = new Half({ note: 'D', octave: 4 })
+    const action: AddNoteAction = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+    };
+
+    const state = sheetMusicReducer(initialState, action)
+
+    expect(state.measures[0]).toEqual(createMeasure(
+      new Chord({
+        noteConstructor: Half, notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'D', octave: 4 }]
+      }),
+      new Half({ note: 'C', octave: 4 })
+    ))
+  })
+
+  it('Should add a dotted note into another dotted note with a different constructor merging into a chord when the added note duration is smaller than the existing note', () => {
+    const initial = createMusicTemplate([[new Half({ note: 'C', octave: 4, dots: 1 }), new Quarter({ note: 'E', octave: 4 })]])
+    const note: NoteTemplate = new Quarter({ note: 'D', octave: 4, dots: 1 })
+    const action: AddNoteAction = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+    };
+
+    const state = sheetMusicReducer(initial, action);
+
+    expect(state.measures[0]).toEqual(createMeasure(
+      new Chord({
+        noteConstructor: Quarter,
+        notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'D', octave: 4, isTied: true }]
+      }),
+      new Chord({
+        noteConstructor: Eighth,
+        notes: [{ note: 'C', octave: 4, isTied: true }, { note: 'D', octave: 4 }]
+      }),
+      new Quarter({ note: 'C', octave: 4, dots: 1 }),
+      new Quarter({ note: 'E', octave: 4 })
+    ))
+  })
+
+
+
+
+
+  it('Should add a note into a chord with a different constructor when the added note duration is bigger than the existing chord', () => {
+    const initial = createMusicTemplate([
+      [
+        new Chord({
+          noteConstructor: Half,
+          notes: [
+            { note: 'C', octave: 4, isTied: true }, { note: 'E', octave: 4 }
+          ]
+        }),
+        new Chord({
+          noteConstructor: Half,
+          notes: [
+            { note: 'C', octave: 4, }, { note: 'E', octave: 4 }
+          ]
+        })
+      ],
+    ])
+    const note: NoteTemplate = new Whole({ note: 'D', octave: 4 })
+    const action: AddNoteAction = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+    };
+
+    const state = sheetMusicReducer(initial, action)
+
+    expect(state.measures[0]).toEqual(createMeasure(
+      new Chord({
+        noteConstructor: Half, notes: [{ note: 'C', octave: 4 }, { note: 'E', octave: 4 }, { note: 'D', octave: 4, isTied: true }]
+      }),
+      new Half({ note: 'D', octave: 4 })
+    ))
+    expect(state.measures[1]).toEqual(createMeasure(
+      new Chord({
+        noteConstructor: Half,
+        notes: [
+          { note: 'C', octave: 4, }, { note: 'E', octave: 4 }
+        ]
+      }),
+      new HalfRest()
+    ))
+  })
+
+  it('Should add a dotted note into a chord with a different constructor when the added note duration is bigger than the existing chord', () => {
+    const initial = createMusicTemplate([
+      [
+        new Chord({
+          noteConstructor: Half,
+          notes: [
+            { note: 'C', octave: 4, isTied: true }, { note: 'E', octave: 4 }
+          ]
+        }),
+        new Chord({
+          noteConstructor: Half,
+          notes: [
+            { note: 'C', octave: 4, }, { note: 'E', octave: 4 }
+          ]
+        })
+      ],
+    ])
+    const note: NoteTemplate = new Half({ note: 'D', octave: 4, dots: 1 })
+    const action: AddNoteAction = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+    };
+
+    const state = sheetMusicReducer(initial, action)
+
+    expect(state.measures[0]).toEqual(createMeasure(
+      new Chord({
+        noteConstructor: Half, notes: [{ note: 'C', octave: 4 }, { note: 'E', octave: 4 }, { note: 'D', octave: 4, isTied: true }]
+      }),
+      new Quarter({ note: 'D', octave: 4 }),
+      new Chord({
+        noteConstructor: Quarter,
+        notes: [
+          { note: 'C', octave: 4, isTied: true }, { note: 'E', octave: 4, isTied: true }
+        ]
+      }),
+    ))
+    expect(state.measures[1]).toEqual(createMeasure(
+      new Chord({
+        noteConstructor: Quarter,
+        notes: [
+          { note: 'C', octave: 4, }, { note: 'E', octave: 4 }
+        ]
+      }),
+      new HalfRest(),
+      new QuarterRest()
+    ))
+  })
+
+
+
+
+  it('Should add a note into another note with a different constructor merging into a chord when the added note duration is bigger than the existing note', () => {
+    const initial = createMusicTemplate([
+      [
+        new Half({ note: 'C', octave: 4, isTied: true }),
+        new Half({ note: 'C', octave: 4 }),
+      ],
+    ])
+    const note: NoteTemplate = new Whole({ note: 'D', octave: 4 })
+    const action: AddNoteAction = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+    };
+
+    const state = sheetMusicReducer(initial, action)
+
+    expect(state.measures[0]).toEqual(createMeasure(
+      new Chord({
+        noteConstructor: Half, notes: [{ note: 'C', octave: 4 }, { note: 'D', octave: 4, isTied: true }]
+      }),
+      new Half({ note: 'D', octave: 4 })
+    ))
+    expect(state.measures[1]).toEqual(createMeasure(
+      new Half({ note: 'C', octave: 4 }),
+      new HalfRest()
+    ))
+  })
+
+  it('Should add a dotted note into another note with a different constructor merging into a chord when the added note duration is bigger than the existing note', () => {
+    const initial = createMusicTemplate([
+      [
+        new Half({ note: 'C', octave: 4, isTied: true }),
+        new Half({ note: 'C', octave: 4 }),
+      ],
+    ])
+    const note: NoteTemplate = new Half({ note: 'D', octave: 4, dots: 1 })
+    const action: AddNoteAction = {
+      type: 'ADD_NOTE' as const,
+      payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+    };
+
+    const state = sheetMusicReducer(initial, action)
+
+    expect(state.measures[0]).toEqual(createMeasure(
+      new Chord({
+        noteConstructor: Half, notes: [{ note: 'C', octave: 4 }, { note: 'D', octave: 4, isTied: true }]
+      }),
+      new Quarter({ note: 'D', octave: 4 }),
+      new Quarter({ note: 'C', octave: 4, isTied: true })
+    ))
+    expect(state.measures[1]).toEqual(createMeasure(
+      new Quarter({ note: 'C', octave: 4 }),
+      new HalfRest(),
+      new QuarterRest()
+    ))
   })
 })
 

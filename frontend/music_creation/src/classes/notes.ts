@@ -1,5 +1,5 @@
 import { Sampler } from "tone";
-import { AccidentalTemplate, ChordConstructorArgsTemplate, ChordTemplate, CleanNoteType, NoteConstructorArgsTemplate, NoteConstructorTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../types/sheetMusicTemplates";
+import { AccidentalTemplate, ChordConstructorArgsTemplate, ChordTemplate, CleanNoteType, EqualNoteArgsTemplate, NoteConstructorArgsTemplate, NoteConstructorTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../types/sheetMusicTemplates";
 import { getBeatDurationWithDots } from "../utils";
 
 export class NoteBase implements NoteTemplate {
@@ -29,6 +29,15 @@ export class NoteBase implements NoteTemplate {
     const validDots = Math.min(dots, this.dotsLimit);
     this.dots = validDots;
     this.beatDuration = getBeatDurationWithDots(defaultBeatDuration, dots);
+  }
+
+  equal(note: EqualNoteArgsTemplate) {
+    if (
+      note.note === this.note
+      && note.octave === this.octave
+      && note.accidental === this.accidental
+    ) return true
+    return false
   }
 
   getMusicalNote() {

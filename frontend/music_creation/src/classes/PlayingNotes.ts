@@ -18,12 +18,12 @@ export default class PlayingNotes {
   addToPlay(note: NoteTemplate, sampler: Sampler, now: number, beat: number, extraTieDuration: number) {
     this.filter(now)
     const existingNote = this.notes.find(
-      n => n.cleanNote === note.note && n.octave === note.octave && n.accidental === note.accidental
+      n => note.equal(n)
     )
     if (!existingNote) {
       note.play(sampler, now, beat, extraTieDuration)
       this.notes.push({
-        cleanNote: note.note,
+        note: note.note,
         octave: note.octave,
         accidental: note.accidental,
         end: now + (note.beatDuration + extraTieDuration) * beat

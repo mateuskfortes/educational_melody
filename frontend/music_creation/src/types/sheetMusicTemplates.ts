@@ -28,6 +28,12 @@ export type ChordConstructorArgsTemplate = {
     noteConstructor: NoteConstructorTemplate;
 }
 
+export type EqualNoteArgsTemplate = {
+    note: CleanNoteType,
+    octave: OctaveType,
+    accidental: AccidentalTemplate
+}
+
 export interface NoteTemplate {
     name: string
     note: CleanNoteType;
@@ -37,6 +43,7 @@ export interface NoteTemplate {
     beatDuration: number;
     dots: number; // Number of dots
     dotsLimit: number // Max number of dots
+    equal: (note: EqualNoteArgsTemplate) => boolean
     play: (sampler: Sampler, now: number, beat: number, extraTieDuration?: number) => void
 }
 
@@ -121,7 +128,7 @@ export type SheetMusicContextType = {
 }
 
 export type PlayingNoteTemplate = {
-    cleanNote: CleanNoteType;
+    note: CleanNoteType;
     octave: OctaveType;
     accidental: AccidentalTemplate;
     end: number;

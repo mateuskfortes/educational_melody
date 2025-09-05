@@ -50,7 +50,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
           const notesWithAddedNote = fillBdWithChords(note.beatDuration, getChordArgsFromNotes(noteOnState.notes.concat(note)))
           const notesWithoutAddedNote = fillBdWithChords(noteOnState.beatDuration - note.beatDuration, getChordArgsFromNotes(noteOnState.notes))
           notesWithAddedNote[notesWithAddedNote.length - 1].notes.forEach(n => {
-            if (!(n.note === note.note && n.octave === note.octave && n.accidental === note.accidental)) {
+            if (!note.equal(n)) {
               n.isTied = true
             }
           })
@@ -60,7 +60,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
           const notesWithAddedNote = fillBdWithChords(note.beatDuration, getChordArgsFromNotes([noteOnState, note]))
           const notesWithoutAddedNote = fillBdWithNotes(noteOnState.beatDuration - note.beatDuration, noteOnState.note, noteOnState.octave, noteOnState.accidental, noteOnState.isTied)
           notesWithAddedNote[notesWithAddedNote.length - 1].notes.forEach(n => {
-            if (!(n.note === note.note && n.octave === note.octave && n.accidental === note.accidental)) {
+            if (!note.equal(n)) {
               n.isTied = true
             }
           })
@@ -72,7 +72,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
           const notesWithPreviousNote = fillBdWithChords(noteOnState.beatDuration, getChordArgsFromNotes(noteOnState.notes.concat(note)))
           const notesWithoutPreviousNote = fillBdWithNotes(note.beatDuration - noteOnState.beatDuration, note.note, note.octave, note.accidental, note.isTied)
           notesWithPreviousNote[notesWithPreviousNote.length - 1].notes.forEach(n => {
-            if (n.note === note.note && n.octave === note.octave && n.accidental === note.accidental) {
+            if (note.equal(n)) {
               n.isTied = true
             }
             else n.isTied = false
@@ -83,7 +83,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
           const notesWithPreviousNote = fillBdWithChords(noteOnState.beatDuration, getChordArgsFromNotes([noteOnState, note]))
           const notesWithoutPreviousNote = fillBdWithNotes(note.beatDuration - noteOnState.beatDuration, note.note, note.octave, note.accidental, note.isTied)
           notesWithPreviousNote[notesWithPreviousNote.length - 1].notes.forEach(n => {
-            if (n.note === note.note && n.octave === note.octave && n.accidental === note.accidental) {
+            if (note.equal(n)) {
               n.isTied = true
             }
             else n.isTied = false
@@ -206,11 +206,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
 
         if (nextNote instanceof Chord) {
           for (const chordNote of nextNote.notes) {
-            if (
-              chordNote.note === initialNote.note
-              && chordNote.octave === initialNote.octave
-              && chordNote.accidental === initialNote.accidental
-            ) {
+            if (chordNote) {
               const measure = music.measures[measureIndex]
               if (music.measures[measureIndex].notes.length - 1 <= noteIndex) measureIndex++
               noteIndex = measure.notes.length - 1 === noteIndex
@@ -223,12 +219,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
           }
         }
 
-        else if (
-          nextNote instanceof NoteBase
-          && nextNote.note === initialNote.note
-          && nextNote.octave === initialNote.octave
-          && nextNote.accidental === initialNote.accidental
-        ) {
+        else if (nextNote instanceof NoteBase && nextNote.equal(initialNote)) {
           const measure = music.measures[measureIndex]
           if (music.measures[measureIndex].notes.length - 1 <= noteIndex) measureIndex++
           noteIndex = measure.notes.length - 1 === noteIndex

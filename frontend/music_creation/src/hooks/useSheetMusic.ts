@@ -3,7 +3,7 @@ import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTempl
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { copySheetMusic, createMeasure, getConstructor, getMeasureDurationByMeter, mergeNotesToList } from "../utils";
-import { fillBdWithChords, fillBdWithNotes, getPreviousNote, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
+import { fillBdWithChords, fillBdWithNotes, getNextNote, getPreviousNote, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
 import { Chord, NoteBase, RestBase } from "../classes/notes";
 import PlayingNotes from "../classes/PlayingNotes";
 
@@ -185,23 +185,6 @@ const useSheetMusic = (initialState: MusicTemplate) => {
     running = true
 
     /**
-     * Retrieves the next note in the music sequence based on the given measure and note indexes.
-     *
-     * @param measureIndex - The index of the current measure in the `music.measures` array.
-     * @param noteIndex - The index of the current note within the measure's `notes` array.
-     * @returns The next note object if found, otherwise `undefined`.
-     */
-    function getNextNote(measureIndex: number, noteIndex: number): NotesTemplate | undefined {
-      let next = music.measures[measureIndex].notes[noteIndex + 1]
-      if (next) return next
-
-      next = music.measures[measureIndex + 1]?.notes[0]
-      if (next) return next
-
-      return undefined
-    }
-
-    /**
      * Calculates the total extra beat duration contributed 
      * by all tied notes starting from the given note.
      *
@@ -232,7 +215,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
       }
 
       while (true) {
-        nextNote = getNextNote(measureIndex, noteIndex)
+        nextNote = getNextNote(music.measures, measureIndex, noteIndex)
         totalExtraBeatDuration += nextNote?.beatDuration ?? 0
         if (
           !nextNote

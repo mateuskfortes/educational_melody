@@ -3,7 +3,7 @@ import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTempl
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { copySheetMusic, createMeasure, getConstructor, getMeasureDurationByMeter, mergeNotesToList } from "../utils";
-import { fillBdWithChords, fillBdWithNotes, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
+import { fillBdWithChords, fillBdWithNotes, getPreviousNote, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
 import { Chord, NoteBase, RestBase } from "../classes/notes";
 import PlayingNotes from "../classes/PlayingNotes";
 
@@ -98,12 +98,22 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
     if (
       !measureOnState // If there is no measure at the given index
       || !noteOnState // If there is no note at the given index
-      || (chordNoteIndex && noteOnState instanceof Chord && !noteOnState.notes[chordNoteIndex]) // If there is no note at the given chord index
+      || (chordNoteIndex && (!(noteOnState instanceof Chord) || !noteOnState.notes[chordNoteIndex])) // If there is no note at the given chord index or it is not a chord
     ) return prevState
 
     /// Remove the note from the measure
+    const previousNote = getPreviousNote(finalState.measures, measureIndex, noteIndex)
     if (chordNoteIndex && noteOnState instanceof Chord) {
-      noteOnState.notes.splice(chordNoteIndex, 1)
+      const removedNote = noteOnState.notes.splice(chordNoteIndex, 1)[0]
+
+      if (previousNote instanceof NoteBase && previousNote.equal(removedNote)) {
+        previousNote.isTied = removedNote.isTied
+      }
+      else if (previousNote instanceof Chord) {
+        const equalOnPrevious = previousNote.notes.find(n => removedNote.equal(n))
+        if (equalOnPrevious)
+          equalOnPrevious.isTied = removedNote.isTied
+      }
 
       // If only one note remains, convert the chord into a single note.
       if (noteOnState.notes.length === 1) {
@@ -111,8 +121,32 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
         measureOnState.notes.splice(noteIndex, 1, newNote)
       }
     }
-    else
-      measureOnState.notes.splice(noteIndex, 1)
+    else {
+      const removedNote = measureOnState.notes.splice(noteIndex, 1)[0]
+      if (previousNote && !(removedNote instanceof RestBase)) {
+        if (previousNote instanceof NoteBase) {
+          if (removedNote instanceof NoteBase)
+            previousNote.isTied = removedNote.isTied
+          else if (removedNote instanceof Chord) {
+            previousNote.isTied = !!removedNote.notes.find(n => previousNote.equal(n))?.isTied
+          }
+        }
+        else if (previousNote instanceof Chord) {
+          if (removedNote instanceof NoteBase) {
+            const equalOnPrevious = previousNote.notes.find(n => removedNote.equal(n))
+            if (equalOnPrevious)
+              equalOnPrevious.isTied = removedNote.isTied
+          }
+          else if (removedNote instanceof Chord) {
+            removedNote.notes.forEach(rmNote => {
+              const equalOnPrevious = previousNote.notes.find(pvNote => rmNote.equal(pvNote))
+              if (equalOnPrevious)
+                equalOnPrevious.isTied = rmNote.isTied
+            })
+          }
+        }
+      }
+    }
 
     normalizeMeasuresAcrossSheetMusic(finalState.measures, measureDuration)
     mergeTiesAcrossMeasures(finalState.measures)

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, test } from 'vitest'
 import { sheetMusicReducer } from '../hooks/useSheetMusic'
 import { Whole, Quarter, QuarterRest, Half, HalfRest, Chord, Eighth } from '../classes/notes'
-import type { AddNoteAction, MusicTemplate, NotesTemplate, NoteTemplate } from '../types/sheetMusicTemplates'
+import type { AddNoteAction, ChordTemplate, MusicTemplate, NotesTemplate, NoteTemplate } from '../types/sheetMusicTemplates'
 import * as SheetMusicFunctions from '../hooks/helpers/useSheetMusicFunctions'
 import { createMeasure } from '../utils'
 
@@ -458,225 +458,427 @@ describe('sheetMusicReducer', () => {
   })
 
   describe('REMOVE_NOTE', () => {
-    it('removes a note at given index from measure', () => {
-      const initial = createMusicTemplate([
-        [new Quarter({ cleanNote: 'C', octave: 4 }), new Quarter({ cleanNote: 'D', octave: 4 })],
-      ]);
+    describe('SINGLE NOTE', () => {
+      it('removes a note at given index from measure', () => {
+        const initial = createMusicTemplate([
+          [new Quarter({ cleanNote: 'C', octave: 4 }), new Quarter({ cleanNote: 'D', octave: 4 })],
+        ]);
 
-      const action = {
-        type: 'REMOVE_NOTE',
-        payload: { measureIndex: 0, noteIndex: 0 },
-      } as const;
+        const action = {
+          type: 'REMOVE_NOTE',
+          payload: { measureIndex: 0, noteIndex: 0 },
+        } as const;
 
-      const state = sheetMusicReducer(initial, action);
-      expect(state.measures[0].notes).toEqual([new Quarter({ cleanNote: 'D', octave: 4 }), new HalfRest(), new QuarterRest()]);
-      expect((state.measures[0].notes[0] as NoteTemplate).cleanNote).toBe('D');
-    });
+        const state = sheetMusicReducer(initial, action);
+        expect(state.measures[0].notes).toEqual([new Quarter({ cleanNote: 'D', octave: 4 }), new HalfRest(), new QuarterRest()]);
+        expect((state.measures[0].notes[0] as NoteTemplate).cleanNote).toBe('D');
+      });
 
-    it('does nothing if the measure does not exist', () => {
-      const initial = createMusicTemplate([[new Quarter({ cleanNote: 'C', octave: 4 })]]);
+      it('removes last note and normalizes with rests', () => {
+        const initial = createMusicTemplate([[new Whole({ cleanNote: 'C', octave: 4 }), new Quarter({ cleanNote: 'D', octave: 4 })]]);
 
-      const action = {
-        type: 'REMOVE_NOTE',
-        payload: { measureIndex: 5, noteIndex: 0 },
-      } as const;
+        const action = {
+          type: 'REMOVE_NOTE',
+          payload: { measureIndex: 0, noteIndex: 1 }, // remove extra note
+        } as const;
 
-      const state = sheetMusicReducer(initial, action);
-      expect(state).toEqual(initial);
-    });
+        const state = sheetMusicReducer(initial, action);
+        const totalDuration = state.measures[0].notes.reduce((acc, n) => acc + n.beatDuration, 0);
 
-    it('does nothing if the note does not exist at index', () => {
-      const initial = createMusicTemplate([[new Quarter({ cleanNote: 'C', octave: 4 })]]);
+        expect(totalDuration).toBeCloseTo(4.0);
+        expect(state.measures[0].notes.length).toBe(1);
+      });
 
-      const action = {
-        type: 'REMOVE_NOTE',
-        payload: { measureIndex: 0, noteIndex: 5 },
-      } as const;
+      it('removes note and causes normalization into next measure', () => {
+        const initial = createMusicTemplate([
+          [
+            new Half({ cleanNote: 'C', octave: 4 }),
+            new Quarter({ cleanNote: 'D', octave: 4 }),
+            new Quarter({ cleanNote: 'E', octave: 4 })
+          ],
+          [
+            new Quarter({ cleanNote: 'F', octave: 4 }),
+            new HalfRest(),
+            new QuarterRest()
+          ],
+        ]);
 
-      const state = sheetMusicReducer(initial, action);
-      expect(state).toEqual(initial);
-    });
+        const action = {
+          type: 'REMOVE_NOTE',
+          payload: { measureIndex: 0, noteIndex: 1 }, // remove D
+        } as const;
 
-    it('removes last note and normalizes with rests', () => {
-      const initial = createMusicTemplate([[new Whole({ cleanNote: 'C', octave: 4 }), new Quarter({ cleanNote: 'D', octave: 4 })]]);
+        const state = sheetMusicReducer(initial, action);
 
-      const action = {
-        type: 'REMOVE_NOTE',
-        payload: { measureIndex: 0, noteIndex: 1 }, // remove extra note
-      } as const;
-
-      const state = sheetMusicReducer(initial, action);
-      const totalDuration = state.measures[0].notes.reduce((acc, n) => acc + n.beatDuration, 0);
-
-      expect(totalDuration).toBeCloseTo(4.0);
-      expect(state.measures[0].notes.length).toBe(1);
-    });
-
-    it('removes note and causes normalization into next measure', () => {
-      const initial = createMusicTemplate([
-        [
+        expect(state.measures.length).toBe(1)
+        expect(state.measures[0].notes).toEqual([
           new Half({ cleanNote: 'C', octave: 4 }),
-          new Quarter({ cleanNote: 'D', octave: 4 }),
-          new Quarter({ cleanNote: 'E', octave: 4 })
-        ],
-        [
-          new Quarter({ cleanNote: 'F', octave: 4 }),
-          new HalfRest(),
-          new QuarterRest()
-        ],
-      ]);
-
-      const action = {
-        type: 'REMOVE_NOTE',
-        payload: { measureIndex: 0, noteIndex: 1 }, // remove D
-      } as const;
-
-      const state = sheetMusicReducer(initial, action);
-
-      expect(state.measures.length).toBe(1)
-      expect(state.measures[0].notes).toEqual([
-        new Half({ cleanNote: 'C', octave: 4 }),
-        new Quarter({ cleanNote: 'E', octave: 4 }),
-        new Quarter({ cleanNote: 'F', octave: 4 })
-      ]);
-    });
-
-    it('should covert a chord into a note if only one note remains', () => {
-      const initial = createMusicTemplate([
-        [
-          new Half({ cleanNote: 'C', octave: 4 }),
-          new Quarter({ cleanNote: 'D', octave: 4 }),
-          new Quarter({ cleanNote: 'E', octave: 4 })
-        ],
-        [
-          new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4 }, { cleanNote: 'A', octave: 4 }] }),
-          new HalfRest(),
-          new QuarterRest()
-        ],
-      ]);
-
-      const action = {
-        type: 'REMOVE_NOTE',
-        payload: { measureIndex: 1, noteIndex: 0, chordNoteIndex: 1 },
-      } as const;
-
-      const state = sheetMusicReducer(initial, action);
-
-      expect(state).toEqual(createMusicTemplate([
-        [
-          new Half({ cleanNote: 'C', octave: 4 }),
-          new Quarter({ cleanNote: 'D', octave: 4 }),
-          new Quarter({ cleanNote: 'E', octave: 4 })
-        ],
-        [
-          new Quarter({ cleanNote: 'F', octave: 4 }),
-          new HalfRest(),
-          new QuarterRest()
-        ],
-      ]))
+          new Quarter({ cleanNote: 'E', octave: 4 }),
+          new Quarter({ cleanNote: 'F', octave: 4 })
+        ]);
+      });
     })
 
-    it('Should remove the entire chord if no chordNoteIndex is provided', () => {
-      const initial = createMusicTemplate([
-        [
-          new Half({ cleanNote: 'C', octave: 4 }),
-          new Quarter({ cleanNote: 'D', octave: 4 }),
-          new Quarter({ cleanNote: 'E', octave: 4 })
-        ],
-        [
-          new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4 }, { cleanNote: 'A', octave: 4 }] }),
-          new HalfRest(),
-          new QuarterRest()
-        ],
-      ]);
+    describe('CHORD', () => {
+      it('should covert a chord into a note if only one note remains', () => {
+        const initial = createMusicTemplate([
+          [
+            new Half({ cleanNote: 'C', octave: 4 }),
+            new Quarter({ cleanNote: 'D', octave: 4 }),
+            new Quarter({ cleanNote: 'E', octave: 4 })
+          ],
+          [
+            new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4 }, { cleanNote: 'A', octave: 4 }] }),
+            new HalfRest(),
+            new QuarterRest()
+          ],
+        ]);
 
-      const action = {
-        type: 'REMOVE_NOTE',
-        payload: { measureIndex: 1, noteIndex: 0 },
-      } as const;
+        const action = {
+          type: 'REMOVE_NOTE',
+          payload: { measureIndex: 1, noteIndex: 0, chordNoteIndex: 1 },
+        } as const;
 
-      const state = sheetMusicReducer(initial, action);
+        const state = sheetMusicReducer(initial, action);
 
-      expect(state).toEqual(createMusicTemplate([
-        [
-          new Half({ cleanNote: 'C', octave: 4 }),
-          new Quarter({ cleanNote: 'D', octave: 4 }),
-          new Quarter({ cleanNote: 'E', octave: 4 })
-        ],
-      ]))
+        expect(state).toEqual(createMusicTemplate([
+          [
+            new Half({ cleanNote: 'C', octave: 4 }),
+            new Quarter({ cleanNote: 'D', octave: 4 }),
+            new Quarter({ cleanNote: 'E', octave: 4 })
+          ],
+          [
+            new Quarter({ cleanNote: 'F', octave: 4 }),
+            new HalfRest(),
+            new QuarterRest()
+          ],
+        ]))
+      })
+
+      it('Should remove the entire chord if no chordNoteIndex is provided', () => {
+        const initial = createMusicTemplate([
+          [
+            new Half({ cleanNote: 'C', octave: 4 }),
+            new Quarter({ cleanNote: 'D', octave: 4 }),
+            new Quarter({ cleanNote: 'E', octave: 4 })
+          ],
+          [
+            new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4 }, { cleanNote: 'A', octave: 4 }] }),
+            new HalfRest(),
+            new QuarterRest()
+          ],
+        ]);
+
+        const action = {
+          type: 'REMOVE_NOTE',
+          payload: { measureIndex: 1, noteIndex: 0 },
+        } as const;
+
+        const state = sheetMusicReducer(initial, action);
+
+        expect(state).toEqual(createMusicTemplate([
+          [
+            new Half({ cleanNote: 'C', octave: 4 }),
+            new Quarter({ cleanNote: 'D', octave: 4 }),
+            new Quarter({ cleanNote: 'E', octave: 4 })
+          ],
+        ]))
+      })
+
+      it('should remove a note from a chord', () => {
+        const initial = createMusicTemplate([
+          [
+            new Half({ cleanNote: 'C', octave: 4 }),
+            new Quarter({ cleanNote: 'D', octave: 4 }),
+            new Quarter({ cleanNote: 'E', octave: 4 })
+          ],
+          [
+            new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4 }, { cleanNote: 'A', octave: 4 }, { cleanNote: 'C', octave: 5 }] }),
+            new HalfRest(),
+            new QuarterRest()
+          ],
+        ]);
+
+        const action = {
+          type: 'REMOVE_NOTE',
+          payload: { measureIndex: 1, noteIndex: 0, chordNoteIndex: 1 },
+        } as const;
+
+        const state = sheetMusicReducer(initial, action);
+
+        expect(state).toEqual(createMusicTemplate([
+          [
+            new Half({ cleanNote: 'C', octave: 4 }),
+            new Quarter({ cleanNote: 'D', octave: 4 }),
+            new Quarter({ cleanNote: 'E', octave: 4 })
+          ],
+          [
+            new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4 }, { cleanNote: 'C', octave: 5 }] }),
+            new HalfRest(),
+            new QuarterRest()
+          ],
+        ]))
+      })
     })
 
-    it('should remove a note from a chord', () => {
-      const initial = createMusicTemplate([
-        [
-          new Half({ cleanNote: 'C', octave: 4 }),
-          new Quarter({ cleanNote: 'D', octave: 4 }),
-          new Quarter({ cleanNote: 'E', octave: 4 })
-        ],
-        [
-          new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4 }, { cleanNote: 'A', octave: 4 }, { cleanNote: 'C', octave: 5 }] }),
-          new HalfRest(),
-          new QuarterRest()
-        ],
-      ]);
+    describe('LOGIC', () => {
+      it('does nothing if the measure does not exist', () => {
+        const initial = createMusicTemplate([[new Quarter({ cleanNote: 'C', octave: 4 })]]);
 
-      const action = {
-        type: 'REMOVE_NOTE',
-        payload: { measureIndex: 1, noteIndex: 0, chordNoteIndex: 1 },
-      } as const;
+        const action = {
+          type: 'REMOVE_NOTE',
+          payload: { measureIndex: 5, noteIndex: 0 },
+        } as const;
 
-      const state = sheetMusicReducer(initial, action);
+        const state = sheetMusicReducer(initial, action);
+        expect(state).toEqual(initial);
+      });
 
-      expect(state).toEqual(createMusicTemplate([
-        [
-          new Half({ cleanNote: 'C', octave: 4 }),
-          new Quarter({ cleanNote: 'D', octave: 4 }),
-          new Quarter({ cleanNote: 'E', octave: 4 })
-        ],
-        [
-          new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4 }, { cleanNote: 'C', octave: 5 }] }),
-          new HalfRest(),
-          new QuarterRest()
-        ],
-      ]))
+      it('does nothing if the note does not exist at index', () => {
+        const initial = createMusicTemplate([[new Quarter({ cleanNote: 'C', octave: 4 })]]);
+
+        const action = {
+          type: 'REMOVE_NOTE',
+          payload: { measureIndex: 0, noteIndex: 5 },
+        } as const;
+
+        const state = sheetMusicReducer(initial, action);
+        expect(state).toEqual(initial);
+      });
+
+      it('Should not remove a note from a chord if the chordNoteIndex does not exist', () => {
+        const initial = createMusicTemplate([
+          [
+            new Half({ cleanNote: 'C', octave: 4 }),
+            new Quarter({ cleanNote: 'D', octave: 4 }),
+            new Quarter({ cleanNote: 'E', octave: 4 })
+          ],
+          [
+            new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4 }, { cleanNote: 'A', octave: 4 }, { cleanNote: 'C', octave: 5 }] }),
+            new HalfRest(),
+            new QuarterRest()
+          ],
+        ]);
+
+        const action = {
+          type: 'REMOVE_NOTE',
+          payload: { measureIndex: 1, noteIndex: 0, chordNoteIndex: 3 },
+        } as const;
+
+        const state = sheetMusicReducer(initial, action);
+
+        expect(state).toEqual(initial)
+      })
+
+      it('clears measure', () => {
+        const initial = createMusicTemplate([[new Whole({ cleanNote: 'C', octave: 4 })], [new Whole({ cleanNote: 'C', octave: 5 })]]);
+
+        const action = {
+          type: 'REMOVE_NOTE',
+          payload: { measureIndex: 0, noteIndex: 0 },
+        } as const;
+
+        const state = sheetMusicReducer(initial, action);
+
+        expect(state.measures.length).toBe(1)
+        expect(state.measures[0].notes).toEqual([new Whole({ cleanNote: 'C', octave: 5 })]);
+      });
+
+      describe('remove ties from the previous note', () => {
+        describe('previous note is a SINGLE NOTE', () => {
+          it('Should remove the tie if the removed note is a single note and it is not tied', () => {
+            const initial = createMusicTemplate([[
+              new Half({ cleanNote: 'C', octave: 4, isTied: true }),
+              new Half({ cleanNote: 'C', octave: 4 })
+            ]])
+            const action = {
+              type: 'REMOVE_NOTE',
+              payload: { measureIndex: 0, noteIndex: 1 },
+            } as const;
+
+            const state = sheetMusicReducer(initial, action)
+
+            expect((state.measures[0].notes[0] as NoteTemplate).isTied).toBe(false)
+          })
+
+          it('Should not remove the tie if the removed note is a single note and it is tied', () => {
+            const initial = createMusicTemplate([[
+              new Half({ cleanNote: 'C', octave: 4, isTied: true }),
+              new Half({ cleanNote: 'C', octave: 4, isTied: true })
+            ]])
+            const action = {
+              type: 'REMOVE_NOTE',
+              payload: { measureIndex: 0, noteIndex: 1 },
+            } as const;
+
+            const state = sheetMusicReducer(initial, action)
+
+            expect((state.measures[0].notes[0] as NoteTemplate).isTied).toBe(true)
+          })
+
+          it('Should remove the tie if the removed note is a chord and the tied note is not tied with the next one', () => {
+            const initial = createMusicTemplate([[
+              new Half({ cleanNote: 'C', octave: 4, isTied: true }),
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4 }] })
+            ]])
+            const action = {
+              type: 'REMOVE_NOTE',
+              payload: { measureIndex: 0, noteIndex: 1 },
+            } as const;
+
+            const state = sheetMusicReducer(initial, action)
+
+            expect((state.measures[0].notes[0] as NoteTemplate).isTied).toBe(false)
+          })
+
+          it('Should not remove the tie if the removed note is a chord and the tied note is tied with the next one', () => {
+            const initial = createMusicTemplate([[
+              new Half({ cleanNote: 'C', octave: 4, isTied: true }),
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4, isTied: true }] })
+            ]])
+            const action = {
+              type: 'REMOVE_NOTE',
+              payload: { measureIndex: 0, noteIndex: 1 },
+            } as const;
+
+            const state = sheetMusicReducer(initial, action)
+
+            expect((state.measures[0].notes[0] as NoteTemplate).isTied).toBe(true)
+          })
+
+          it('Should remove the tie if the removed note is inside a chord', () => {
+            const initial = createMusicTemplate([[
+              new Half({ cleanNote: 'C', octave: 4, isTied: true }),
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'D', octave: 4 }, { cleanNote: 'E', octave: 4 }] })
+            ]])
+            const action = {
+              type: 'REMOVE_NOTE',
+              payload: { measureIndex: 0, noteIndex: 1, chordNoteIndex: 0 },
+            } as const;
+
+            const state = sheetMusicReducer(initial, action)
+
+            const finalNote = state.measures[0].notes[0] as NoteTemplate
+            expect(finalNote).toStrictEqual(new Half({ cleanNote: 'C', octave: 4 }))
+          })
+
+          it('Should not remove the tie if the removed note is inside a chord and no other note is tied', () => {
+            const initial = createMusicTemplate([[
+              new Half({ cleanNote: 'C', octave: 4, isTied: true }),
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'D', octave: 4 }, { cleanNote: 'E', octave: 4 }] })
+            ]])
+            const action = {
+              type: 'REMOVE_NOTE',
+              payload: { measureIndex: 0, noteIndex: 1, chordNoteIndex: 1 },
+            } as const;
+
+            const state = sheetMusicReducer(initial, action)
+
+            const finalNote = state.measures[0].notes[0] as NoteTemplate
+            expect(finalNote).toStrictEqual(new Half({ cleanNote: 'C', octave: 4, isTied: true }))
+          })
+        })
+        describe('previous note is a CHORD', () => {
+          it('Should remove the tie if the removed note is a single note and is not tied', () => {
+            const initial = createMusicTemplate([[
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4, isTied: true }, { cleanNote: 'D', octave: 4 }] }),
+              new Half({ cleanNote: 'C', octave: 4 }),
+            ]])
+            const action = {
+              type: 'REMOVE_NOTE',
+              payload: { measureIndex: 0, noteIndex: 1 },
+            } as const;
+
+            const state = sheetMusicReducer(initial, action)
+
+            expect((state.measures[0].notes[0] as ChordTemplate).notes).toStrictEqual([
+              new Half({ cleanNote: 'C', octave: 4 }),
+              new Half({ cleanNote: 'D', octave: 4 }),
+            ])
+          })
+
+          it('Should not remove the tie if the removed note is a single note and is tied', () => {
+            const initial = createMusicTemplate([[
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4, isTied: true }, { cleanNote: 'D', octave: 4 }] }),
+              new Half({ cleanNote: 'C', octave: 4, isTied: true }),
+            ]])
+            const action = {
+              type: 'REMOVE_NOTE',
+              payload: { measureIndex: 0, noteIndex: 1 },
+            } as const;
+
+            const state = sheetMusicReducer(initial, action)
+
+            expect((state.measures[0].notes[0] as ChordTemplate).notes).toStrictEqual([
+              new Half({ cleanNote: 'C', octave: 4, isTied: true }),
+              new Half({ cleanNote: 'D', octave: 4 }),
+            ])
+          })
+
+          it('Should remove the corresponding tie if the removed chord notes are not tied', () => {
+            const initial = createMusicTemplate([[
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4, isTied: true }, { cleanNote: 'D', octave: 4, isTied: true }, { cleanNote: 'E', octave: 4 }] }),
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4, isTied: true }, { cleanNote: 'D', octave: 4 }] }),
+            ]])
+            const action = {
+              type: 'REMOVE_NOTE',
+              payload: { measureIndex: 0, noteIndex: 1 },
+            } as const;
+
+            const state = sheetMusicReducer(initial, action)
+
+            expect((state.measures[0].notes[0] as ChordTemplate).notes).toStrictEqual([
+              new Half({ cleanNote: 'C', octave: 4, isTied: true }),
+              new Half({ cleanNote: 'D', octave: 4 }),
+              new Half({ cleanNote: 'E', octave: 4 }),
+            ])
+          })
+
+          it('Should remove the tie if the removed note is inside a chord', () => {
+            const initial = createMusicTemplate([[
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4, isTied: true }, { cleanNote: 'D', octave: 4 }] }),
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'D', octave: 4 }, { cleanNote: 'E', octave: 4 }] })
+            ]])
+            const action = {
+              type: 'REMOVE_NOTE',
+              payload: { measureIndex: 0, noteIndex: 1, chordNoteIndex: 0 },
+            } as const;
+
+            const state = sheetMusicReducer(initial, action)
+
+            const finalNote = state.measures[0].notes[0] as ChordTemplate
+            expect(finalNote).toStrictEqual(new Chord({
+              noteConstructor: Half,
+              notes: [
+                { cleanNote: 'C', octave: 4, isTied: false },
+                { cleanNote: 'D', octave: 4 }
+              ]
+            }))
+          })
+
+          it('Should not remove the tie if the removed note is inside a chord and no other note is tied', () => {
+            const initial = createMusicTemplate([[
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4, isTied: true }, { cleanNote: 'D', octave: 4 }] }),
+              new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'D', octave: 4 }, { cleanNote: 'E', octave: 4 }] })
+            ]])
+            const action = {
+              type: 'REMOVE_NOTE',
+              payload: { measureIndex: 0, noteIndex: 1, chordNoteIndex: 1 },
+            } as const;
+
+            const state = sheetMusicReducer(initial, action)
+
+            const finalNote = state.measures[0].notes[0] as Chord
+            expect(finalNote).toStrictEqual(new Chord({
+              noteConstructor: Half,
+              notes: [
+                { cleanNote: 'C', octave: 4, isTied: true },
+                { cleanNote: 'D', octave: 4 }
+              ]
+            }))
+          })
+        })
+      })
     })
-
-    it('Should not remove a note from a chord if the chordNoteIndex does not exist', () => {
-      const initial = createMusicTemplate([
-        [
-          new Half({ cleanNote: 'C', octave: 4 }),
-          new Quarter({ cleanNote: 'D', octave: 4 }),
-          new Quarter({ cleanNote: 'E', octave: 4 })
-        ],
-        [
-          new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4 }, { cleanNote: 'A', octave: 4 }, { cleanNote: 'C', octave: 5 }] }),
-          new HalfRest(),
-          new QuarterRest()
-        ],
-      ]);
-
-      const action = {
-        type: 'REMOVE_NOTE',
-        payload: { measureIndex: 1, noteIndex: 0, chordNoteIndex: 3 },
-      } as const;
-
-      const state = sheetMusicReducer(initial, action);
-
-      expect(state).toEqual(initial)
-    })
-
-    it('clears measure', () => {
-      const initial = createMusicTemplate([[new Whole({ cleanNote: 'C', octave: 4 })], [new Whole({ cleanNote: 'C', octave: 5 })]]);
-
-      const action = {
-        type: 'REMOVE_NOTE',
-        payload: { measureIndex: 0, noteIndex: 0 },
-      } as const;
-
-      const state = sheetMusicReducer(initial, action);
-
-      expect(state.measures.length).toBe(1)
-      expect(state.measures[0].notes).toEqual([new Whole({ cleanNote: 'C', octave: 5 })]);
-    });
   });
 })

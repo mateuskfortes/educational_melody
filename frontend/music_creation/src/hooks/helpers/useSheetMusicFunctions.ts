@@ -2,6 +2,32 @@ import { Chord, NoteBase, notesConstructors, RestBase, restNotesConstructors } f
 import { ChordTemplate, MeasureTemplate, NoteConstructorCoreArgsTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, RestTemplate } from "../../types/sheetMusicTemplates";
 
 /**
+ * Retrieves the note that comes immediately before the given note position.
+ *
+ * The search first checks the previous note in the same measure.  
+ * If there is none, it falls back to the last note of the previous measure.  
+ * If no such note exists, it returns undefined.
+ *
+ * @param measuresList - The list of measures containing notes.
+ * @param measureIndex - The index of the current measure.
+ * @param noteIndex - The index of the current note within the measure.
+ * @returns The previous NoteTemplate if found, otherwise undefined.
+ */
+export const getPreviousNote = (
+  measuresList: MeasureTemplate[],
+  measureIndex: number,
+  noteIndex: number
+) => {
+  let previous = measuresList[measureIndex].notes[noteIndex - 1]
+  if (previous) return previous
+
+  previous = measuresList[measureIndex - 1]?.notes[measuresList[measureIndex - 1].notes.length - 1]
+  if (previous) return previous
+
+  return undefined
+}
+
+/**
  * Calculates the total duration of an array of notes.
  *
  * @param notes - Array of note objects.

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Chord, Eighth, EighthRest, Half, HalfRest, NoteBase, Quarter, QuarterRest, RestBase, Sixteenth, SixteenthRest, Thirtysecond, ThirtysecondRest, Whole, WholeRest } from "../classes/notes";
 import type { AccidentalTemplate, CleanNoteType, NoteTemplate, OctaveType } from '../types/sheetMusicTemplates';
-import { fillBdWithChords, fillBdWithNotes, fillBdWithRests, getMaxFittingChord, getMaxFittingNote, getMaxFittingRest, getNotesDuration, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
+import { fillBdWithChords, fillBdWithNotes, fillBdWithRests, getMaxFittingChord, getMaxFittingNote, getMaxFittingRest, getNotesDuration, getPreviousNote, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasure, splitNote } from '../hooks/helpers/useSheetMusicFunctions';
 import { createMeasure } from "../utils";
 
 const cleanNote: CleanNoteType = 'C';
@@ -10,6 +10,35 @@ const accidental: AccidentalTemplate = 'sharp';
 const isTied: boolean = true
 
 describe('sheetMusicReducer functions (Whole = 4.0)', () => {
+  describe('getPreviousNote', () => {
+    it('should return the previous note in the same measure', () => {
+      const previousNote = new Half({ cleanNote: 'C', octave: 4 })
+      const measures = [
+        createMeasure(previousNote, new Half({ cleanNote: 'D', octave: 5 }))
+      ]
+      const result = getPreviousNote(measures, 0, 1)
+      expect(result).toStrictEqual(previousNote)
+    })
+
+    it('should return the previous note from the previous measure', () => {
+      const previousNote = new Whole({ cleanNote: 'C', octave: 4 })
+      const measures = [
+        createMeasure(previousNote),
+        createMeasure(new Whole({ cleanNote: 'D', octave: 5 }))
+      ]
+      const result = getPreviousNote(measures, 1, 0)
+      expect(result).toStrictEqual(previousNote)
+    })
+
+    it('should return undefined if no previous note exists', () => {
+      const measures = [
+        createMeasure(new Whole({ cleanNote: 'D', octave: 5 }))
+      ]
+      const result = getPreviousNote(measures, 0, 0)
+      expect(result).toEqual(undefined)
+    })
+  })
+
   describe('getMaxFittingNote', () => {
     it('returns a whole note for 4 duration', () => {
       const result = getMaxFittingNote(4, { cleanNote, octave, accidental, isTied });

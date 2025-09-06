@@ -101,18 +101,19 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
       || (chordNoteIndex && (!(noteOnState instanceof Chord) || !noteOnState.notes[chordNoteIndex])) // If there is no note at the given chord index or it is not a chord
     ) return prevState
 
-    /// Remove the note from the measure
     const previousNote = getPreviousNote(finalState.measures, measureIndex, noteIndex)
+
+    // Removes a note from within a chord
     if (chordNoteIndex && noteOnState instanceof Chord) {
       const removedNote = noteOnState.notes.splice(chordNoteIndex, 1)[0]
 
+      // Handles the ties in the previous note
       if (previousNote instanceof NoteBase && previousNote.equal(removedNote)) {
         previousNote.isTied = removedNote.isTied
       }
       else if (previousNote instanceof Chord) {
         const equalOnPrevious = previousNote.notes.find(n => removedNote.equal(n))
-        if (equalOnPrevious)
-          equalOnPrevious.isTied = removedNote.isTied
+        if (equalOnPrevious) equalOnPrevious.isTied = removedNote.isTied
       }
 
       // If only one note remains, convert the chord into a single note.
@@ -121,27 +122,25 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
         measureOnState.notes.splice(noteIndex, 1, newNote)
       }
     }
+    // Removes a note that is not part of a chord
     else {
       const removedNote = measureOnState.notes.splice(noteIndex, 1)[0]
+
+      // Handles the ties in the previous note
       if (previousNote && !(removedNote instanceof RestBase)) {
         if (previousNote instanceof NoteBase) {
-          if (removedNote instanceof NoteBase)
-            previousNote.isTied = removedNote.isTied
-          else if (removedNote instanceof Chord) {
-            previousNote.isTied = !!removedNote.notes.find(n => previousNote.equal(n))?.isTied
-          }
+          if (removedNote instanceof NoteBase) previousNote.isTied = removedNote.isTied
+          else if (removedNote instanceof Chord) previousNote.isTied = !!removedNote.notes.find(n => previousNote.equal(n))?.isTied
         }
         else if (previousNote instanceof Chord) {
           if (removedNote instanceof NoteBase) {
             const equalOnPrevious = previousNote.notes.find(n => removedNote.equal(n))
-            if (equalOnPrevious)
-              equalOnPrevious.isTied = removedNote.isTied
+            if (equalOnPrevious) equalOnPrevious.isTied = removedNote.isTied
           }
           else if (removedNote instanceof Chord) {
             removedNote.notes.forEach(rmNote => {
               const equalOnPrevious = previousNote.notes.find(pvNote => rmNote.equal(pvNote))
-              if (equalOnPrevious)
-                equalOnPrevious.isTied = rmNote.isTied
+              if (equalOnPrevious) equalOnPrevious.isTied = rmNote.isTied
             })
           }
         }

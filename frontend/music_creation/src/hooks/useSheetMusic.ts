@@ -1,8 +1,8 @@
 import { useReducer } from "react"
-import { AddNotePayload, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, RemoveNotePayload } from "../types/sheetMusicTemplates"
+import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload } from "../types/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
-import { copySheetMusic, createMeasure, getChordArgsFromNotes, getConstructor, getMeasureDurationByMeter } from "../utils";
+import { copySheetMusic, createMeasure, getChordArgsFromNotes, getConstructor, getMeasureDurationByMeter, mergeNotesToList } from "../utils";
 import { fillBdWithChords, fillBdWithNotes, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
 import { Chord, NoteBase, RestBase } from "../classes/notes";
 import PlayingNotes from "../classes/PlayingNotes";
@@ -28,73 +28,59 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
       return prevState
     }
 
-    let insertNote = note
+    if (addToChord) {
+      const insertNote = note as NoteTemplate
 
-    // If the chord has only one note, convert it into a single note.
-    if (note instanceof Chord && note.notes.length === 1) {
-      insertNote = new note.noteConstructor(note.notes[0])
-    }
-
-    if (addToChord && note instanceof NoteBase) {
       if (note.beatDuration === noteOnState.beatDuration) {
-        if (noteOnState instanceof Chord) noteOnState.notes.push(note)
+        if (noteOnState instanceof Chord) {
+          noteOnState.notes.push(insertNote)
+        }
         else if (noteOnState instanceof NoteBase) {
           measureOnState.notes[noteIndex] = new Chord({
             noteConstructor: getConstructor(noteOnState),
-            notes: getChordArgsFromNotes([noteOnState, note])
+            notes: getChordArgsFromNotes([noteOnState, insertNote])
           })
         }
       }
-      else if (note.beatDuration < noteOnState.beatDuration) {
-        if (noteOnState instanceof Chord) {
-          const notesWithAddedNote = fillBdWithChords(note.beatDuration, getChordArgsFromNotes(noteOnState.notes.concat(note)))
-          const notesWithoutAddedNote = fillBdWithChords(noteOnState.beatDuration - note.beatDuration, getChordArgsFromNotes(noteOnState.notes))
-          notesWithAddedNote[notesWithAddedNote.length - 1].notes.forEach(n => {
-            if (!note.equal(n)) {
-              n.isTied = true
-            }
-          })
-          measureOnState.notes.splice(noteIndex, 1, ...notesWithAddedNote, ...notesWithoutAddedNote)
+      else {
+        const firstGroup = fillBdWithChords(Math.min(insertNote.beatDuration, noteOnState.beatDuration), getChordArgsFromNotes(mergeNotesToList(noteOnState, insertNote)))
+
+        // If the insertNote is bigger than the note in the current state.
+        const insertBigger = insertNote.beatDuration > noteOnState.beatDuration;
+
+        // Marks notes in the last chord of the first group as tied:
+        // - The inserted note is marked if it is longer than the note in the current state.
+        // - Other notes are marked if they are not equal to the inserted note.
+        firstGroup[firstGroup.length - 1].notes.forEach(n => n.isTied = insertNote.equal(n) === insertBigger)
+        let secondGroup: (NoteTemplate | ChordTemplate)[] = []
+
+        const secondGroupDuration = Math.abs(insertNote.beatDuration - noteOnState.beatDuration)
+
+        if (insertBigger) {
+          secondGroup = fillBdWithNotes(secondGroupDuration, insertNote.cleanNote, insertNote.octave, insertNote.accidental, insertNote.isTied)
         }
-        else if (noteOnState instanceof NoteBase) {
-          const notesWithAddedNote = fillBdWithChords(note.beatDuration, getChordArgsFromNotes([noteOnState, note]))
-          const notesWithoutAddedNote = fillBdWithNotes(noteOnState.beatDuration - note.beatDuration, noteOnState.cleanNote, noteOnState.octave, noteOnState.accidental, noteOnState.isTied)
-          notesWithAddedNote[notesWithAddedNote.length - 1].notes.forEach(n => {
-            if (!note.equal(n)) {
-              n.isTied = true
-            }
-          })
-          measureOnState.notes.splice(noteIndex, 1, ...notesWithAddedNote, ...notesWithoutAddedNote)
+        else if (!insertBigger) {
+          if (noteOnState instanceof Chord) {
+            secondGroup = fillBdWithChords(secondGroupDuration, getChordArgsFromNotes(noteOnState.notes))
+          }
+          else if (noteOnState instanceof NoteBase) {
+            secondGroup = fillBdWithNotes(secondGroupDuration, noteOnState.cleanNote, noteOnState.octave, noteOnState.accidental, noteOnState.isTied)
+          }
         }
-      }
-      else if (note.beatDuration > noteOnState.beatDuration) {
-        if (noteOnState instanceof Chord) {
-          const notesWithPreviousNote = fillBdWithChords(noteOnState.beatDuration, getChordArgsFromNotes(noteOnState.notes.concat(note)))
-          const notesWithoutPreviousNote = fillBdWithNotes(note.beatDuration - noteOnState.beatDuration, note.cleanNote, note.octave, note.accidental, note.isTied)
-          notesWithPreviousNote[notesWithPreviousNote.length - 1].notes.forEach(n => {
-            if (note.equal(n)) {
-              n.isTied = true
-            }
-            else n.isTied = false
-          })
-          measureOnState.notes.splice(noteIndex, 1, ...notesWithPreviousNote, ...notesWithoutPreviousNote)
-        }
-        else if (noteOnState instanceof NoteBase) {
-          const notesWithPreviousNote = fillBdWithChords(noteOnState.beatDuration, getChordArgsFromNotes([noteOnState, note]))
-          const notesWithoutPreviousNote = fillBdWithNotes(note.beatDuration - noteOnState.beatDuration, note.cleanNote, note.octave, note.accidental, note.isTied)
-          notesWithPreviousNote[notesWithPreviousNote.length - 1].notes.forEach(n => {
-            if (note.equal(n)) {
-              n.isTied = true
-            }
-            else n.isTied = false
-          })
-          measureOnState.notes.splice(noteIndex, 1, ...notesWithPreviousNote, ...notesWithoutPreviousNote)
-        }
+        measureOnState.notes.splice(noteIndex, 1, ...firstGroup, ...secondGroup)
       }
     }
-    // Add the note to the measure
-    else if (isFinalPosition) finalState.measures[measureIndex] = createMeasure(insertNote)
-    else measureOnState.notes.splice(noteIndex, 0, insertNote)
+    else {
+      let insertNote = note
+
+      // If the chord has only one note, convert it into a single note.
+      if (note instanceof Chord && note.notes.length === 1) {
+        insertNote = new note.noteConstructor(note.notes[0])
+      }
+
+      if (isFinalPosition) finalState.measures[measureIndex] = createMeasure(insertNote)
+      else measureOnState.notes.splice(noteIndex, 0, insertNote)
+    }
 
     normalizeMeasuresAcrossSheetMusic(finalState.measures, measureDuration)
     mergeTiesAcrossMeasures(finalState.measures)

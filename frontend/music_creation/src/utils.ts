@@ -253,3 +253,19 @@ export const getChordArgsFromNotes = (notes: NoteTemplate[]) => {
     isTied: note.isTied
   }))
 }
+
+/**
+ * Merges one or more notes into a list of NoteTemplate objects.
+ *
+ * If the first argument is a Chord, the function expands its notes
+ * and appends the second note to the resulting list.  
+ * If the first argument is a single NoteTemplate, both are returned
+ * together in a new list.
+ *
+ * @param obj1 - Either a Chord (containing multiple notes) or a single NoteTemplate.
+ * @param obj2 - A NoteTemplate to merge with obj1.
+ * @returns An array of NoteTemplate objects containing the merged notes.
+ */
+export const mergeNotesToList = (obj1: NotesTemplate, obj2: NoteTemplate): NoteTemplate[] => {
+  return obj1 instanceof Chord ? [...obj1.notes, obj2] : [obj1 as NoteTemplate, obj2];
+}

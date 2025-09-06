@@ -23,8 +23,10 @@ export type NoteConstructorArgsTemplate = {
     dots?: number; // Number of dots
 }
 
+export type NoteConstructorCoreArgsTemplate = Omit<NoteConstructorArgsTemplate, 'dots'>
+
 export type ChordConstructorArgsTemplate = {
-    notes: Omit<NoteConstructorArgsTemplate, 'dots'>[];
+    notes: NoteConstructorCoreArgsTemplate[];
     noteConstructor: NoteConstructorTemplate;
 }
 

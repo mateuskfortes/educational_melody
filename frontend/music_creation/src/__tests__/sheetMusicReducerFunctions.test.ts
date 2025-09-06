@@ -7,38 +7,55 @@ import { createMeasure } from "../utils";
 const cleanNote: CleanNoteType = 'C';
 const octave: OctaveType = 4;
 const accidental: AccidentalTemplate = 'sharp';
+const isTied: boolean = true
 
 describe('getMaxFittingNote (Whole = 4.0)', () => {
   it('returns a whole note for 4 duration', () => {
-    const result = getMaxFittingNote(4, cleanNote, octave, accidental);
+    const result = getMaxFittingNote(4, { cleanNote, octave, accidental, isTied });
     expect(result).toBeInstanceOf(Whole);
+    expect(result.cleanNote).toBe(cleanNote)
+    expect(result.octave).toBe(octave)
+    expect(result.accidental).toBe(accidental)
+    expect(result.isTied).toBe(isTied)
     expect(result.beatDuration).toBeLessThanOrEqual(4);
   });
 
   it('returns a dotted half note for 3 duration', () => {
-    const result = getMaxFittingNote(3, cleanNote, octave, accidental);
+    const result = getMaxFittingNote(3, { cleanNote, octave, accidental });
     expect(result).toBeInstanceOf(Half);
+    expect(result.cleanNote).toBe(cleanNote)
+    expect(result.octave).toBe(octave)
+    expect(result.accidental).toBe(accidental)
+    expect(result.isTied).toBe(false)
     expect(result.dots).toBe(1);
     expect(result.beatDuration).toBeLessThanOrEqual(3);
   });
 
   it('returns a quarter note for 1 duration', () => {
-    const result = getMaxFittingNote(1, cleanNote, octave, accidental);
+    const result = getMaxFittingNote(1, { cleanNote, octave, accidental });
     expect(result).toBeInstanceOf(Quarter);
+    expect(result.cleanNote).toBe(cleanNote)
+    expect(result.octave).toBe(octave)
+    expect(result.accidental).toBe(accidental)
+    expect(result.isTied).toBe(false)
     expect(result.dots).toBe(0);
     expect(result.beatDuration).toBeLessThanOrEqual(1);
   });
 
   it('returns a dotted eighth note for 0.75 duration', () => {
-    const result = getMaxFittingNote(0.75, cleanNote, octave, accidental);
+    const result = getMaxFittingNote(0.75, { cleanNote, octave, accidental });
     expect(result).toBeInstanceOf(Eighth);
+    expect(result.cleanNote).toBe(cleanNote)
+    expect(result.octave).toBe(octave)
+    expect(result.accidental).toBe(accidental)
+    expect(result.isTied).toBe(false)
     expect(result.dots).toBe(1);
     expect(result.beatDuration).toBeLessThanOrEqual(0.75);
   });
 
   it('throws an error when no note fits', () => {
     expect(() => {
-      getMaxFittingNote(0.001, cleanNote, octave, accidental);
+      getMaxFittingNote(0.001, { cleanNote, octave, accidental });
     }).toThrow('No fitting note constructor found');
   });
 });
@@ -130,41 +147,59 @@ describe('getMaxFittingRest (Whole = 4.0)', () => {
 
 describe('fillBdWithNotes (Whole = 4.0)', () => {
   it('returns only the note when it fits exactly', () => {
-    const result = fillBdWithNotes(2.0, cleanNote, octave, accidental);
+    const result = fillBdWithNotes(2.0, { cleanNote, octave, accidental });
     const fitNote = result[0]
     expect(result.length).toBe(1);
     expect(fitNote).toBeInstanceOf(Half);
+    expect(fitNote.cleanNote).toBe(cleanNote)
+    expect(fitNote.octave).toBe(octave)
+    expect(fitNote.accidental).toBe(accidental)
     expect(fitNote.isTied).toBe(false)
     expect((fitNote as NoteTemplate).beatDuration).toBe(2.0);
   });
 
   it('returns note plus tied notes when just one note does not fill the full duration', () => {
-    const result = fillBdWithNotes(2.5, cleanNote, octave, accidental);
+    const result = fillBdWithNotes(2.5, { cleanNote, octave, accidental });
     expect(result.length).toBe(2);
     expect(result[0]).toBeInstanceOf(Half);
+    expect(result[0].cleanNote).toBe(cleanNote)
+    expect(result[0].octave).toBe(octave)
+    expect(result[0].accidental).toBe(accidental)
     expect(result[0].isTied).toBe(true)
     expect(result[1]).toBeInstanceOf(Eighth);
+    expect(result[1].cleanNote).toBe(cleanNote)
+    expect(result[1].octave).toBe(octave)
+    expect(result[1].accidental).toBe(accidental)
     expect(result[1].isTied).toBe(false)
     const total = result.reduce((acc, el) => acc + el.beatDuration, 0);
     expect(total).toBeCloseTo(2.5);
   });
 
   it('fills with tied notes at the end', () => {
-    const result = fillBdWithNotes(3.625, cleanNote, octave, accidental);
+    const result = fillBdWithNotes(3.625, { cleanNote, octave, accidental });
     const total = result.reduce((sum, el) => sum + el.beatDuration, 0);
     expect(result[0]).toBeInstanceOf(Half); // 2.0
     expect(result.length).toBe(2)
     // Remaining: 1.625 -> Quarter (1.0), Eighth (0.5), Sixteenth (0.25), Thirtysecond (0.125)
     expect(total).toBeCloseTo(3.625);
+    expect(result[0].cleanNote).toBe(cleanNote)
+    expect(result[0].octave).toBe(octave)
+    expect(result[0].accidental).toBe(accidental)
     expect(result[0].isTied).toBe(true)
+    expect(result[1].cleanNote).toBe(cleanNote)
+    expect(result[1].octave).toBe(octave)
+    expect(result[1].accidental).toBe(accidental)
     expect(result[1].isTied).toBe(false)
     expect(result.slice(0, 1).every(r => r.isTied)).toBe(true);
   });
 
   it('returns only a note when beatDuration = 4.0 and note = Whole', () => {
-    const result = fillBdWithNotes(4.0, cleanNote, octave, accidental);
+    const result = fillBdWithNotes(4.0, { cleanNote, octave, accidental });
     expect(result.length).toBe(1);
     expect(result[0]).toBeInstanceOf(Whole);
+    expect(result[0].cleanNote).toBe(cleanNote)
+    expect(result[0].octave).toBe(octave)
+    expect(result[0].accidental).toBe(accidental)
     expect(result[0].isTied).toBe(false)
   });
 });

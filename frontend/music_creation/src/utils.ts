@@ -235,26 +235,6 @@ export const getConstructor = (note: NotesTemplate) => {
 }
 
 /**
- * Extracts the minimal set of arguments needed to recreate notes inside a Chord.
- *
- * This is useful when constructing a new Chord instance from existing Note objects,
- * while avoiding carrying over extra properties not required for instantiation.
- *
- * @param notes - An array of NoteTemplate objects to extract arguments from.
- * @returns An array of plain objects containing the minimal properties
- *          required to instantiate notes in a Chord.
- */
-export const getChordArgsFromNotes = (notes: NoteTemplate[]) => {
-  return notes.map(note =>
-  ({
-    cleanNote: note.cleanNote,
-    octave: note.octave,
-    accidental: note.accidental,
-    isTied: note.isTied
-  }))
-}
-
-/**
  * Merges one or more notes into a list of NoteTemplate objects.
  *
  * If the first argument is a Chord, the function expands its notes

@@ -149,7 +149,12 @@ export class Chord implements ChordTemplate {
   beatDuration: number;
   noteConstructor: NoteConstructorTemplate;
   constructor(args: ChordConstructorArgsTemplate) {
-    this.notes = args.notes.map(noteArgs => new args.noteConstructor(noteArgs));
+    this.notes = args.notes.map(noteArgs => new args.noteConstructor({
+      cleanNote: noteArgs.cleanNote,
+      octave: noteArgs.octave,
+      accidental: noteArgs.accidental,
+      isTied: noteArgs.isTied
+    }));
     this.beatDuration = this.notes[0]?.beatDuration ?? 0;
     this.noteConstructor = args.noteConstructor
   }

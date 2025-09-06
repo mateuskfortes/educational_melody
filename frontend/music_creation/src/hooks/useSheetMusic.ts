@@ -2,7 +2,7 @@ import { useReducer } from "react"
 import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload } from "../types/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
-import { copySheetMusic, createMeasure, getChordArgsFromNotes, getConstructor, getMeasureDurationByMeter, mergeNotesToList } from "../utils";
+import { copySheetMusic, createMeasure, getConstructor, getMeasureDurationByMeter, mergeNotesToList } from "../utils";
 import { fillBdWithChords, fillBdWithNotes, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
 import { Chord, NoteBase, RestBase } from "../classes/notes";
 import PlayingNotes from "../classes/PlayingNotes";
@@ -20,7 +20,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
     const noteOnState = measureOnState?.notes[noteIndex]
     if (
       (!measureOnState && !isFinalPosition) // If there is no measure at the index
-      || measureDuration < note.beatDuration // If there is not enough space in the measure
+      || measureDuration < note.beatDuration // If there is not enough duration space in the measure
       || measureSpace < noteIndex + 1 // If there is not enough space in the measure
       || (note instanceof Chord && note.notes.length === 0) // If there is no notes inside the chord
       || (addToChord && (noteOnState instanceof RestBase || !(note instanceof NoteBase))) // Prevent adding either a Rest to a chord or a Note to a chord when the target is a Rest
@@ -38,33 +38,33 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
         else if (noteOnState instanceof NoteBase) {
           measureOnState.notes[noteIndex] = new Chord({
             noteConstructor: getConstructor(noteOnState),
-            notes: getChordArgsFromNotes([noteOnState, insertNote])
+            notes: [noteOnState, insertNote]
           })
         }
       }
       else {
-        const firstGroup = fillBdWithChords(Math.min(insertNote.beatDuration, noteOnState.beatDuration), getChordArgsFromNotes(mergeNotesToList(noteOnState, insertNote)))
+        const firstGroup = fillBdWithChords(Math.min(insertNote.beatDuration, noteOnState.beatDuration), mergeNotesToList(noteOnState, insertNote))
 
         // If the insertNote is bigger than the note in the current state.
         const insertBigger = insertNote.beatDuration > noteOnState.beatDuration;
 
-        // Marks notes in the last chord of the first group as tied:
-        // - The inserted note is marked if it is longer than the note in the current state.
-        // - Other notes are marked if they are not equal to the inserted note.
+        // Marks notes in the last chord of the first group as tied based on comparison with the inserted note:
+        // - If the note is the inserted one, it is marked if it is longer than the note in the current state.
+        // - Otherwise, existing notes are marked if they are not equal to the inserted note.
         firstGroup[firstGroup.length - 1].notes.forEach(n => n.isTied = insertNote.equal(n) === insertBigger)
-        let secondGroup: (NoteTemplate | ChordTemplate)[] = []
 
+        let secondGroup: (NoteTemplate | ChordTemplate)[] = []
         const secondGroupDuration = Math.abs(insertNote.beatDuration - noteOnState.beatDuration)
 
         if (insertBigger) {
-          secondGroup = fillBdWithNotes(secondGroupDuration, insertNote.cleanNote, insertNote.octave, insertNote.accidental, insertNote.isTied)
+          secondGroup = fillBdWithNotes(secondGroupDuration, insertNote)
         }
         else if (!insertBigger) {
           if (noteOnState instanceof Chord) {
-            secondGroup = fillBdWithChords(secondGroupDuration, getChordArgsFromNotes(noteOnState.notes))
+            secondGroup = fillBdWithChords(secondGroupDuration, noteOnState.notes)
           }
           else if (noteOnState instanceof NoteBase) {
-            secondGroup = fillBdWithNotes(secondGroupDuration, noteOnState.cleanNote, noteOnState.octave, noteOnState.accidental, noteOnState.isTied)
+            secondGroup = fillBdWithNotes(secondGroupDuration, noteOnState)
           }
         }
         measureOnState.notes.splice(noteIndex, 1, ...firstGroup, ...secondGroup)

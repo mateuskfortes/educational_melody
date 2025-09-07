@@ -2,8 +2,10 @@ services:
   server:
     build:
       context: ./api
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     environment:
-      NODE_ENV: production
       DATABASE_URL: mysql://root:123456@db:3306/educational_melody
     ports:
       - 3000:3000
@@ -12,19 +14,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    develop:
-      watch:
-        - path: ./api/src
-          action: sync
-          target: /usr/src/app/src
-        - path: ./api/package.json
-          action: rebuild
 
   db:
     image: mysql:8.0.27
     restart: always
-    volumes:
-      - db-data:/var/lib/mysql
     networks:
       - prisma-network
     environment:
@@ -36,9 +29,6 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
-
-volumes:
-  db-data:
 
 networks:
   prisma-network:

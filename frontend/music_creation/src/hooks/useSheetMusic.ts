@@ -201,7 +201,6 @@ const useSheetMusic = (initialState: MusicTemplate) => {
       noteIndex: number,
     ) {
       let totalExtraBeatDuration = 0
-      let nextNote: NotesTemplate | undefined
 
       function goToNextNote() {
         const measure = music.measures[measureIndex]
@@ -215,7 +214,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
       }
 
       while (true) {
-        nextNote = getNextNote(music.measures, measureIndex, noteIndex)
+        const { note: nextNote } = getNextNote(music.measures, measureIndex, noteIndex)
         totalExtraBeatDuration += nextNote?.beatDuration ?? 0
         if (
           !nextNote

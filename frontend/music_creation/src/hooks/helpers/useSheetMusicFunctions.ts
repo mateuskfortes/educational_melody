@@ -28,29 +28,45 @@ export const getPreviousNote = (
 }
 
 /**
- * Retrieves the next note in the music sequence given a measure and note position.
+ * Retrieves the next note in the music sequence along with its position.
  *
  * The search first looks for the next note within the same measure.
  * If none is found, it returns the first note of the following measure.
- * If no such note exists, it returns `undefined`.
+ * If no such note exists, it returns `undefined` as the note, along with
+ * the measure and note indexes where the search ended.
  *
  * @param measuresList - The array of measures containing notes.
  * @param measureIndex - The index of the current measure in `measuresList`.
  * @param noteIndex - The index of the current note within the measure's `notes` array.
- * @returns The next note if found, otherwise `undefined`.
+ * @returns An object containing:
+ *   - `note`: The next note if found, otherwise `undefined`.
+ *   - `measureIndex`: The index of the measure containing the returned note (or where the search ended).
+ *   - `noteIndex`: The index of the note within the measure (or where the search ended).
  */
 export const getNextNote = (
   measuresList: MeasureTemplate[],
   measureIndex: number,
   noteIndex: number
-): NotesTemplate | undefined => {
+): { note: NotesTemplate | undefined, measureIndex: number, noteIndex: number } => {
   let next = measuresList[measureIndex].notes[noteIndex + 1]
-  if (next) return next
+  if (next) return {
+    note: next,
+    measureIndex,
+    noteIndex: noteIndex + 1
+  }
 
   next = measuresList[measureIndex + 1]?.notes[0]
-  if (next) return next
+  if (next) return {
+    note: next,
+    measureIndex: measureIndex + 1,
+    noteIndex
+  }
 
-  return undefined
+  return {
+    note: next,
+    measureIndex: measureIndex + 1,
+    noteIndex: 0
+  }
 }
 
 /**

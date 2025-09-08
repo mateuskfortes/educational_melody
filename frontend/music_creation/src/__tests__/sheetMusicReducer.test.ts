@@ -440,6 +440,32 @@ describe('sheetMusicReducer', () => {
           new QuarterRest()
         ))
       })
+
+      it('Should not add a note into a chord if they are equal', () => {
+        const initial = createMusicTemplate([[new Chord({ noteConstructor: Whole, notes: [{ cleanNote: 'C', octave: 4 }] })]])
+        const note: NoteTemplate = new Half({ cleanNote: 'C', octave: 4 })
+        const action: AddNoteAction = {
+          type: 'ADD_NOTE' as const,
+          payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+        };
+
+        const state = sheetMusicReducer(initial, action)
+
+        expect(state).toStrictEqual(initial)
+      })
+
+      it('Should not add a note into into another note if they are equal', () => {
+        const initial = createMusicTemplate([[new Whole({ cleanNote: 'C', octave: 4 })]])
+        const note: NoteTemplate = new Half({ cleanNote: 'C', octave: 4 })
+        const action: AddNoteAction = {
+          type: 'ADD_NOTE' as const,
+          payload: { note, measureIndex: 0, noteIndex: 0, addToChord: true },
+        };
+
+        const state = sheetMusicReducer(initial, action)
+
+        expect(state).toStrictEqual(initial)
+      })
     })
 
     test('REST', () => {

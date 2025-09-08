@@ -23,7 +23,12 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
       || measureDuration < note.beatDuration // If there is not enough duration space in the measure
       || measureSpace < noteIndex + 1 // If there is not enough space in the measure
       || (note instanceof Chord && note.notes.length === 0) // If there is no notes inside the chord
-      || (addToChord && (noteOnState instanceof RestBase || !(note instanceof NoteBase))) // Prevent adding either a Rest to a chord or a Note to a chord when the target is a Rest
+      || (addToChord && (
+        noteOnState instanceof RestBase // If the note on state is a rest
+        || !(note instanceof NoteBase) // If the note being added is not a single note 
+        || (noteOnState instanceof NoteBase && noteOnState.equal(note)) // If the note being added is equal to the note on state
+        || (noteOnState instanceof Chord && noteOnState.notes.find(n => n.equal(note))) // If the note being added already exists in the chord
+      ))
     ) {
       return prevState
     }

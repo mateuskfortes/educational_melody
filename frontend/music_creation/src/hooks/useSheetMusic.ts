@@ -1,5 +1,5 @@
 import { useReducer } from "react"
-import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload } from "../types/sheetMusicTemplates"
+import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload, TieNotePayload } from "../types/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
 import { copySheetMusic, createMeasure, getConstructor, getMeasureDurationByMeter, mergeNotesToList } from "../utils";
@@ -153,9 +153,53 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
 
     return finalState
   }
+
+  function tieNote() {
+    const finalState = copySheetMusic(prevState)
+    const { startMeasureIndex, startNoteIndex, startChordNoteIndex, endMeasureIndex, endNoteIndex } = action.payload as TieNotePayload
+
+    const startMeasure = finalState.measures[startMeasureIndex]
+    const startMusicNote = startMeasure?.notes[startNoteIndex]
+    if (
+      !startMusicNote
+      || (startMusicNote instanceof Chord && !startChordNoteIndex)
+      || (startMusicNote instanceof Chord && !startMusicNote.notes[startChordNoteIndex as number])
+      || startMusicNote instanceof RestBase
+    ) return prevState
+    const startNote = startMusicNote instanceof Chord ? startMusicNote.notes[startChordNoteIndex as number] : startMusicNote as NoteTemplate
+
+    startNote.isTied = true
+
+    let [prevMeasureIndex, prevNoteIndex] = [startMeasureIndex, startNoteIndex]
+
+    while (true) {
+      const result = getNextNote(finalState.measures, prevMeasureIndex, prevNoteIndex)
+      let { note } = result
+      const { measureIndex, noteIndex } = result
+
+      if (note instanceof Chord) {
+        const chordNoteIndex = note.notes.findIndex(n => n.equal(startNote))
+        if (chordNoteIndex < 0) return prevState
+        note = note.notes[chordNoteIndex]
+      }
+
+      if (!note || note instanceof RestBase || !startNote.equal(note as NoteTemplate))
+        return prevState
+      else if (measureIndex === endMeasureIndex && noteIndex === endNoteIndex)
+        break
+
+      (note as NoteTemplate).isTied = true;
+
+      [prevMeasureIndex, prevNoteIndex] = [measureIndex, noteIndex]
+    }
+
+    return finalState
+  }
+
   switch (action.type) {
     case 'ADD_NOTE': return addNote();
     case 'REMOVE_NOTE': return removeNote();
+    case 'TIE_NOTE': return tieNote();
     default:
       return prevState;
   }

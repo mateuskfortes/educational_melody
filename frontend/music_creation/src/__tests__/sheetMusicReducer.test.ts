@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, test } from 'vitest'
 import { sheetMusicReducer } from '../hooks/useSheetMusic'
 import { Whole, Quarter, QuarterRest, Half, HalfRest, Chord, Eighth } from '../classes/notes'
-import type { AddNoteAction, ChordTemplate, MusicTemplate, NotesTemplate, NoteTemplate } from '../types/sheetMusicTemplates'
+import type { AddNoteAction, ChordTemplate, MusicTemplate, NotesTemplate, NoteTemplate, TieNoteAction } from '../types/sheetMusicTemplates'
 import * as SheetMusicFunctions from '../hooks/helpers/useSheetMusicFunctions'
 import { createMeasure } from '../utils'
 
@@ -881,4 +881,158 @@ describe('sheetMusicReducer', () => {
       })
     })
   });
+
+  describe('TIE_NOTE', () => {
+    it('Should tie two notes', () => {
+      const initial = createMusicTemplate([[
+        new QuarterRest(),
+        new Quarter({ cleanNote: 'E', octave: 4, isTied: true }),
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+      ]])
+
+      const action: TieNoteAction = {
+        type: 'TIE_NOTE',
+        payload: {
+          startMeasureIndex: 0,
+          startNoteIndex: 1,
+          startChordNoteIndex: 1,
+          endMeasureIndex: 0,
+          endNoteIndex: 2
+        }
+      }
+
+      const state = sheetMusicReducer(initial, action)
+
+      expect(state).toStrictEqual(createMusicTemplate([[
+        new QuarterRest(),
+        new Quarter({ cleanNote: 'E', octave: 4, isTied: true }),
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+      ]]))
+    })
+
+    it('Should tie a note and a chord', () => {
+      const initial = createMusicTemplate([[
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'E', octave: 4 }] }),
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+      ]])
+
+      const action: TieNoteAction = {
+        type: 'TIE_NOTE',
+        payload: {
+          startMeasureIndex: 0,
+          startNoteIndex: 1,
+          startChordNoteIndex: 1,
+          endMeasureIndex: 0,
+          endNoteIndex: 2
+        }
+      }
+
+      const state = sheetMusicReducer(initial, action)
+
+      expect(state).toStrictEqual(createMusicTemplate([[
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'E', octave: 4, isTied: true }] }),
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+      ]]))
+    })
+
+    it('Should tie two chords', () => {
+      const initial = createMusicTemplate([[
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'E', octave: 4 }] }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'G', octave: 4 }, { cleanNote: 'E', octave: 4 }] }),
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+      ]])
+
+      const action: TieNoteAction = {
+        type: 'TIE_NOTE',
+        payload: {
+          startMeasureIndex: 0,
+          startNoteIndex: 1,
+          startChordNoteIndex: 1,
+          endMeasureIndex: 0,
+          endNoteIndex: 2
+        }
+      }
+
+      const state = sheetMusicReducer(initial, action)
+
+      expect((state.measures[0].notes[1] as ChordTemplate).notes[1].isTied).toBe(true)
+
+      expect(state).toStrictEqual(createMusicTemplate([[
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'E', octave: 4, isTied: true }] }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'G', octave: 4 }, { cleanNote: 'E', octave: 4 }] }),
+        new Quarter({ cleanNote: 'E', octave: 4 }),
+      ]]))
+    })
+
+    it('Should tie multiple notes', () => {
+      const initial = createMusicTemplate([[
+        new Eighth({ cleanNote: 'E', octave: 4 }),
+        new Eighth({ cleanNote: 'E', octave: 4 }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'E', octave: 4 }] }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'G', octave: 4 }, { cleanNote: 'E', octave: 4 }] }),
+        new Eighth({ cleanNote: 'E', octave: 4 }),
+        new Eighth({ cleanNote: 'E', octave: 4 }),
+      ]])
+
+      const action: TieNoteAction = {
+        type: 'TIE_NOTE',
+        payload: {
+          startMeasureIndex: 0,
+          startNoteIndex: 1,
+          startChordNoteIndex: 1,
+          endMeasureIndex: 0,
+          endNoteIndex: 4
+        }
+      }
+
+      const state = sheetMusicReducer(initial, action)
+
+      expect((state.measures[0].notes[1] as NoteTemplate).isTied).toBe(true)
+      expect((state.measures[0].notes[2] as ChordTemplate).notes[1].isTied).toBe(true)
+      expect((state.measures[0].notes[3] as ChordTemplate).notes[1].isTied).toBe(true)
+
+      expect(state).toStrictEqual(createMusicTemplate([[
+        new Eighth({ cleanNote: 'E', octave: 4 }),
+        new Eighth({ cleanNote: 'E', octave: 4, isTied: true }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'E', octave: 4, isTied: true }] }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'G', octave: 4 }, { cleanNote: 'E', octave: 4, isTied: true }] }),
+        new Eighth({ cleanNote: 'E', octave: 4 }),
+        new Eighth({ cleanNote: 'E', octave: 4 }),
+      ]]))
+    })
+
+    it('Should not tie multiple notes if at least one of them is not equal', () => {
+      const initial = createMusicTemplate([[
+        new Eighth({ cleanNote: 'E', octave: 4 }),
+        new Eighth({ cleanNote: 'E', octave: 4 }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'E', octave: 4 }] }),
+        new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'G', octave: 4 }, { cleanNote: 'E', octave: 4 }] }),
+        new Eighth({ cleanNote: 'C', octave: 4 }),
+        new Eighth({ cleanNote: 'E', octave: 4 }),
+      ]])
+
+      const action: TieNoteAction = {
+        type: 'TIE_NOTE',
+        payload: {
+          startMeasureIndex: 0,
+          startNoteIndex: 1,
+          startChordNoteIndex: 1,
+          endMeasureIndex: 0,
+          endNoteIndex: 4
+        }
+      }
+
+      const state = sheetMusicReducer(initial, action)
+
+      expect(state).toStrictEqual(initial)
+    })
+  })
 })

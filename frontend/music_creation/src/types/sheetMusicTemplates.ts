@@ -102,7 +102,20 @@ export type RemoveNoteAction = {
     payload: RemoveNotePayload
 }
 
-export type MusicAction = AddNoteAction | RemoveNoteAction;
+export type TieNotePayload = {
+    startMeasureIndex: number
+    startNoteIndex: number
+    startChordNoteIndex?: number
+    endMeasureIndex: number
+    endNoteIndex: number
+}
+
+export type TieNoteAction = {
+    type: 'TIE_NOTE'
+    payload: TieNotePayload
+}
+
+export type MusicAction = AddNoteAction | RemoveNoteAction | TieNoteAction;
 
 export type MusicManageModeType = "ADD" | "REMOVE"
 

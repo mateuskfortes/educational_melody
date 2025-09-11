@@ -3,7 +3,7 @@ import './assets/main.scss';
 import ManageNoteForm from "./components/ManageNoteForm";
 import { useState } from "react";
 import { MusicManageModeType, MusicTemplate, NotesTemplate, SheetMusicItem } from "./types/sheetMusicTemplates";
-import { Chord, Eighth, EighthRest, Quarter, Whole } from "./classes/notes";
+import { Chord, Eighth, EighthRest, NoteBase, Quarter, Whole } from "./classes/notes";
 import SheetMusicLibraryContext from "./hooks/useSheetMusicLibraryContext";
 
 const musicDefault: MusicTemplate = {
@@ -113,12 +113,18 @@ function App() {
 		})
 	}
 
-	function insertNote(sheetMusicIndex: number, measureIndex: number, noteIndex: number) {
+	function insertNote(sheetMusicIndex: number, measureIndex: number, noteIndex: number, addToChord: boolean = false) {
 		if (selectedNote
 			&& sheetMusicList[sheetMusicIndex]
 			&& sheetMusicList[sheetMusicIndex].dispatch
 		) {
-			sheetMusicList[sheetMusicIndex].dispatch({
+			if (addToChord && selectedNote instanceof NoteBase) {
+				sheetMusicList[sheetMusicIndex].dispatch({
+					type: "ADD_NOTE",
+					payload: { note: selectedNote, measureIndex, noteIndex, addToChord }
+				})
+			}
+			else sheetMusicList[sheetMusicIndex].dispatch({
 				type: "ADD_NOTE",
 				payload: { note: selectedNote, measureIndex, noteIndex }
 			})
@@ -138,6 +144,7 @@ function App() {
 			value={{
 				addSheetMusic,
 				runAll,
+				selectedNote,
 				selectNote: setSelectedNote,
 				musicManageMode,
 				setMusicManageMode,

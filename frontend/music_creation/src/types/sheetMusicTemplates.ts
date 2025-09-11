@@ -128,10 +128,11 @@ export type SheetMusicItem = {
 export type MusicContextType = {
     addSheetMusic: () => void
     runAll: () => void
+    selectedNote: NotesTemplate | undefined
     selectNote: Dispatch<SetStateAction<NotesTemplate | undefined>>
     musicManageMode: MusicManageModeType
     setMusicManageMode: Dispatch<SetStateAction<MusicManageModeType>>
-    insertNote: (sheetMusicIndex: number, measureIndex: number, noteIndex: number) => void
+    insertNote: (sheetMusicIndex: number, measureIndex: number, noteIndex: number, addToChord?: boolean) => void
     removeNote: (sheetMusicIndex: number, measureIndex: number, noteIndex: number) => void
 }
 

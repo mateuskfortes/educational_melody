@@ -1,4 +1,4 @@
-import { TiePropsTemplate } from "../../types/ComponentsPropsTypes";
+import { TiePropsTemplate } from "../../../types/ComponentsPropsTypes";
 
 const Tie = ({ width, height, left = '50%', top = '0' }: TiePropsTemplate) => {
   if (!height) height = width * .11

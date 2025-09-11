@@ -134,6 +134,19 @@ $end-bar-line-width: calc($measure-width / 40);
                         width: calc($measure-height / 4.7);
                     }
 
+                    .add_to_chord_box {
+                        position: absolute;
+                        top: 50%;
+                        left: 100%;
+                        transform: translate(-100%, -50%);
+                        height: $measure-height;
+                        width: 70%;
+
+                        &:hover {
+                            background-color: rgba(172, 255, 47, 0.274);
+                        }
+                    }
+
                     .note {
                         //background-color: red;
                         position: absolute;
@@ -208,7 +221,7 @@ $end-bar-line-width: calc($measure-width / 40);
                         @extend .insert_bar
                     }
 
-                    &:hover::before {
+                    &:hover:not(:has(.add_to_chord_box:hover))::before {
                         visibility: visible;
                     }
                 }

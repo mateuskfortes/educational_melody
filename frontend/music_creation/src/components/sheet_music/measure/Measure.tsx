@@ -1,5 +1,5 @@
-import { MeasurePropsTemplate } from "../../types/ComponentsPropsTypes";
-import SheetMusicLines from "./SheetMusicLines";
+import { MeasurePropsTemplate } from "../../../types/ComponentsPropsTypes";
+import SheetMusicLines from "../SheetMusicLines";
 import NoteContainer from "./NoteContainer";
 
 const Measure = ({ measure, ref, sheetMusicIndex, measureIndex }: MeasurePropsTemplate) => {

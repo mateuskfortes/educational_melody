@@ -1,9 +1,12 @@
-import { calculateTieWidth, getExtraDistance, getTopDistance } from "../../utils";
+import { calculateTieWidth, getExtraDistance, getTopDistance } from "../../../utils";
 import Tie from "./Tie";
-import { SingleNotePropsTemplate } from "../../types/ComponentsPropsTypes";
-import { useSheetMusicContext } from "../../hooks/useSheetMusicContext";
+import { SingleNotePropsTemplate } from "../../../types/ComponentsPropsTypes";
+import { useSheetMusicContext } from "../../../hooks/useSheetMusicContext";
+import { useSheetMusicLibraryContext } from "../../../hooks/useSheetMusicLibraryContext";
+import { NoteBase } from "../../../classes/notes";
 
-const SingleNote = ({ note, measureIndex, noteIndex }: SingleNotePropsTemplate) => {
+const SingleNote = ({ note, sheetMusicIndex, measureIndex, noteIndex }: SingleNotePropsTemplate) => {
+  const { insertNote, selectedNote } = useSheetMusicLibraryContext()
   const { measureDuration, measureWidth, music } = useSheetMusicContext()
 
   const topDistance = getTopDistance(note);
@@ -16,8 +19,14 @@ const SingleNote = ({ note, measureIndex, noteIndex }: SingleNotePropsTemplate) 
 
   const tieWidth = calculateTieWidth(measureWidth, measureDuration, music.measures, measureIndex, noteIndex)
 
+  function handleClick(e: React.MouseEvent) {
+    e.stopPropagation() // prevents the click from bubbling up to the parent
+    insertNote(sheetMusicIndex, measureIndex, noteIndex, true)
+  }
+
   return (
     <>
+      {selectedNote instanceof NoteBase && <div className="add_to_chord_box" onClick={handleClick} />}
       {note.isTied && <Tie top={`${topDistance + 3}%`} width={tieWidth} />}
       <div className="note" style={{ top }} >
         {note.accidental === 'sharp' && (

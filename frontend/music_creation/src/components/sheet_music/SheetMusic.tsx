@@ -1,4 +1,4 @@
-import Measure from "./Measure";
+import Measure from "./measure/Measure";
 import { useEffect, useRef, useState } from "react";
 import { calculateMeasureLineMargin, getMeasureDurationByMeter } from "../../utils";
 import useSheetMusic from "../../hooks/useSheetMusic";

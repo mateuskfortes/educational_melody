@@ -29,6 +29,7 @@ export type NoteContainerPropsTemplate = {
 
 export type SingleNotePropsTemplate = {
   note: NoteTemplate;
+  sheetMusicIndex: number;
   measureIndex: number;
   noteIndex: number;
 }

@@ -141,6 +141,7 @@ $end-bar-line-width: calc($measure-width / 40);
                         transform: translate(-100%, -50%);
                         height: $measure-height;
                         width: 70%;
+                        z-index: 1;
 
                         &:hover {
                             background-color: rgba(172, 255, 47, 0.274);

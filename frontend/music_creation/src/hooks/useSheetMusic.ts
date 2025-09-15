@@ -21,7 +21,7 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
     if (
       (!measureOnState && !isFinalPosition) // If there is no measure at the index
       || measureDuration < note.beatDuration // If there is not enough duration space in the measure
-      || measureSpace < noteIndex + 1 // If there is not enough space in the measure
+      || measureSpace < noteIndex // If there is not enough space in the measure
       || (note instanceof Chord && note.notes.length === 0) // If there is no notes inside the chord
       || (addToChord && (
         noteOnState instanceof RestBase // If the note on state is a rest

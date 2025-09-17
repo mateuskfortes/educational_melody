@@ -20,11 +20,19 @@ export type MeasurePropsTemplate = {
   measureIndex: number;
 };
 
-export type NoteContainerPropsTemplate = {
+export type MusicNoteContainerPropsTemplate = {
   note: NotesTemplate;
   sheetMusicIndex: number;
   measureIndex: number;
   noteIndex: number;
+}
+
+export type ChordNotePropsTemplate = {
+  note: NoteTemplate;
+  sheetMusicIndex: number;
+  measureIndex: number;
+  noteIndex: number;
+  chordNoteIndex: number
 }
 
 export type SingleNotePropsTemplate = {
@@ -39,8 +47,7 @@ export type RestPropsTemplate = {
 }
 
 export type TiePropsTemplate = {
-  width: number;
-  height?: number;
-  left?: string;
+  measureIndex: number
+  noteIndex: number
   top?: string;
 }

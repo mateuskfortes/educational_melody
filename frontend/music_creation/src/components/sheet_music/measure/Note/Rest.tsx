@@ -1,5 +1,5 @@
-import { EighthRest, HalfRest, QuarterRest, SixteenthRest, ThirtysecondRest, WholeRest } from "../../../classes/notes";
-import { RestPropsTemplate } from "../../../types/ComponentsPropsTypes";
+import { EighthRest, HalfRest, QuarterRest, SixteenthRest, ThirtysecondRest, WholeRest } from "../../../../classes/notes";
+import { RestPropsTemplate } from "../../../../types/ComponentsPropsTypes";
 
 const Rest = ({ rest }: RestPropsTemplate) => {
 

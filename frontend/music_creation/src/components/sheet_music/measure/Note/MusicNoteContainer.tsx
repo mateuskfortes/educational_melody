@@ -1,18 +1,18 @@
-import { Chord as ChordClass, NoteBase, RestBase } from "../../../classes/notes";
-import { useSheetMusicContext } from "../../../hooks/useSheetMusicContext";
-import { useSheetMusicLibraryContext } from "../../../hooks/useSheetMusicLibraryContext";
-import { NoteContainerPropsTemplate } from "../../../types/ComponentsPropsTypes";
-import Chord from "./Chord";
+import { Chord as ChordClass, NoteBase, RestBase } from "../../../../classes/notes";
+import { useSheetMusicContext } from "../../../../hooks/useSheetMusicContext";
+import { useSheetMusicLibraryContext } from "../../../../hooks/useSheetMusicLibraryContext";
+import { MusicNoteContainerPropsTemplate } from "../../../../types/ComponentsPropsTypes";
+import Chord from "./chord/Chord";
 import Rest from "./Rest";
 import SingleNote from "./SingleNote";
 
-const NoteContainer = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NoteContainerPropsTemplate) => {
+const MusicNoteContainer = ({ note, sheetMusicIndex, measureIndex, noteIndex }: MusicNoteContainerPropsTemplate) => {
   const { musicManageMode, insertNote, removeNote } = useSheetMusicLibraryContext()
   const { measureDuration } = useSheetMusicContext()
 
   const width = `${note.beatDuration / measureDuration * 100}%`;
 
-  const containerClass = musicManageMode === "ADD" ? "note_container_on_insert" : "note_container_on_remove"
+  const containerClass = musicManageMode === "ADD" ? "on_insert" : "on_remove"
 
   function handleClick() {
     if (musicManageMode === 'ADD') insertNote(sheetMusicIndex, measureIndex, noteIndex)
@@ -20,7 +20,11 @@ const NoteContainer = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NoteC
   }
 
   return (
-    <div onClick={handleClick} className={containerClass} style={{ width }} >
+    <div
+      onClick={handleClick}
+      className={"note_container " + containerClass}
+      style={{ width }}
+    >
       {note instanceof NoteBase && <SingleNote note={note} sheetMusicIndex={sheetMusicIndex} measureIndex={measureIndex} noteIndex={noteIndex} />}
       {note instanceof RestBase && <Rest rest={note} />}
       {note instanceof ChordClass && <Chord chord={note} sheetMusicIndex={sheetMusicIndex} measureIndex={measureIndex} noteIndex={noteIndex} />}
@@ -28,4 +32,4 @@ const NoteContainer = ({ note, sheetMusicIndex, measureIndex, noteIndex }: NoteC
   )
 }
 
-export default NoteContainer
+export default MusicNoteContainer

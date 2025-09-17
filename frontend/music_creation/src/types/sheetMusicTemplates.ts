@@ -133,7 +133,7 @@ export type MusicContextType = {
     musicManageMode: MusicManageModeType
     setMusicManageMode: Dispatch<SetStateAction<MusicManageModeType>>
     insertNote: (sheetMusicIndex: number, measureIndex: number, noteIndex: number, addToChord?: boolean) => void
-    removeNote: (sheetMusicIndex: number, measureIndex: number, noteIndex: number) => void
+    removeNote: (sheetMusicIndex: number, measureIndex: number, noteIndex: number, chordNoteIndex?: number) => void
 }
 
 export type SheetMusicContextType = {

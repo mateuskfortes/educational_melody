@@ -131,11 +131,11 @@ function App() {
 		}
 	}
 
-	function removeNote(sheetMusicIndex: number, measureIndex: number, noteIndex: number) {
+	function removeNote(sheetMusicIndex: number, measureIndex: number, noteIndex: number, chordNoteIndex?: number) {
 		if (sheetMusicList[sheetMusicIndex] && sheetMusicList[sheetMusicIndex].dispatch) {
 			sheetMusicList[sheetMusicIndex].dispatch({
 				type: "REMOVE_NOTE",
-				payload: { measureIndex, noteIndex }
+				payload: { measureIndex, noteIndex, chordNoteIndex }
 			})
 		}
 	}

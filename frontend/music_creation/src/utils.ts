@@ -33,36 +33,39 @@ export const getTopDistance = (note: NoteTemplate) => {
 };
 
 /**
- * Checks whether a note's vertical position lies outside the visible range 
- * (above the top or below the bottom) of the music staff, and calculates by how much in percentage.
- * 
+ * Determines whether a note's vertical position lies outside the visible range
+ * of the music staff (either above the top or below the bottom) and calculates
+ * the exceeded distance as a percentage.
+ *
  * Returns a tuple:
- * - isTop: boolean — `true` if the note exceeds the top boundary, `false` if it exceeds the bottom boundary.
- * - distance: number — the percentage by which the note exceeds the boundary.
- * 
+ * - position: 'top' | 'bottom' — 'top' if the note exceeds the top boundary,
+ *   'bottom' if it exceeds the bottom boundary.
+ * - distance: number — the percentage by which the note exceeds the staff boundary.
+ *
  * Logic:
- * - If `topDistance <= 0`, the note is above the top visible boundary.
- * - If `topDistance >= 125`, the note is below the bottom visible boundary.
- * - Otherwise, the note lies within the visible range.
- * 
+ * - If `topDistance <= 0`, the note is above the top boundary.
+ * - If `topDistance >= 125`, the note is below the bottom boundary.
+ * - Otherwise, the note is within the visible range.
+ *
  * @param note - The note object.
- * @returns A tuple [isTop, distance] indicating if the note is out of bounds and the exceeded percentage.
+ * @returns A tuple [position, distance] indicating which boundary is exceeded
+ *   and by how much in percentage.
  */
-export const getExtraDistance = (note: NoteTemplate): [boolean, number] => {
+export const getExtraDistance = (note: NoteTemplate): ['top' | 'bottom', number] => {
   const topDistance = getTopDistance(note);
 
   if (topDistance <= 0) {
     // Note is above the top boundary
-    return [true, -topDistance] as const;
+    return ['top', -topDistance] as const;
   }
 
   if (topDistance >= 125) {
     // Note is below the bottom boundary
-    return [false, topDistance - 125] as const;
+    return ['bottom', topDistance - 125] as const;
   }
 
   // Note is within the visible range
-  return [false, 0] as const;
+  return ['bottom', 0] as const;
 };
 
 
@@ -194,15 +197,15 @@ export const calculateMeasureLineMargin = (lineMeasures: MeasureTemplate[], meas
   lineMeasures.forEach((measure) =>
     measure.notes.forEach((note) => {
       if (note instanceof NoteBase) {
-        const [isTop, extra] = getExtraDistance(note);
-        if (isTop && extra > maxExtraTop) maxExtraTop = extra;
-        if (!isTop && extra > maxExtraBottom) maxExtraBottom = extra;
+        const [position, extra] = getExtraDistance(note);
+        if (position === 'top' && extra > maxExtraTop) maxExtraTop = extra;
+        if (position === 'bottom' && extra > maxExtraBottom) maxExtraBottom = extra;
       }
       else if (note instanceof Chord) {
         note.notes.forEach(n => {
-          const [isTop, extra] = getExtraDistance(n);
-          if (isTop && extra > maxExtraTop) maxExtraTop = extra;
-          if (!isTop && extra > maxExtraBottom) maxExtraBottom = extra;
+          const [position, extra] = getExtraDistance(n);
+          if (position === 'top' && extra > maxExtraTop) maxExtraTop = extra;
+          if (position === 'bottom' && extra > maxExtraBottom) maxExtraBottom = extra;
         })
       }
     })

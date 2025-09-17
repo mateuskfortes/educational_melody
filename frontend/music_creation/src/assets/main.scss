@@ -158,6 +158,7 @@ $end-bar-line-width: calc($measure-width / 40);
                         justify-content: center;
 
                         * {
+                            z-index: 1;
                             margin-bottom: calc($measure-height / 50)
                         }
 
@@ -185,9 +186,15 @@ $end-bar-line-width: calc($measure-width / 40);
                             width: calc($measure-height / 2);
                         }
 
+                        .note_on_remove {
+                            &:hover {
+                                background-color: rgba(255, 0, 0, 0.377);
+                            }
+                        }
+
                     }
 
-                    .note_line {
+                    .ledger_line {
                         position: absolute;
                         top: 0;
                         left: 50%;
@@ -215,9 +222,7 @@ $end-bar-line-width: calc($measure-width / 40);
                     }
                 }
 
-                .note_container_on_insert {
-                    @extend .note_container;
-
+                .on_insert {
                     &::before {
                         @extend .insert_bar
                     }
@@ -227,10 +232,8 @@ $end-bar-line-width: calc($measure-width / 40);
                     }
                 }
 
-                .note_container_on_remove {
-                    @extend .note_container;
-
-                    &:hover {
+                .on_remove {
+                    &:hover:not(:has(.note_on_remove:hover)) {
                         background-color: rgba(255, 0, 0, 0.308)
                     }
                 }

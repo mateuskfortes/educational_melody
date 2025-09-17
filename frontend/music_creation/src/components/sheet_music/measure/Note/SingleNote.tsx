@@ -1,0 +1,43 @@
+import { getTopDistance } from "../../../../utils";
+import Tie from "./ornaments/Tie";
+import { SingleNotePropsTemplate } from "../../../../types/ComponentsPropsTypes";
+import { useSheetMusicLibraryContext } from "../../../../hooks/useSheetMusicLibraryContext";
+import { NoteBase } from "../../../../classes/notes";
+import Accidental from "./ornaments/Accidental";
+import Dots from "./ornaments/Dots";
+import LedgerLines from "./ornaments/LedgerLines";
+
+const SingleNote = ({ note, sheetMusicIndex, measureIndex, noteIndex }: SingleNotePropsTemplate) => {
+  const { insertNote, selectedNote } = useSheetMusicLibraryContext()
+
+  const topDistance = getTopDistance(note);
+
+  function handleClick(e: React.MouseEvent) {
+    e.stopPropagation() // prevents the click from bubbling up to the parent
+    insertNote(sheetMusicIndex, measureIndex, noteIndex, true)
+  }
+
+  return (
+    <>
+      {selectedNote instanceof NoteBase && <div className="add_to_chord_box" onClick={handleClick} />}
+
+      {note.isTied && <Tie top={`${topDistance + 3}%`} measureIndex={measureIndex} noteIndex={noteIndex} />}
+
+      <div className="note" style={{ top: `${topDistance}%` }} >
+
+        <Accidental accidental={note.accidental} />
+
+        <img
+          src={`img/${note.name}Note.svg`}
+          className={`${note.name.toLowerCase()}_note`}
+        />
+
+        <Dots dotCount={note.dots} />
+      </div>
+
+      <LedgerLines note={note} />
+    </>
+  );
+}
+
+export default SingleNote;

@@ -562,7 +562,7 @@ describe('sheetMusicReducer', () => {
 
         const action = {
           type: 'REMOVE_NOTE',
-          payload: { measureIndex: 1, noteIndex: 0, chordNoteIndex: 1 },
+          payload: { measureIndex: 1, noteIndex: 0, chordNoteIndex: 0 },
         } as const;
 
         const state = sheetMusicReducer(initial, action);
@@ -574,7 +574,7 @@ describe('sheetMusicReducer', () => {
             new Quarter({ cleanNote: 'E', octave: 4 })
           ],
           [
-            new Quarter({ cleanNote: 'F', octave: 4 }),
+            new Quarter({ cleanNote: 'A', octave: 4 }),
             new HalfRest(),
             new QuarterRest()
           ],

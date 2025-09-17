@@ -103,13 +103,13 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
     if (
       !measureOnState // If there is no measure at the given index
       || !noteOnState // If there is no note at the given index
-      || (chordNoteIndex && (!(noteOnState instanceof Chord) || !noteOnState.notes[chordNoteIndex])) // If there is no note at the given chord index or it is not a chord
+      || (chordNoteIndex !== undefined && (!(noteOnState instanceof Chord) || !noteOnState.notes[chordNoteIndex])) // If there is no note at the given chord index or it is not a chord
     ) return prevState
 
     const previousNote = getPreviousNote(finalState.measures, measureIndex, noteIndex)
 
     // Removes a note from within a chord
-    if (chordNoteIndex && noteOnState instanceof Chord) {
+    if (chordNoteIndex !== undefined && noteOnState instanceof Chord) {
       const removedNote = noteOnState.notes.splice(chordNoteIndex, 1)[0]
 
       // Handles the ties in the previous note

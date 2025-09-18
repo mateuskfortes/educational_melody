@@ -1,5 +1,5 @@
 import { Chord, Eighth, Half, NoteBase, Quarter, Sixteenth, Whole } from "./classes/notes";
-import { MeasureTemplate, MusicTemplate, NotesTemplate, NoteTemplate } from "./types/sheetMusicTemplates";
+import { MeasureTemplate, MusicTemplate, NotesTemplate, NoteTemplate, CleanNoteType } from "./types/sheetMusicTemplates";
 
 // List of note names used for vertical positioning calculations.
 // These represent the natural musical notes in ascending order.
@@ -251,4 +251,119 @@ export const getConstructor = (note: NotesTemplate) => {
  */
 export const mergeNotesToList = (obj1: NotesTemplate, obj2: NoteTemplate): NoteTemplate[] => {
   return obj1 instanceof Chord ? [...obj1.notes, obj2] : [obj1 as NoteTemplate, obj2];
+}
+
+/**
+ * Converts a musical note into a numerical index in the global scale.
+ * The lowest pitch (most grave note) corresponds to index 0.
+ *
+ * @param note
+ * @returns A number representing the note's position in the linear scale.
+ *
+ * @remarks
+ * - The calculation considers the note's octave and accidental.
+ * - Accidentals: "sharp" increases by 1, "flat" decreases by 1, "natural" or undefined has no effect.
+ * - The note order is assumed to be ['C', 'D', 'E', 'F', 'G', 'A', 'B'].
+ */
+export function noteToHeightIndex(note: NoteTemplate): number {
+  const noteOrder: CleanNoteType[] = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+
+  let accidentalOffset = 0
+  if (note.accidental === 'sharp') accidentalOffset = 1
+  else if (note.accidental === 'flat') accidentalOffset = -1
+
+  const octaveOffset = note.octave * 7;
+  const cleanNoteIndex = noteOrder.indexOf(note.cleanNote);
+
+  return octaveOffset + cleanNoteIndex + accidentalOffset;
+}
+
+/**
+ * Determines contiguous groups of notes that should be connected by a beam and
+ * whether each beam is drawn above or below the staff.
+ *
+ * A “beam” is the horizontal bar that joins multiple short-duration notes
+ * (eighths, sixteenths, etc.). 
+ *
+ * @param notes - Array of musical note objects to evaluate.
+ * @returns An array of beam descriptors.  
+ *          Each object contains:
+ *            - `start`: index of the first note in the beam group.
+ *            - `end`: index of the last note in the beam group.
+ *            - `position`: `"top"` if most notes are above the middle staff
+ *               line, `"bottom"` otherwise.
+ *
+ * @example
+ * // Returns something like:
+ * // [
+ * //   { start: 0, end: 2, position: 'bottom' },
+ * //   { start: 4, end: 5, position: 'top' }
+ * // ]
+ */
+export function getBeamPositionList(notes: NotesTemplate[]) {
+  const canConnectBeam = (note: NotesTemplate) =>
+    (note instanceof NoteBase
+      && !(note instanceof Whole)
+      && !(note instanceof Half)
+      && !(note instanceof Quarter)
+    )
+    || (note instanceof Chord
+      && note.noteConstructor !== Whole
+      && note.noteConstructor !== Half
+      && note.noteConstructor !== Quarter
+    )
+
+
+  const beamPositionList: {
+    start: number
+    end: number
+    position: 'top' | 'bottom' | undefined
+  }[] = []
+  const midLineIndex = noteToHeightIndex(new Quarter({ cleanNote: 'B', octave: 4 }))
+
+  let mainIndex = 0
+  while (true) {
+    if (mainIndex >= notes.length) break;
+    const note = notes[mainIndex]
+
+    const nextNotes = notes.slice(mainIndex + 1)
+    let beamCount = 0
+    for (beamCount; canConnectBeam(nextNotes[beamCount]); beamCount++);
+
+    if (beamCount === 0 || !canConnectBeam(note)) {
+      mainIndex++
+      continue
+    }
+
+    let aboveMidCount = 0
+    const beamNotes = nextNotes.concat(note)
+    for (const n of beamNotes) {
+      if (n instanceof NoteBase && noteToHeightIndex(n) > midLineIndex) {
+        aboveMidCount++
+      }
+      else if (n instanceof Chord) {
+        n.notes.forEach(cn => {
+          if (noteToHeightIndex(cn) > midLineIndex)
+            aboveMidCount++
+        })
+      }
+    }
+
+    const totalBeamSingleNoteCount = beamNotes.reduce((acc, note) => {
+      if (note instanceof NoteBase) return acc + 1
+      else if (note instanceof Chord)
+        return acc + note.notes.length
+      return acc
+    }, 0)
+
+    beamPositionList.push({
+      start: mainIndex,
+      end: mainIndex + beamCount,
+      position: aboveMidCount >= (totalBeamSingleNoteCount + 1) / 2 ? 'top' : 'bottom'
+    })
+
+    mainIndex += beamCount + 1
+  }
+
+  return beamPositionList
 }

@@ -1,8 +1,11 @@
 import { MeasurePropsTemplate } from "../../../types/ComponentsPropsTypes";
+import { getBeamPositionList } from "../../../utils";
 import SheetMusicLines from "../SheetMusicLines";
 import NoteContainer from "./Note/MusicNoteContainer";
 
 const Measure = ({ measure, ref, sheetMusicIndex, measureIndex }: MeasurePropsTemplate) => {
+	const beamPositionList = getBeamPositionList(measure.notes)
+
 	return (
 		<>
 			<div className="measure" ref={ref}>
@@ -10,15 +13,21 @@ const Measure = ({ measure, ref, sheetMusicIndex, measureIndex }: MeasurePropsTe
 
 				{/* Note rendering area */}
 				<div className="notes_area">
-					{measure.notes.map((note, noteIndex) =>
-						<NoteContainer
-							key={noteIndex}
-							note={note}
-							sheetMusicIndex={sheetMusicIndex}
-							measureIndex={measureIndex}
-							noteIndex={noteIndex}
-						/>
-					)}
+					{measure.notes.map((note, noteIndex) => {
+
+						const beamPositionRaw = beamPositionList.find(p => noteIndex >= p.start && noteIndex <= p.end)
+
+						return (
+							<NoteContainer
+								key={noteIndex}
+								note={note}
+								sheetMusicIndex={sheetMusicIndex}
+								measureIndex={measureIndex}
+								noteIndex={noteIndex}
+								beamPosition={beamPositionRaw?.position}
+							/>
+						)
+					})}
 				</div>
 
 				<div className="single_barline" />

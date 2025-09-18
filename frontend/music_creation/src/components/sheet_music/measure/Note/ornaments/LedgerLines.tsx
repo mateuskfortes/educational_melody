@@ -17,7 +17,7 @@ const LedgerLines: React.FC<LedgerLinesProps> = ({
         <div
           key={index}
           className="ledger_line"
-          style={{ top: `${25 * (position ? -(1 + index) : 5 + index)}%` }}
+          style={{ top: `${25 * (position === 'top' ? -(1 + index) : 5 + index)}%` }}
         />
       ))}
     </>

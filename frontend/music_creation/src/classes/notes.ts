@@ -3,7 +3,6 @@ import { AccidentalTemplate, ChordConstructorArgsTemplate, ChordTemplate, CleanN
 import { getBeatDurationWithDots } from "../utils";
 
 export class NoteBase implements NoteTemplate {
-  name = '';
   cleanNote: CleanNoteType;
   octave: OctaveType;
   accidental: AccidentalTemplate;
@@ -56,7 +55,6 @@ export class NoteBase implements NoteTemplate {
 }
 
 export class Whole extends NoteBase implements NoteTemplate {
-  name = 'Whole'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 4;
     const dotsLimit = 5;
@@ -65,7 +63,6 @@ export class Whole extends NoteBase implements NoteTemplate {
 }
 
 export class Half extends NoteBase implements NoteTemplate {
-  name = 'Half'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 2;
     const dotsLimit = 4;
@@ -74,7 +71,6 @@ export class Half extends NoteBase implements NoteTemplate {
 }
 
 export class Quarter extends NoteBase implements NoteTemplate {
-  name = 'Quarter'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1;
     const dotsLimit = 3;
@@ -83,7 +79,6 @@ export class Quarter extends NoteBase implements NoteTemplate {
 }
 
 export class Eighth extends NoteBase implements NoteTemplate {
-  name = 'Eighth'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1 / 2;
     const dotsLimit = 2;
@@ -92,7 +87,6 @@ export class Eighth extends NoteBase implements NoteTemplate {
 }
 
 export class Sixteenth extends NoteBase implements NoteTemplate {
-  name = 'Sixteenth'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1 / 4;
     const dotsLimit = 1;
@@ -101,7 +95,6 @@ export class Sixteenth extends NoteBase implements NoteTemplate {
 }
 
 export class Thirtysecond extends NoteBase implements NoteTemplate {
-  name = 'Thirtysecond'
   constructor(args: NoteConstructorArgsTemplate) {
     const defaultBeatDuration = 1 / 8;
     const dotsLimit = 0;

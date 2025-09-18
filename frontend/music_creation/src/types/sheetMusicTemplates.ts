@@ -37,7 +37,6 @@ export type EqualNoteArgsTemplate = {
 }
 
 export interface NoteTemplate {
-    name: string
     cleanNote: CleanNoteType;
     octave: OctaveType;
     accidental: AccidentalTemplate;

@@ -10,6 +10,8 @@ $insert-bar-width: 4px;
 $barline-width: 2px;
 $end-bar-line-width: calc($measure-width / 40);
 
+$note-stem-width: 2px;
+
 .sheet_music {
     display: flex;
     flex-direction: column;
@@ -157,33 +159,41 @@ $end-bar-line-width: calc($measure-width / 40);
                         align-items: end;
                         justify-content: center;
 
-                        * {
-                            z-index: 1;
-                            margin-bottom: calc($measure-height / 50)
-                        }
+                        .clean_note_draw {
+                            display: flex;
+                            align-items: flex-end;
+                            justify-content: center;
 
-                        .whole_note {
-                            width: calc($measure-height / 3.5);
-                        }
+                            .head {
+                                height: calc($measure-height / 4);
+                            }
 
-                        .half_note {
-                            width: calc($measure-height / 3.2);
-                        }
+                            .body {
+                                display: flex;
+                                height: $measure-height;
+                                align-items: flex-start;
+                                justify-content: center;
+                                margin-left: calc($measure-height / -16.63);
+                                margin-bottom: calc($measure-height / 6);
 
-                        .quarter_note {
-                            width: calc($measure-height / 3.2);
-                        }
+                                .stem {
+                                    height: $measure-height;
+                                    width: $note-stem-width;
+                                    background-color: black;
+                                }
 
-                        .eighth_note {
-                            width: calc($measure-height / 2.1);
-                        }
+                                .flag_list {
+                                    margin-left: -1px;
 
-                        .sixteenth_note {
-                            width: calc($measure-height / 2.2);
-                        }
+                                    .flag_box {
+                                        height: calc($measure-height / 5.5);
 
-                        .thirtysecond_note {
-                            width: calc($measure-height / 2);
+                                        .flag {
+                                            height: calc($measure-height / 1.2);
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         .note_on_remove {

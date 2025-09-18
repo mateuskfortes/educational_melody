@@ -6,6 +6,7 @@ import { NoteBase } from "../../../../classes/notes";
 import Accidental from "./ornaments/Accidental";
 import Dots from "./ornaments/Dots";
 import LedgerLines from "./ornaments/LedgerLines";
+import CleanNoteDraw from "./CleanNoteDraw";
 
 const SingleNote = ({ note, sheetMusicIndex, measureIndex, noteIndex }: SingleNotePropsTemplate) => {
   const { insertNote, selectedNote } = useSheetMusicLibraryContext()
@@ -27,10 +28,7 @@ const SingleNote = ({ note, sheetMusicIndex, measureIndex, noteIndex }: SingleNo
 
         <Accidental accidental={note.accidental} />
 
-        <img
-          src={`img/${note.name}Note.svg`}
-          className={`${note.name.toLowerCase()}_note`}
-        />
+        <CleanNoteDraw note={note} />
 
         <Dots dotCount={note.dots} />
       </div>

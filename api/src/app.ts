@@ -46,9 +46,9 @@ class App {
 		if (mysqlStore) {
 			const MySQLStore = connectMySQL(sessionC)
 			const dbOptions = {
-				host: 'db',
+				host: process.env.USE_DOCKER === 'true' ? 'db' : 'localhost',
 				port: 3306,
-				user: 'root',
+				user: process.env.USE_DOCKER === 'true' ? 'root' : 'prisma_user',
 				password: '123456',
 				database: 'educational_melody'
 			};

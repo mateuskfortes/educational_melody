@@ -44,6 +44,7 @@ export interface NoteTemplate {
     beatDuration: number;
     dots: number; // Number of dots
     dotsLimit: number // Max number of dots
+    getWidth: (measureWidth: number, measureDuration: number) => number
     equal: (note: EqualNoteArgsTemplate) => boolean
     play: (sampler: Sampler, now: number, beat: number, extraTieDuration?: number) => void
 }
@@ -51,12 +52,14 @@ export interface NoteTemplate {
 export interface RestTemplate {
     name: string
     beatDuration: number;
+    getWidth: (measureWidth: number, measureDuration: number) => number
 }
 
 export interface ChordTemplate {
     beatDuration: number;
     notes: NoteTemplate[];
     noteConstructor: NoteConstructorTemplate;
+    getWidth: (measureWidth: number, measureDuration: number) => number
 }
 
 export type NotesTemplate = NoteTemplate | RestTemplate | ChordTemplate;
@@ -140,6 +143,7 @@ export type SheetMusicContextType = {
     music: MusicTemplate
     measureWidth: number
     measureDuration: number
+    measureHeight: number
 }
 
 export type PlayingNoteTemplate = {

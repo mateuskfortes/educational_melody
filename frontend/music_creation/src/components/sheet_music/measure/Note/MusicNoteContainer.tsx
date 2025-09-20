@@ -6,7 +6,7 @@ import Chord from "./chord/Chord";
 import Rest from "./Rest";
 import SingleNote from "./SingleNote";
 
-const MusicNoteContainer = ({ note, sheetMusicIndex, measureIndex, noteIndex, beamPosition }: MusicNoteContainerPropsTemplate) => {
+const MusicNoteContainer = ({ note, sheetMusicIndex, measureIndex, noteIndex }: MusicNoteContainerPropsTemplate) => {
   const { musicManageMode, insertNote, removeNote } = useSheetMusicLibraryContext()
   const { measureDuration } = useSheetMusicContext()
 
@@ -25,7 +25,6 @@ const MusicNoteContainer = ({ note, sheetMusicIndex, measureIndex, noteIndex, be
       className={"note_container " + containerClass}
       style={{ width }}
     >
-      {beamPosition}
       {note instanceof NoteBase && <SingleNote note={note} sheetMusicIndex={sheetMusicIndex} measureIndex={measureIndex} noteIndex={noteIndex} />}
       {note instanceof RestBase && <Rest rest={note} />}
       {note instanceof ChordClass && <Chord chord={note} sheetMusicIndex={sheetMusicIndex} measureIndex={measureIndex} noteIndex={noteIndex} />}

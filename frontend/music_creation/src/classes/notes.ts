@@ -30,6 +30,13 @@ export class NoteBase implements NoteTemplate {
     this.beatDuration = getBeatDurationWithDots(defaultBeatDuration, dots);
   }
 
+  getWidth(
+    measureWidth: number,
+    measureDuration: number
+  ) {
+    return this.beatDuration / measureDuration * measureWidth
+  }
+
   equal(note: EqualNoteArgsTemplate) {
     if (
       note.cleanNote === this.cleanNote
@@ -105,6 +112,13 @@ export class Thirtysecond extends NoteBase implements NoteTemplate {
 export class RestBase implements RestTemplate {
   name = '';
   beatDuration = 0;
+
+  getWidth(
+    measureWidth: number,
+    measureDuration: number
+  ) {
+    return this.beatDuration / measureDuration * measureWidth
+  }
 }
 
 export class WholeRest extends RestBase implements RestTemplate {
@@ -150,6 +164,13 @@ export class Chord implements ChordTemplate {
     }));
     this.beatDuration = this.notes[0]?.beatDuration ?? 0;
     this.noteConstructor = args.noteConstructor
+  }
+
+  getWidth(
+    measureWidth: number,
+    measureDuration: number
+  ) {
+    return this.beatDuration / measureDuration * measureWidth
   }
 }
 

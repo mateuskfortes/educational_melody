@@ -112,6 +112,15 @@ export const getMeasureDurationByMeter = (top: number, bottom: number): number =
   return top * new noteType({ cleanNote: 'C', octave: 4 }).beatDuration;
 };
 
+export const calculateNoteDistance = (
+  firstNote: NotesTemplate,
+  secondNote: NotesTemplate,
+  measureWidth: number,
+  measureDuration: number,
+) => {
+  return (firstNote.getWidth(measureWidth, measureDuration) + secondNote.getWidth(measureWidth, measureDuration)) / 2
+}
+
 export const calculateTieWidth = (
   measureWidth: number,
   totalMeasureDuration: number,

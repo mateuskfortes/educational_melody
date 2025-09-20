@@ -25,7 +25,6 @@ export type MusicNoteContainerPropsTemplate = {
   sheetMusicIndex: number;
   measureIndex: number;
   noteIndex: number;
-  beamPosition: 'top' | 'bottom' | undefined;
 }
 
 export type ChordNotePropsTemplate = {

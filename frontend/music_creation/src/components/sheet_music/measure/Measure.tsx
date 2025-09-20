@@ -24,7 +24,6 @@ const Measure = ({ measure, ref, sheetMusicIndex, measureIndex }: MeasurePropsTe
 								sheetMusicIndex={sheetMusicIndex}
 								measureIndex={measureIndex}
 								noteIndex={noteIndex}
-								beamPosition={beamPositionRaw?.position}
 							/>
 						)
 					})}

@@ -134,7 +134,9 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
       // Handles the ties in the previous note
       if (previousNote && !(removedNote instanceof RestBase)) {
         if (previousNote instanceof NoteBase) {
-          if (removedNote instanceof NoteBase) previousNote.isTied = removedNote.isTied
+          if (removedNote instanceof NoteBase && previousNote.equal(removedNote)) {
+            previousNote.isTied = removedNote.isTied
+          }
           else if (removedNote instanceof Chord) previousNote.isTied = !!removedNote.notes.find(n => previousNote.equal(n))?.isTied
         }
         else if (previousNote instanceof Chord) {

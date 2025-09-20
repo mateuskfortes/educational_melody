@@ -660,6 +660,41 @@ describe('sheetMusicReducer', () => {
         expect(state).toEqual(initial);
       });
 
+      it('Should not tie the previous note if it is not equal to the removed note', () => {
+        const initial = createMusicTemplate([
+          [
+            new Quarter({ cleanNote: 'E', octave: 4 }),
+            new Quarter({ cleanNote: 'F', octave: 4 }),
+            new Quarter({ cleanNote: 'G', octave: 1 }),
+            new Quarter({ cleanNote: 'C', octave: 4, isTied: true })
+          ],
+          [
+            new Half({ cleanNote: 'C', octave: 4 }),
+            new Half({ cleanNote: 'D', octave: 4 })
+          ]
+        ]);
+
+        const action = {
+          type: 'REMOVE_NOTE',
+          payload: { measureIndex: 0, noteIndex: 3 },
+        } as const;
+
+        const state = sheetMusicReducer(initial, action);
+        expect(state).toEqual(createMusicTemplate([
+          [
+            new Quarter({ cleanNote: 'E', octave: 4 }),
+            new Quarter({ cleanNote: 'F', octave: 4 }),
+            new Quarter({ cleanNote: 'G', octave: 1 }),
+            new Quarter({ cleanNote: 'C', octave: 4, isTied: true })
+          ],
+          [
+            new Quarter({ cleanNote: 'C', octave: 4 }),
+            new Half({ cleanNote: 'D', octave: 4 }),
+            new QuarterRest()
+          ]
+        ]));
+      });
+
       it('does nothing if the note does not exist at index', () => {
         const initial = createMusicTemplate([[new Quarter({ cleanNote: 'C', octave: 4 })]]);
 

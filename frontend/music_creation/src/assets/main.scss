@@ -149,13 +149,13 @@ $note-stem-width: 2px;
                     }
 
                     .note {
-                        //background-color: red;
                         position: absolute;
                         left: 50%;
                         transform: translate(-50%, -100%);
                         display: flex;
                         align-items: end;
                         justify-content: center;
+                        pointer-events: none;
 
                         .clean_note_draw {
                             display: flex;
@@ -196,7 +196,13 @@ $note-stem-width: 2px;
                         }
 
                         .note_on_remove {
-                            &:hover {
+                            pointer-events: none;
+
+                            .head {
+                                pointer-events: auto
+                            }
+
+                            .head:hover {
                                 background-color: rgba(255, 0, 0, 0.377);
                             }
                         }
@@ -241,11 +247,11 @@ $note-stem-width: 2px;
                     }
                 }
 
-                .on_remove {
-                    &:hover:not(:has(.note_on_remove:hover)) {
-                        background-color: rgba(255, 0, 0, 0.308)
-                    }
+                .on_remove:hover:not(:has(.note_on_remove .head:hover)):not(:has(.ledger_line:hover)) {
+                    background-color: rgba(255, 0, 0, 0.308);
                 }
+
+
             }
         }
 

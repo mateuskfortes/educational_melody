@@ -24,29 +24,29 @@ export const postRegister = async (req: Request, res: Response): Promise<any> =>
       error_msg: 'Username, email and password are required',
     })
   }
-  
+
   // Get the is_administrator flag from the request body, defaulting to false
   const is_administrator = req.body.is_administrator === 'on' || false
-  
+
   // If the user is not an administrator, they cannot create an administrator user
   if (!req.session.user?.is_administrator && is_administrator) {
     return render(req, res.status(403), 'register.ejs', {
       error_msg: 'You are not authorized to create an administrator user',
     })
-  } 
+  }
 
   const { user, error_msg } = await createUser(username, email, password, is_administrator)
   if (error_msg) {
     return render(
-      req, 
-      res.status(400), 
-      'register.ejs', { 
-        error_msg,
-      }
+      req,
+      res.status(400),
+      'register.ejs', {
+      error_msg,
+    }
     )
   }
 
-  if(user) {
+  if (user) {
     req.session.user = user; // Store the user in the session
 
     if (user.is_administrator) {
@@ -55,5 +55,5 @@ export const postRegister = async (req: Request, res: Response): Promise<any> =>
     return res.status(201).send(`User created with email: ${user.email}`)
   }
 
-  return res.status(500).send('Unexpected error creating user');
+  return res.status(500).send('Unexpected error creating userAAAAAAAAAAAAA');
 }

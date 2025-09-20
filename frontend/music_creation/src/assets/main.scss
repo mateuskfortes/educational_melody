@@ -113,7 +113,7 @@ $note-stem-width: 2px;
 
                     .sharp_box {
                         position: relative;
-                        width: calc($measure-height / 3.2);
+                        width: calc($measure-height / 4.7);
 
                         img {
                             position: absolute;
@@ -124,7 +124,6 @@ $note-stem-width: 2px;
 
                     .flat_box {
                         @extend .sharp_box;
-                        width: calc($measure-height / 3.5);
 
                         img {
                             top: calc($measure-height / -2.5);
@@ -133,7 +132,6 @@ $note-stem-width: 2px;
 
                     .natural_box {
                         @extend .sharp_box;
-                        width: calc($measure-height / 4.7);
                     }
 
                     .add_to_chord_box {
@@ -171,7 +169,7 @@ $note-stem-width: 2px;
                             .body {
                                 display: flex;
                                 height: $measure-height;
-                                align-items: flex-start;
+                                align-items: flex-end;
                                 justify-content: center;
                                 margin-left: calc($measure-height / -16.63);
                                 margin-bottom: calc($measure-height / 6);
@@ -184,6 +182,7 @@ $note-stem-width: 2px;
 
                                 .flag_list {
                                     margin-left: -1px;
+                                    height: 100%;
 
                                     .flag_box {
                                         height: calc($measure-height / 5.5);

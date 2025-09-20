@@ -33,6 +33,7 @@ export type ChordNotePropsTemplate = {
   measureIndex: number;
   noteIndex: number;
   chordNoteIndex: number
+  stemHeight?: number
 }
 
 export type SingleNotePropsTemplate = {

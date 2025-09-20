@@ -47,7 +47,7 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 	const sheetMusicLines = Math.ceil(music.measures.length / measuresPerLine)
 
 	return (
-		<SheetMusicContext.Provider value={{ measureDuration, music, measureWidth, sheetMusicIndex }}>
+		<SheetMusicContext.Provider value={{ measureDuration, music, measureHeight, measureWidth, sheetMusicIndex }}>
 			<div className="sheet_music_container">
 				<div className="sheet_music" ref={sheetMusicRef}>
 					{Array.from({ length: sheetMusicLines }).map((_, lineIndex) => {

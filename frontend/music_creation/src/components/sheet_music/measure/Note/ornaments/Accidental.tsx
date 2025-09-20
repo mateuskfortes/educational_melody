@@ -1,6 +1,6 @@
 import { AccidentalTemplate } from "../../../../../types/sheetMusicTemplates"
 
-const Accidental = ({ accidental }: { accidental: AccidentalTemplate }) => {
+const Accidental = ({ accidental, renderHidden }: { accidental: AccidentalTemplate, renderHidden?: boolean }) => {
   return (
     <>
       {accidental === 'sharp' && (
@@ -15,6 +15,11 @@ const Accidental = ({ accidental }: { accidental: AccidentalTemplate }) => {
       )}
       {accidental === 'natural' && (
         <div className="natural_box">
+          <img src="img/natural.svg" />
+        </div>
+      )}
+      {!accidental && renderHidden && (
+        <div className="natural_box" style={{ visibility: 'hidden' }}>
           <img src="img/natural.svg" />
         </div>
       )}

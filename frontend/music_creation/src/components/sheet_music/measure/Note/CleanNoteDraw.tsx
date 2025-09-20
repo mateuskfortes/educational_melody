@@ -1,13 +1,10 @@
 import { ImgHTMLAttributes } from "react"
 import { NoteTemplate } from "../../../../types/sheetMusicTemplates"
-import { Eighth, Half, Sixteenth, Thirtysecond, Whole } from "../../../../classes/notes"
+import { Half, Whole } from "../../../../classes/notes"
+import CleanNoteBody from "./ornaments/CleanNoteBody"
+import { getConstructor, getFlagCountFromNote } from "../../../../utils"
 
-const CleanNoteDraw = ({ note, ...props }: { note: NoteTemplate } & ImgHTMLAttributes<HTMLImageElement>) => {
-  let flagCount = 0
-  if (note instanceof Eighth) flagCount = 1
-  else if (note instanceof Sixteenth) flagCount = 2
-  else if (note instanceof Thirtysecond) flagCount = 3
-
+const CleanNoteDraw = ({ note, hasFlag = true, stemHeight, ...props }: { note: NoteTemplate, stemHeight?: number, hasFlag?: boolean } & ImgHTMLAttributes<HTMLImageElement>) => {
   let headSrc = 'Head.svg'
   if (note instanceof Whole) headSrc = 'WholeNote.svg'
   else if (note instanceof Half) headSrc = 'HalfHead.svg'
@@ -22,14 +19,7 @@ const CleanNoteDraw = ({ note, ...props }: { note: NoteTemplate } & ImgHTMLAttri
         className="head"
       />
       {!(note instanceof Whole) &&
-        <div className="body">
-          <div className="stem" />
-          <div className="flag_list">
-            {Array.from({ length: flagCount }).map((_, index) => (
-              <div key={index} className="flag_box"><img src="img/Flag.svg" className="flag" /></div>
-            ))}
-          </div>
-        </div>
+        <CleanNoteBody flagCount={hasFlag ? getFlagCountFromNote(getConstructor(note)) : 0} height={stemHeight} />
       }
     </div>
   )

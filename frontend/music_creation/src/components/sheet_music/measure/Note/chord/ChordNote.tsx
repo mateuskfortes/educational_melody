@@ -6,7 +6,7 @@ import Accidental from "../ornaments/Accidental";
 import LedgerLines from "../ornaments/LedgerLines";
 import Tie from "../ornaments/Tie";
 
-const ChordNote = ({ note, sheetMusicIndex, measureIndex, noteIndex, chordNoteIndex }: ChordNotePropsTemplate) => {
+const ChordNote = ({ note, sheetMusicIndex, measureIndex, noteIndex, chordNoteIndex, stemHeight }: ChordNotePropsTemplate) => {
   const { insertNote, removeNote, musicManageMode } = useSheetMusicLibraryContext()
 
   const topDistance = getTopDistance(note);
@@ -32,12 +32,13 @@ const ChordNote = ({ note, sheetMusicIndex, measureIndex, noteIndex, chordNoteIn
 
       <div className="note" style={{ top: `${topDistance}%` }} >
 
-        <Accidental accidental={note.accidental} />
+        <Accidental accidental={note.accidental} renderHidden={true} />
 
         <CleanNoteDraw
           note={note}
           className={`${musicManageMode === 'REMOVE' ? 'note_on_remove' : ''}`}
           onClick={handleRemove}
+          stemHeight={stemHeight}
         />
       </div>
 

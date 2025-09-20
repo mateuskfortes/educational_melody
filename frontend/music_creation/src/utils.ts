@@ -1,5 +1,5 @@
-import { Chord, Eighth, Half, NoteBase, Quarter, Sixteenth, Whole } from "./classes/notes";
-import { MeasureTemplate, MusicTemplate, NotesTemplate, NoteTemplate, CleanNoteType } from "./types/sheetMusicTemplates";
+import { Chord, Eighth, Half, NoteBase, Quarter, Sixteenth, Thirtysecond, Whole } from "./classes/notes";
+import { MeasureTemplate, MusicTemplate, NotesTemplate, NoteTemplate, CleanNoteType, NoteConstructorTemplate } from "./types/sheetMusicTemplates";
 
 // List of note names used for vertical positioning calculations.
 // These represent the natural musical notes in ascending order.
@@ -375,4 +375,12 @@ export function getBeamPositionList(notes: NotesTemplate[]) {
   }
 
   return beamPositionList
+}
+
+export function getFlagCountFromNote(note: NoteConstructorTemplate) {
+  let flagCount = 0
+  if (note === Eighth) flagCount = 1
+  else if (note === Sixteenth) flagCount = 2
+  else if (note === Thirtysecond) flagCount = 3
+  return flagCount
 }

@@ -83,6 +83,40 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
         insertNote = new note.noteConstructor(note.notes[0])
       }
 
+      const previousNote = getPreviousNote(finalState.measures, measureIndex, noteIndex)
+
+      // Remove the tie if the previous note is tied and differs from the newly inserted note
+      if (insertNote instanceof NoteBase) {
+        if (
+          previousNote instanceof NoteBase
+          && previousNote.isTied
+          && !previousNote.equal(insertNote)
+        ) {
+          previousNote.isTied = false
+        }
+        else if (previousNote instanceof Chord) {
+          previousNote.notes.forEach(pn => {
+            if (!pn.equal(insertNote))
+              pn.isTied = false
+          })
+        }
+      }
+      else if (insertNote instanceof Chord) {
+        if (
+          previousNote instanceof NoteBase
+          && !insertNote.notes.find(n => n.equal(previousNote))
+        ) {
+          previousNote.isTied = false
+        }
+        else if (previousNote instanceof Chord) {
+          previousNote.notes.forEach(pn => {
+            if (!insertNote.notes.find(n => n.equal(pn))) {
+              pn.isTied = false
+            }
+          })
+        }
+      }
+
       if (isFinalPosition) finalState.measures[measureIndex] = createMeasure(insertNote)
       else measureOnState.notes.splice(noteIndex, 0, insertNote)
     }

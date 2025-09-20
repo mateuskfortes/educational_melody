@@ -18,7 +18,7 @@ export const getPreviousNote = (
   measureIndex: number,
   noteIndex: number
 ) => {
-  let previous = measuresList[measureIndex].notes[noteIndex - 1]
+  let previous = measuresList[measureIndex]?.notes[noteIndex - 1]
   if (previous) return previous
 
   previous = measuresList[measureIndex - 1]?.notes[measuresList[measureIndex - 1].notes.length - 1]
@@ -48,7 +48,7 @@ export const getNextNote = (
   measureIndex: number,
   noteIndex: number
 ): { note: NotesTemplate | undefined, measureIndex: number, noteIndex: number } => {
-  let next = measuresList[measureIndex].notes[noteIndex + 1]
+  let next = measuresList[measureIndex]?.notes[noteIndex + 1]
   if (next) return {
     note: next,
     measureIndex,

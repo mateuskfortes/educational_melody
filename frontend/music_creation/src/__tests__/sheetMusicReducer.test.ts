@@ -76,6 +76,123 @@ describe('sheetMusicReducer', () => {
         // Check that a new state object is returned (immutability)
         expect(state).not.toBe(initialState)
       })
+
+      it('should normalize ties if the note is inserted between tied notes', () => {
+        const initial = createMusicTemplate([
+          [
+            new Half({ cleanNote: 'C', octave: 4, isTied: true }),
+            new Quarter({ cleanNote: 'C', octave: 4 }),
+            new QuarterRest()
+          ]
+        ])
+
+        const action: AddNoteAction = {
+          type: 'ADD_NOTE',
+          payload: {
+            measureIndex: 0,
+            noteIndex: 1,
+            note: new Quarter({ cleanNote: 'D', octave: 4 })
+          }
+        }
+
+        const state = sheetMusicReducer(initial, action)
+
+        expect(state).toStrictEqual(createMusicTemplate([
+          [
+
+            new Half({ cleanNote: 'C', octave: 4 }),
+            new Quarter({ cleanNote: 'D', octave: 4 }),
+            new Quarter({ cleanNote: 'C', octave: 4 }),
+          ]
+        ]))
+      })
+
+      it('should normalize ties if the note is inserted after a tied chord', () => {
+        const initial = createMusicTemplate([
+          [
+            new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4, isTied: true }, { cleanNote: 'E', octave: 4 }] }),
+            new Quarter({ cleanNote: 'C', octave: 4 }),
+            new QuarterRest()
+          ]
+        ])
+
+        const action: AddNoteAction = {
+          type: 'ADD_NOTE',
+          payload: {
+            measureIndex: 0,
+            noteIndex: 1,
+            note: new Quarter({ cleanNote: 'D', octave: 4 })
+          }
+        }
+
+        const state = sheetMusicReducer(initial, action)
+
+        expect(state).toStrictEqual(createMusicTemplate([
+          [
+            new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'C', octave: 4 }, { cleanNote: 'E', octave: 4 }] }),
+            new Quarter({ cleanNote: 'D', octave: 4 }),
+            new Quarter({ cleanNote: 'C', octave: 4 }),
+          ]
+        ]))
+      })
+
+      it('should normalize ties if the chord is inserted after a tied note', () => {
+        const initial = createMusicTemplate([
+          [
+            new Quarter({ cleanNote: 'C', octave: 4, isTied: true }),
+            new Quarter({ cleanNote: 'C', octave: 4 }),
+            new QuarterRest()
+          ]
+        ])
+
+        const action: AddNoteAction = {
+          type: 'ADD_NOTE',
+          payload: {
+            measureIndex: 0,
+            noteIndex: 1,
+            note: new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'D', octave: 4 }, { cleanNote: 'E', octave: 4 }] })
+          }
+        }
+
+        const state = sheetMusicReducer(initial, action)
+
+        expect(state).toStrictEqual(createMusicTemplate([
+          [
+            new Quarter({ cleanNote: 'C', octave: 4 }),
+            new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'D', octave: 4 }, { cleanNote: 'E', octave: 4 }] }),
+            new Quarter({ cleanNote: 'C', octave: 4 }),
+          ]
+        ]))
+      })
+
+      it('should normalize ties if the chord is inserted after a tied chord', () => {
+        const initial = createMusicTemplate([
+          [
+            new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4, isTied: true }, { cleanNote: 'G', octave: 4 }] }),
+            new Quarter({ cleanNote: 'C', octave: 4 }),
+            new QuarterRest()
+          ]
+        ])
+
+        const action: AddNoteAction = {
+          type: 'ADD_NOTE',
+          payload: {
+            measureIndex: 0,
+            noteIndex: 1,
+            note: new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'D', octave: 4 }, { cleanNote: 'E', octave: 4 }] })
+          }
+        }
+
+        const state = sheetMusicReducer(initial, action)
+
+        expect(state).toStrictEqual(createMusicTemplate([
+          [
+            new Chord({ noteConstructor: Quarter, notes: [{ cleanNote: 'F', octave: 4 }, { cleanNote: 'G', octave: 4 }] }),
+            new Chord({ noteConstructor: Half, notes: [{ cleanNote: 'D', octave: 4 }, { cleanNote: 'E', octave: 4 }] }),
+            new Quarter({ cleanNote: 'C', octave: 4 }),
+          ]
+        ]))
+      })
     })
 
     describe('CHORD', () => {

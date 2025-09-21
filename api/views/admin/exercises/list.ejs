@@ -1,0 +1,53 @@
+<!-- filepath: api/views/admin/exercises/list.ejs -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin - Exercícios</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="/css/header.css">
+</head>
+<body>
+    <%- include('../../components/header') %>
+    <main style="max-width:900px;margin:2rem auto;">
+        <h1>Administração de Exercícios</h1>
+        <a href="/admin/exercises/create" style="display:inline-block;margin-bottom:1rem;background:#ef6257;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">Novo Exercício</a>
+        <% if (exercises && exercises.length > 0) { %>
+            <table style="width:100%;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Enunciado</th>
+                        <th>Imagem</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% exercises.forEach(ex => { %>
+                        <tr>
+                            <td><%= ex.id %></td>
+                            <td><%= ex.title %></td>
+                            <td><%= ex.content.length > 60 ? ex.content.slice(0,60) + '...' : ex.content %></td>
+                            <td>
+                                <% if (ex.image) { %>
+                                    <img src="/uploads/<%= ex.image.name %>" alt="Imagem do exercício" style="max-width:80px;">
+                                <% } else { %>
+                                    -
+                                <% } %>
+                            </td>
+                            <td>
+                                <a href="/admin/exercises/<%= ex.id %>/edit">Editar</a>
+                                <form action="/admin/exercises/<%= ex.id %>/delete" method="POST" style="display:inline;">
+                                    <button type="submit" onclick="return confirm('Tem certeza que deseja deletar?')">Deletar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>Nenhum exercício cadastrado.</p>
+        <% } %>
+    </main>
+</body>
+</html>

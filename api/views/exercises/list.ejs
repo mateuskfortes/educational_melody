@@ -1,0 +1,34 @@
+<!-- filepath: api/views/exercises/list.ejs -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Exercícios</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="/css/header.css">
+</head>
+<body>
+    <%- include('../components/header') %>
+    <main style="max-width:700px;margin:2rem auto;">
+        <h1>Lista de Exercícios</h1>
+        <% if (exercises && exercises.length > 0) { %>
+            <ul style="list-style:none;padding:0;">
+                <% exercises.forEach(ex => { %>
+                    <li style="margin-bottom:2rem;padding:1rem;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                        <a href="/exercises/<%= ex.id %>" style="font-size:1.2rem;font-weight:bold;text-decoration:none;color:#ef6257;">
+                            <td><%= ex.title %></td><br>
+                        </a>
+                        <% if (ex.image) { %>
+                            <div>
+                                <img src="/uploads/<%= ex.image.name %>" alt="Imagem do exercício" style="max-width:200px;margin-top:10px;">
+                            </div>
+                        <% } %>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } else { %>
+            <p>Nenhum exercício cadastrado.</p>
+        <% } %>
+    </main>
+</body>
+</html>

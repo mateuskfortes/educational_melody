@@ -6,9 +6,17 @@ import { getRegister, postRegister } from "./routes/register";
 import { getLogin, postLogin } from "./routes/login";
 import { postLogout } from "./routes/logout";
 import { getHome } from "./routes/home";
+<<<<<<< Updated upstream
 import connectMySQL from 'express-mysql-session';
 import { getQuestionsPage, getQuestionPage, postCreateQuestion, postUpdateQuestion, postDeleteQuestion } from "./routes/exercise";
 
+=======
+import connectMySQL from 'express-mysql-session'
+import * as exercise from './routes/exercise';
+import * as adminExercise from './routes/adminExercise';
+import { fileURLToPath } from 'url';
+import path from 'path';
+>>>>>>> Stashed changes
 
 
 class App {
@@ -36,7 +44,16 @@ class App {
 		this.app.set('view engine', 'ejs'); // Set EJS as the view engine to render dynamic templates
 		this.app.set('views', './views'); // Define the directory where the EJS template files are stored
 
-		this.app.use(express.static('./public')) // Static files 
+		// Corrija aqui:
+		const __filename = fileURLToPath(import.meta.url);
+		const __dirname = path.dirname(__filename);
+		this.app.use(express.static(path.join(__dirname, '../public'))); // Serve api/public como /
+
+		const imagesPath = path.join(__dirname, '../images');
+		this.app.use('/images', express.static(imagesPath));
+
+		const uploadsPath = path.join(__dirname, '../uploads');
+		this.app.use('/uploads', express.static(uploadsPath));
 
 		this.app.use(express.json()); // Middleware to parse JSON bodies
 		this.app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies
@@ -80,11 +97,24 @@ class App {
 			res.send(req.session);
 		});
 
+<<<<<<< Updated upstream
 		this.app.get("/exercises", getQuestionsPage);
   		this.app.get("/exercises/:id", getQuestionPage);
   		this.app.post("/exercises/create", postCreateQuestion);
   		this.app.post("/exercises/update", postUpdateQuestion);
   		this.app.post("/exercises/delete", postDeleteQuestion);
+=======
+		this.app.get('/exercises', exercise.listExercises);
+		this.app.get('/exercises/:id', exercise.getExercise);
+		this.app.post('/exercises/:id', exercise.postExercise);
+
+		this.app.get('/admin/exercises', adminExercise.adminListExercises);
+		this.app.get('/admin/exercises/create', adminExercise.getAdminCreateExercise);
+		this.app.post('/admin/exercises/create', ...adminExercise.postAdminCreateExercise);
+		this.app.get('/admin/exercises/:id/edit', adminExercise.adminEditExercise);
+		this.app.post('/admin/exercises/:id/edit', adminExercise.adminEditExercise);
+		this.app.post('/admin/exercises/:id/delete', adminExercise.adminDeleteExercise);
+>>>>>>> Stashed changes
 	}
 
 	listen(port = this.port) {
@@ -95,3 +125,7 @@ class App {
 }
 
 export default App
+
+export const getAdminCreateExercise = (req: Request, res: Response) => {
+  render(req, res, 'admin/exercises/create.ejs', { exercise: undefined });
+};

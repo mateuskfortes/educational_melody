@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 const prisma = new PrismaClient();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const mainDir = __dirname;
 
 // Configuração do multer para salvar imagens em disco
 const upload = multer({
@@ -50,9 +51,10 @@ export const postAdminCreateExercise = [
       const correctIndex = req.body.correct;
 
       if (!content || !alternatives || alternatives.length < 2) {
-        return render(req, res, 'admin/exercises/create.ejs', {
+        render(req, res, 'admin/exercises/create.ejs', {
           error_msg: 'Preencha o enunciado e pelo menos duas alternativas.',
         });
+        return;
       }
 
       // Salva imagem se enviada
@@ -101,7 +103,6 @@ export const adminEditExercise = [
   async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     if (req.method === 'GET') {
-      // Busca o exercício e alternativas
       const exercise = await prisma.question.findUnique({
         where: { id },
         include: { image: true, alternatives: true },
@@ -109,11 +110,24 @@ export const adminEditExercise = [
       if (!exercise) {
         return res.status(404).send('Exercício não encontrado');
       }
-      render(req, res, 'admin/exercises/create.ejs', { exercise, editMode: true });
+      render(req, res, 'admin/exercises/edit.ejs', { exercise, editMode: true });
       return;
     }
     // POST: atualizar exercício
     try {
+      console.log('adminEditExercise POST called', { params: req.params, bodyKeys: Object.keys(req.body || {}) });
+
+      // fallback to body.id if params.id missing
+      const idFromParams = Number(req.params.id);
+      const idFromBody = Number(req.body?.id);
+      const id = Number.isFinite(idFromParams) && idFromParams > 0 ? idFromParams : (Number.isFinite(idFromBody) ? idFromBody : NaN);
+      console.log('Using id:', id);
+
+      if (!Number.isFinite(id)) {
+        console.error('Invalid id for update', { params: req.params, body: req.body });
+        return res.status(400).send('Invalid id');
+      }
+
       const { title, content } = req.body;
       let alternatives = req.body.alternatives;
       if (!Array.isArray(alternatives)) {
@@ -124,15 +138,15 @@ export const adminEditExercise = [
       );
       const correctIndex = req.body.correct;
 
-      if (!content || !alternatives || alternatives.length < 2) {
+      if (!title || !content || !alternatives || alternatives.length < 2) {
         const exercise = await prisma.question.findUnique({
           where: { id },
           include: { image: true, alternatives: true },
         });
-        return render(req, res, 'admin/exercises/create.ejs', {
+        return render(req, res, 'admin/exercises/edit.ejs', {
           exercise,
           editMode: true,
-          error_msg: 'Preencha o enunciado e pelo menos duas alternativas.',
+          error_msg: 'Preencha o título, enunciado e pelo menos duas alternativas.',
         });
       }
 
@@ -150,8 +164,11 @@ export const adminEditExercise = [
         imageId = image.id;
       }
 
+      // Antes de atualizar:
+      console.log('Updating question', { id, title, content, alternativesCount: (req.body.alternatives ? (Array.isArray(req.body.alternatives) ? req.body.alternatives.length : Object.keys(req.body.alternatives).length) : 0) });
+
       // Atualiza questão
-      await prisma.question.update({
+      const updated = await prisma.question.update({
         where: { id },
         data: {
           title,
@@ -159,6 +176,7 @@ export const adminEditExercise = [
           ...(imageId ? { imageId } : {}),
         },
       });
+      console.log('Question updated result:', updated);
 
       // Remove alternativas antigas
       await prisma.alternative.deleteMany({ where: { questionsId: id } });
@@ -179,7 +197,7 @@ export const adminEditExercise = [
         where: { id },
         include: { image: true, alternatives: true },
       });
-      render(req, res, 'admin/exercises/create.ejs', {
+      render(req, res, 'admin/exercises/edit.ejs', {
         exercise,
         editMode: true,
         error_msg: 'Erro ao editar exercício.',

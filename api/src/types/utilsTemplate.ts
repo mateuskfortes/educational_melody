@@ -3,11 +3,9 @@ export type EjsRenderArgsTemplate = {
   message?: string;
   administrator_checkbox?: boolean;
   error_msg?: string;
-<<<<<<< Updated upstream
-  question?:any;
-  questionList?: any[];
-=======
   exercises?: any;
   exercise?: any;
->>>>>>> Stashed changes
+  question?: any;
+  questionList?: any[];
+  editMode?: boolean;
 }

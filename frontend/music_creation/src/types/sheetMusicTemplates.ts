@@ -47,12 +47,14 @@ export interface NoteTemplate {
     getWidth: (measureWidth: number, measureDuration: number) => number
     equal: (note: EqualNoteArgsTemplate) => boolean
     play: (sampler: Sampler, now: number, beat: number, extraTieDuration?: number) => void
+    getAriaLabel: (withRhythmicName?: boolean) => string
 }
 
 export interface RestTemplate {
     name: string
     beatDuration: number;
     getWidth: (measureWidth: number, measureDuration: number) => number
+    getAriaLabel: () => string
 }
 
 export interface ChordTemplate {
@@ -60,6 +62,7 @@ export interface ChordTemplate {
     notes: NoteTemplate[];
     noteConstructor: NoteConstructorTemplate;
     getWidth: (measureWidth: number, measureDuration: number) => number
+    getAriaLabel: () => string
 }
 
 export type NotesTemplate = NoteTemplate | RestTemplate | ChordTemplate;

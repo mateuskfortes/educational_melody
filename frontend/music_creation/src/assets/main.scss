@@ -157,6 +157,10 @@ $note-stem-width: 2px;
                         justify-content: center;
                         pointer-events: none;
 
+                        .chord_aria_label {
+                            visibility: hidden;
+                        }
+
                         .clean_note_draw {
                             display: flex;
                             align-items: flex-end;
@@ -221,20 +225,26 @@ $note-stem-width: 2px;
 
                     .rest_note {
                         @extend .note;
+                        display: flex;
                         width: calc($measure-height / 2);
+
+                        * {
+                            width: inherit;
+                        }
+
+                        .QuarterRest {
+                            width: calc($measure-height / 3);
+                        }
+
+                        .EighthRest {
+                            width: calc($measure-height / 2.7);
+                        }
+
+                        .SixteenthRest {
+                            width: calc($measure-height / 2.2);
+                        }
                     }
 
-                    .QuarterRest {
-                        width: calc($measure-height / 3);
-                    }
-
-                    .EighthRest {
-                        width: calc($measure-height / 2.7);
-                    }
-
-                    .SixteenthRest {
-                        width: calc($measure-height / 2.2);
-                    }
                 }
 
                 .on_insert {

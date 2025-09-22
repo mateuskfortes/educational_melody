@@ -1,6 +1,6 @@
 import { Sampler } from "tone";
 import { AccidentalTemplate, ChordConstructorArgsTemplate, ChordTemplate, CleanNoteType, EqualNoteArgsTemplate, NoteConstructorArgsTemplate, NoteConstructorTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "../types/sheetMusicTemplates";
-import { getBeatDurationWithDots } from "../utils";
+import { getBeatDurationWithDots, getConstructor, getRhythmicName } from "../utils";
 
 export class NoteBase implements NoteTemplate {
   cleanNote: CleanNoteType;
@@ -59,6 +59,51 @@ export class NoteBase implements NoteTemplate {
     sampler.triggerAttack(this.getMusicalNote(), now);
     sampler.triggerRelease(this.getMusicalNote(), now + (this.beatDuration + extraTieDuration) * beat)
   }
+
+  getAriaLabel(withRhythmicName: boolean = true) {
+    const noteToLabel: Record<CleanNoteType, string> = {
+      C: 'Dó',
+      D: 'Ré',
+      E: 'Mi',
+      F: 'Fá',
+      G: 'Sol',
+      A: 'Lá',
+      B: 'Si',
+    };
+
+    const base = noteToLabel[this.cleanNote];
+
+    let acc = '';
+    switch (this.accidental) {
+      case 'natural':
+        acc = 'bequadro';
+        break;
+      case 'sharp':
+        acc = 'sustenido';
+        break;
+      case 'flat':
+        acc = 'bemol';
+        break;
+    }
+
+
+    const octave = `oitava ${this.octave}`;
+
+    const dots =
+      this.dots > 0
+        ? `com ${this.dots} ponto${this.dots > 1 ? 's' : ''} de aumento`
+        : '';
+
+    const tie = this.isTied ? 'ligada à próxima nota' : '';
+    let finalLabel = `${base} ${acc} ${octave} ${dots} ${tie}`.trim();
+
+    if (withRhythmicName) {
+      finalLabel = `${getRhythmicName(getConstructor(this))} ${finalLabel}`
+    }
+
+    return finalLabel
+  }
+
 }
 
 export class Whole extends NoteBase implements NoteTemplate {
@@ -119,6 +164,20 @@ export class RestBase implements RestTemplate {
   ) {
     return this.beatDuration / measureDuration * measureWidth
   }
+
+  getAriaLabel() {
+    let restName = '';
+
+    if (this instanceof WholeRest) restName = 'Pausa de semibreve';
+    else if (this instanceof HalfRest) restName = 'Pausa de mínima';
+    else if (this instanceof QuarterRest) restName = 'Pausa de semínima';
+    else if (this instanceof EighthRest) restName = 'Pausa de colcheia';
+    else if (this instanceof SixteenthRest) restName = 'Pausa de semicolcheia';
+    else if (this instanceof ThirtysecondRest) restName = 'Pausa de fusa';
+    else restName = 'Pausa';
+
+    return restName;
+  }
 }
 
 export class WholeRest extends RestBase implements RestTemplate {
@@ -171,6 +230,22 @@ export class Chord implements ChordTemplate {
     measureDuration: number
   ) {
     return this.beatDuration / measureDuration * measureWidth
+  }
+
+  getAriaLabel(): string {
+    const noteLabels = this.notes.map((note) => note.getAriaLabel(false));
+
+    let notesText: string;
+    if (noteLabels.length === 1) {
+      notesText = noteLabels[0];
+    } else if (noteLabels.length === 2) {
+      notesText = `${noteLabels[0]} e ${noteLabels[1]}`;
+    } else {
+      notesText =
+        noteLabels.slice(0, -1).join(', ') + ' e ' + noteLabels[noteLabels.length - 1];
+    }
+
+    return `Acorde de ${getRhythmicName(this.noteConstructor)}s com ${this.notes.length} nota${this.notes.length > 1 ? 's' : ''}: ${notesText}`;
   }
 }
 

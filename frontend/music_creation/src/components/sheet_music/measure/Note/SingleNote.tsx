@@ -24,7 +24,12 @@ const SingleNote = ({ note, sheetMusicIndex, measureIndex, noteIndex }: SingleNo
 
       {note.isTied && <Tie top={`${topDistance + 3}%`} measureIndex={measureIndex} noteIndex={noteIndex} />}
 
-      <div className="note" style={{ top: `${topDistance}%` }} >
+      <div
+        className="note"
+        style={{ top: `${topDistance}%` }}
+        aria-label={`${note.getAriaLabel()}, na posição ${noteIndex + 1} do compasso ${measureIndex + 1}`}
+        tabIndex={0}
+      >
 
         <Accidental accidental={note.accidental} />
 

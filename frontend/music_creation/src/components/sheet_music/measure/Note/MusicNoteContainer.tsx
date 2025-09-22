@@ -26,7 +26,7 @@ const MusicNoteContainer = ({ note, sheetMusicIndex, measureIndex, noteIndex }: 
       style={{ width }}
     >
       {note instanceof NoteBase && <SingleNote note={note} sheetMusicIndex={sheetMusicIndex} measureIndex={measureIndex} noteIndex={noteIndex} />}
-      {note instanceof RestBase && <Rest rest={note} />}
+      {note instanceof RestBase && <Rest rest={note} measureIndex={measureIndex} noteIndex={noteIndex} />}
       {note instanceof ChordClass && <Chord chord={note} sheetMusicIndex={sheetMusicIndex} measureIndex={measureIndex} noteIndex={noteIndex} />}
     </div>
   )

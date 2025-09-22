@@ -45,6 +45,8 @@ export type SingleNotePropsTemplate = {
 
 export type RestPropsTemplate = {
   rest: RestTemplate;
+  measureIndex: number;
+  noteIndex: number;
 }
 
 export type TiePropsTemplate = {

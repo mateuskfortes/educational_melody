@@ -1,7 +1,7 @@
 import { EighthRest, HalfRest, QuarterRest, SixteenthRest, ThirtysecondRest, WholeRest } from "../../../../classes/notes";
 import { RestPropsTemplate } from "../../../../types/ComponentsPropsTypes";
 
-const Rest = ({ rest }: RestPropsTemplate) => {
+const Rest = ({ rest, measureIndex, noteIndex }: RestPropsTemplate) => {
 
   let offset = 0;
 
@@ -15,11 +15,17 @@ const Rest = ({ rest }: RestPropsTemplate) => {
   const top = `${50 + offset}%`
 
   return (
-    <img
-      src={`img/${rest.name}.svg`}
-      className={`rest_note ${rest.name}`}
+    <div
+      className='rest_note'
+      aria-label={`${rest.getAriaLabel()}, na posição ${noteIndex + 1} do compasso ${measureIndex + 1}`}
+      tabIndex={0}
       style={{ top }}
-    />
+    >
+      <img
+        src={`img/${rest.name}.svg`}
+        className={rest.name}
+      />
+    </div>
   );
 }
 

@@ -384,3 +384,15 @@ export function getFlagCountFromNote(note: NoteConstructorTemplate) {
   else if (note === Thirtysecond) flagCount = 3
   return flagCount
 }
+
+export function getRhythmicName(noteConstructor: NoteConstructorTemplate) {
+  let rhythmicName = '';
+  if (noteConstructor === Whole) rhythmicName = 'semibreve';
+  else if (noteConstructor === Half) rhythmicName = 'mínima';
+  else if (noteConstructor === Quarter) rhythmicName = 'semínima';
+  else if (noteConstructor === Eighth) rhythmicName = 'colcheia';
+  else if (noteConstructor === Sixteenth) rhythmicName = 'semicolcheia';
+  else if (noteConstructor === Thirtysecond) rhythmicName = 'fusa';
+
+  return rhythmicName
+}

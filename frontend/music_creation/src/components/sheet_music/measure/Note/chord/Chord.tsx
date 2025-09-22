@@ -1,6 +1,7 @@
 import { useSheetMusicContext } from "../../../../../hooks/useSheetMusicContext"
 import { ChordTemplate } from "../../../../../types/sheetMusicTemplates"
 import { noteToHeightIndex } from "../../../../../utils"
+import ChordAriaLabel from "./ChordAriaLabel"
 import ChordNote from "./ChordNote"
 
 const Chord = ({ chord, sheetMusicIndex, measureIndex, noteIndex }: { chord: ChordTemplate, sheetMusicIndex: number, measureIndex: number, noteIndex: number }) => {
@@ -14,17 +15,20 @@ const Chord = ({ chord, sheetMusicIndex, measureIndex, noteIndex }: { chord: Cho
   const minNote = chord.notes[noteHeights.indexOf(Math.min(...noteHeights))]
   return (
     <>
-      {chord.notes.map((note, i) =>
-        <ChordNote
-          key={i}
-          note={note}
-          sheetMusicIndex={sheetMusicIndex}
-          measureIndex={measureIndex}
-          noteIndex={noteIndex}
-          chordNoteIndex={i}
-          stemHeight={note.equal(minNote) ? stemHeight : 0}
-        />
-      )}
+      <ChordAriaLabel note={minNote} stemHeight={stemHeight} ariaLabel={chord.getAriaLabel()} />
+      {
+        chord.notes.map((note, i) =>
+          <ChordNote
+            key={i}
+            note={note}
+            sheetMusicIndex={sheetMusicIndex}
+            measureIndex={measureIndex}
+            noteIndex={noteIndex}
+            chordNoteIndex={i}
+            stemHeight={note.equal(minNote) ? stemHeight : 0}
+          />
+        )
+      }
     </>
   )
 }

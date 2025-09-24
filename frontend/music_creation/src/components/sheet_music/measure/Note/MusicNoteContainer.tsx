@@ -12,10 +12,16 @@ const MusicNoteContainer = ({ note, sheetMusicIndex, measureIndex, noteIndex }: 
 
   const width = `${note.beatDuration / measureDuration * 100}%`;
 
-  const containerClass = musicManageMode === "ADD" ? "on_insert" : "on_remove"
+  const containerClass =
+    musicManageMode === "ADD"
+      ? "on_insert"
+      : musicManageMode === 'ADD_TO_CHORD'
+        ? "on_add_to_chord"
+        : "on_remove"
 
   function handleClick() {
     if (musicManageMode === 'ADD') insertNote(sheetMusicIndex, measureIndex, noteIndex)
+    else if (musicManageMode === 'ADD_TO_CHORD') insertNote(sheetMusicIndex, measureIndex, noteIndex, true)
     else if (musicManageMode === 'REMOVE') removeNote(sheetMusicIndex, measureIndex, noteIndex)
   }
 
@@ -25,7 +31,7 @@ const MusicNoteContainer = ({ note, sheetMusicIndex, measureIndex, noteIndex }: 
       className={"note_container " + containerClass}
       style={{ width }}
     >
-      {note instanceof NoteBase && <SingleNote note={note} sheetMusicIndex={sheetMusicIndex} measureIndex={measureIndex} noteIndex={noteIndex} />}
+      {note instanceof NoteBase && <SingleNote note={note} measureIndex={measureIndex} noteIndex={noteIndex} />}
       {note instanceof RestBase && <Rest rest={note} measureIndex={measureIndex} noteIndex={noteIndex} />}
       {note instanceof ChordClass && <Chord chord={note} sheetMusicIndex={sheetMusicIndex} measureIndex={measureIndex} noteIndex={noteIndex} />}
     </div>

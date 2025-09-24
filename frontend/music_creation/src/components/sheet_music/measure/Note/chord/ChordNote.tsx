@@ -7,14 +7,9 @@ import LedgerLines from "../ornaments/LedgerLines";
 import Tie from "../ornaments/Tie";
 
 const ChordNote = ({ note, sheetMusicIndex, measureIndex, noteIndex, chordNoteIndex, stemHeight }: ChordNotePropsTemplate) => {
-  const { insertNote, removeNote, musicManageMode } = useSheetMusicLibraryContext()
+  const { removeNote, musicManageMode } = useSheetMusicLibraryContext()
 
   const topDistance = getTopDistance(note);
-
-  function handleInsert(e: React.MouseEvent) {
-    e.stopPropagation() // prevents the click from bubbling up to the parent
-    insertNote(sheetMusicIndex, measureIndex, noteIndex, true)
-  }
 
   function handleRemove(e: React.MouseEvent) {
     if (!(musicManageMode === 'REMOVE')) return
@@ -24,10 +19,6 @@ const ChordNote = ({ note, sheetMusicIndex, measureIndex, noteIndex, chordNoteIn
 
   return (
     <>
-      {musicManageMode === 'ADD' &&
-        <div className="add_to_chord_box" onClick={handleInsert} />
-      }
-
       {note.isTied && <Tie top={`${topDistance + 3}%`} measureIndex={measureIndex} noteIndex={noteIndex} />}
 
       <div className="note" style={{ top: `${topDistance}%` }} >

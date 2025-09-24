@@ -122,7 +122,7 @@ export type TieNoteAction = {
 
 export type MusicAction = AddNoteAction | RemoveNoteAction | TieNoteAction;
 
-export type MusicManageModeType = "ADD" | "REMOVE"
+export type MusicManageModeType = "ADD" | "REMOVE" | "ADD_TO_CHORD"
 
 export type SheetMusicItem = {
     music: MusicTemplate,

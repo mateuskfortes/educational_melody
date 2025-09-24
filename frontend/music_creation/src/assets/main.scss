@@ -164,20 +164,6 @@ $note-stem-width: 2px;
                         @extend .sharp_box;
                     }
 
-                    .add_to_chord_box {
-                        position: absolute;
-                        top: 50%;
-                        left: 100%;
-                        transform: translate(-100%, -50%);
-                        height: $measure-height;
-                        width: 70%;
-                        z-index: 1;
-
-                        &:hover {
-                            background-color: rgba(172, 255, 47, 0.274);
-                        }
-                    }
-
                     .note {
                         position: absolute;
                         left: 50%;
@@ -291,7 +277,9 @@ $note-stem-width: 2px;
                     background-color: rgba(255, 0, 0, 0.308);
                 }
 
-
+                .on_add_to_chord:hover:not(:has(.ledger_line:hover)) {
+                    background-color: rgba(71, 255, 47, 0.411);
+                }
             }
         }
 

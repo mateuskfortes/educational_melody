@@ -38,7 +38,6 @@ export type ChordNotePropsTemplate = {
 
 export type SingleNotePropsTemplate = {
   note: NoteTemplate;
-  sheetMusicIndex: number;
   measureIndex: number;
   noteIndex: number;
 }

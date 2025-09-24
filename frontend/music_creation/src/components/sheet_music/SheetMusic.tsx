@@ -69,7 +69,7 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 									marginBottom: `${marginBottom}px`,
 								}}
 							>
-								{isFirstRow ? <SheetMusicStart /> : <div className="single_barline" />}
+								{isFirstRow ? <SheetMusicStart top={music.meter.top} bottom={music.meter.bottom} /> : <div className="single_barline" />}
 								{measuresRow.map((measure, measureIndex) => (
 									<Measure
 										key={`${lineIndex}-${measureIndex}`}
@@ -85,7 +85,7 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 					})}
 					{sheetMusicLines === 0 && (
 						<div className="sheet_music_row">
-							<SheetMusicStart />
+							<SheetMusicStart top={music.meter.top} bottom={music.meter.bottom} />
 							<EndBarLine />
 						</div>
 					)}

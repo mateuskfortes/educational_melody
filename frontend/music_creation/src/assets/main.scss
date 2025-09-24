@@ -12,6 +12,14 @@ $end-bar-line-width: calc($measure-width / 40);
 
 $note-stem-width: 2px;
 
+@font-face {
+    font-family: 'BravuraText';
+    src: url('/fonts/Bravura.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
 .sheet_music {
     display: flex;
     flex-direction: column;
@@ -71,6 +79,28 @@ $note-stem-width: 2px;
 
             .treble {
                 top: -55%
+            }
+        }
+
+        .meter {
+            position: relative;
+            height: $measure-height;
+            padding-right: calc($measure-width / 16);
+
+            .top,
+            .bottom {
+                position: absolute;
+                top: 47%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                margin: 0;
+                font-family: "BravuraText";
+                font-size: xx-large;
+                font-weight: 800;
+            }
+
+            .bottom {
+                top: 97%;
             }
         }
 

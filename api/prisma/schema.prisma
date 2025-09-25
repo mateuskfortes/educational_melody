@@ -14,7 +14,11 @@ DATABASE_URL=mysql://prisma_user:123456@localhost:3306/educational_melody
 create user 'prisma_user'@'localhost' identified by '123456';
 grant all privileges on *.* to 'prisma_user'@'localhost';
 create database educational_melody;
-use educational_melody;
+*/
+
+// docker
+/*
+docker exec -i educational_melody-db-1 mysql -uroot -p123456 educational_melody -e "insert into User (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);"
 */
 
 // After prisma db push run on mysql
@@ -27,6 +31,7 @@ datasource db {
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["views"]
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 model User {

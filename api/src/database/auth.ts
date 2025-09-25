@@ -25,10 +25,12 @@ export const createUser = async (
         // Error code P2002 indicates a unique constraint violation
         return { error_msg: "This email is already in use", error };
       }
-      return {};
+      console.log(error)
+      return { error_msg: "Erro inesperado ao criar usuário", error };
     }
     console.error(error);
     // Handle unexpected errors
+    console.log(error)
     return { error_msg: "Erro inesperado ao criar usuário", error };
   }
 }

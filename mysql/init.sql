@@ -1,0 +1,1 @@
+#insert into user (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);

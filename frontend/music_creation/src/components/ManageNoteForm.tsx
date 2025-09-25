@@ -37,7 +37,8 @@ const ManageNoteForm = () => {
   }, [cleanNote, octave, accidental, dots, noteType, musicManageMode]);
 
   return (
-    <>
+    <section>
+      <h2>Menu de notas</h2>
       <form>
 
         <label>
@@ -110,7 +111,7 @@ const ManageNoteForm = () => {
 
       <button onClick={addSheetMusic}>Adicionar partitura</button>
       <button onClick={runAll}>Tocar tudo</button>
-    </>
+    </section>
   )
 }
 

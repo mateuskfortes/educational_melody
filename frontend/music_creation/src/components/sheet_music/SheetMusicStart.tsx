@@ -6,10 +6,10 @@ export default function SheetMusicStart({ top, bottom }: { top: number, bottom: 
       <div className="clef_area">
         <SheetMusicLines />
         <div className="clef_box treble">
-          <img src="img/TrebleClef.svg" alt="" />
+          <img src="img/TrebleClef.svg" tabIndex={0} alt="clave de sol" />
         </div>
       </div>
-      <div className="meter">
+      <div className="meter" aria-label={`compasso ${top} por ${bottom}`} tabIndex={0}>
         <SheetMusicLines />
         <p className="top">{top}</p>
         <p className="bottom">{bottom}</p>

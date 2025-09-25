@@ -49,6 +49,7 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 	return (
 		<SheetMusicContext.Provider value={{ measureDuration, music, measureHeight, measureWidth, sheetMusicIndex }}>
 			<div className="sheet_music_container">
+				<h2 tabIndex={0}>Partitura {sheetMusicIndex + 1}</h2>
 				<div className="sheet_music" ref={sheetMusicRef}>
 					{Array.from({ length: sheetMusicLines }).map((_, lineIndex) => {
 						const measuresRow = music.measures.slice(

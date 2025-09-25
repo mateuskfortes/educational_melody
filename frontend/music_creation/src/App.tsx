@@ -3,7 +3,7 @@ import './assets/main.scss';
 import ManageNoteForm from "./components/ManageNoteForm";
 import { useState } from "react";
 import { MusicManageModeType, MusicTemplate, NotesTemplate, SheetMusicItem } from "./types/sheetMusicTemplates";
-import { Chord, Eighth, EighthRest, NoteBase, Quarter, Whole } from "./classes/notes";
+import { Chord, Eighth, EighthRest, NoteBase, Quarter } from "./classes/notes";
 import SheetMusicLibraryContext from "./hooks/useSheetMusicLibraryContext";
 
 const musicDefault: MusicTemplate = {
@@ -99,7 +99,7 @@ function App() {
 					bpm: 120,
 					measures: [
 						{
-							notes: [new Whole({ cleanNote: 'C', octave: 4 })]
+							notes: []
 						}
 					]
 				}

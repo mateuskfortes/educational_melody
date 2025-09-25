@@ -1,7 +1,9 @@
 import { EighthRest, HalfRest, QuarterRest, SixteenthRest, ThirtysecondRest, WholeRest } from "../../../../classes/notes";
+import { useSheetMusicLibraryContext } from "../../../../hooks/useSheetMusicLibraryContext";
 import { RestPropsTemplate } from "../../../../types/ComponentsPropsTypes";
 
 const Rest = ({ rest, measureIndex, noteIndex }: RestPropsTemplate) => {
+  const { musicManageMode } = useSheetMusicLibraryContext()
 
   let offset = 0;
 
@@ -14,15 +16,22 @@ const Rest = ({ rest, measureIndex, noteIndex }: RestPropsTemplate) => {
 
   const top = `${50 + offset}%`
 
+  const ariaLabelStart =
+    musicManageMode === 'ADD'
+      ? 'adicionar nota antes da '
+      : musicManageMode === 'ADD_TO_CHORD'
+        ? ''
+        : 'remover '
+
   return (
     <div
       className='rest_note'
-      aria-label={`${rest.getAriaLabel()}, na posição ${noteIndex + 1} do compasso ${measureIndex + 1}`}
-      tabIndex={0}
       style={{ top }}
     >
       <img
         src={`img/${rest.name}.svg`}
+        alt={`${ariaLabelStart + rest.getAriaLabel()}, na posição ${noteIndex + 1} do compasso ${measureIndex + 1}`}
+        tabIndex={0}
         className={rest.name}
       />
     </div>

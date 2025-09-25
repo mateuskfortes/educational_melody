@@ -1,10 +1,12 @@
 import { useSheetMusicContext } from "../../../../../hooks/useSheetMusicContext"
+import { useSheetMusicLibraryContext } from "../../../../../hooks/useSheetMusicLibraryContext"
 import { ChordTemplate } from "../../../../../types/sheetMusicTemplates"
 import { noteToHeightIndex } from "../../../../../utils"
 import ChordAriaLabel from "./ChordAriaLabel"
 import ChordNote from "./ChordNote"
 
 const Chord = ({ chord, sheetMusicIndex, measureIndex, noteIndex }: { chord: ChordTemplate, sheetMusicIndex: number, measureIndex: number, noteIndex: number }) => {
+  const { musicManageMode } = useSheetMusicLibraryContext()
   const { measureHeight } = useSheetMusicContext()
 
   const noteHeights = chord.notes.map(cn => noteToHeightIndex(cn))
@@ -13,9 +15,17 @@ const Chord = ({ chord, sheetMusicIndex, measureIndex, noteIndex }: { chord: Cho
   const stemHeight = Math.max(chordStemHeight, measureHeight)
 
   const minNote = chord.notes[noteHeights.indexOf(Math.min(...noteHeights))]
+
+  const ariaLabelStart =
+    musicManageMode === 'ADD'
+      ? 'adicionar nota antes do '
+      : musicManageMode === 'ADD_TO_CHORD'
+        ? 'adicionar nota ao '
+        : 'remover '
+
   return (
     <>
-      <ChordAriaLabel note={minNote} stemHeight={stemHeight} ariaLabel={chord.getAriaLabel()} />
+      <ChordAriaLabel note={minNote} stemHeight={stemHeight} ariaLabel={ariaLabelStart + chord.getAriaLabel() + `, na posição ${noteIndex + 1} do compasso ${measureIndex + 1}`} />
       {
         chord.notes.map((note, i) =>
           <ChordNote

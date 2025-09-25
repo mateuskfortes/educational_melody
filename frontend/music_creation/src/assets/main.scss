@@ -277,7 +277,7 @@ $note-stem-width: 2px;
                     background-color: rgba(255, 0, 0, 0.308);
                 }
 
-                .on_add_to_chord:hover:not(:has(.ledger_line:hover)) {
+                .on_add_to_chord:hover:not(:has(.ledger_line:hover)):not(:has(.rest_note)) {
                     background-color: rgba(71, 255, 47, 0.411);
                 }
             }

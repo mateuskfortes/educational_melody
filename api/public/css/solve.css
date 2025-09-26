@@ -17,7 +17,7 @@ main {
 }
 
 .exercise-obj {
-    padding:2rem;
+    padding: 2rem;
     display: grid;
     align-items: center;
     justify-content: center;
@@ -82,16 +82,20 @@ form{
 }
 
 .submit {
-    margin-top:1rem;
-    padding:0.5rem 1rem;
-    background:#ef6257;
-    color:#fff;
-    border:none;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: #ef6257;
+    color: #fff;
+    border: none;
     border-radius: 0.4rem;
-    font-weight:bold;
+    font-weight: bold;
     width: min-content;
 }
 
 img {
+    max-width: 100%;
+    height: auto;
     margin: 1rem;
+    margin-bottom: 2rem;
+    justify-self: center;
 }

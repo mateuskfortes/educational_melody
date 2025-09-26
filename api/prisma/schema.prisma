@@ -79,7 +79,7 @@ model Alternative {
 
 model Material {
   id                Int                    @id @default(autoincrement())
-  title             String                 @db.VarChar(255)
+  title             String                 @db.VarChar(255) @default("")
   content           String                 @db.Text
   created_at        DateTime
   userMaterials     UserMaterial[]

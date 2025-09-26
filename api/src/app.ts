@@ -7,6 +7,10 @@ import { getLogin, postLogin } from "./routes/login";
 import { postLogout } from "./routes/logout";
 import { getHome } from "./routes/home";
 import connectMySQL from 'express-mysql-session'
+import { getLesson } from "./routes/lesson/lesson_view_id";
+import { getLessons } from "./routes/lesson";
+import { getCreateLesson, postCreateLesson } from "./routes/lesson/lesson_create";
+import { getSheetMusic } from "./routes/sheet-music";
 
 
 class App {
@@ -77,6 +81,14 @@ class App {
 		this.app.post('/login', postLogin)
 
 		this.app.post('/logout', postLogout);
+
+		this.app.get('/sheet-music', getSheetMusic);
+
+		this.app.get('/lesson/view/:id', getLesson)
+		this.app.get('/lesson', getLessons)
+		this.app.get('/lesson/create', getCreateLesson)
+		this.app.post('/lesson/create', postCreateLesson)
+
 
 		this.app.get('/test', (req, res) => {
 			res.send(req.session);

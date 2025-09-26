@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Login</title>
+	<link rel="stylesheet" href="/css/header.css">
+</head>
+
+
+<%- include('components/header') %>
+<h1>Question Details</h1>
+<p><%= question.content %></p>
+<% if (question.image) { %>
+  <img src="<%= question.image.name %>" alt="Question Image" />
+<% } %>
+<form action="/exercises/update" method="POST">
+  <input type="hidden" name="id" value="<%= question.id %>" />
+  <textarea name="content" required><%= question.content %></textarea>
+  <input type="number" name="imageId" value="<%= question.imageId %>" />
+  <button type="submit">Update Question</button>
+</form>
+<form action="/exercises/delete" method="POST">
+  <input type="hidden" name="id" value="<%= question.id %>" />
+  <button type="submit">Delete Question</button>
+</form>

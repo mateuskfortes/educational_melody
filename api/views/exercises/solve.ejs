@@ -1,0 +1,39 @@
+<!-- filepath: api/views/exercises/solve.ejs -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Exercício</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="/css/header.css">
+</head>
+<body>
+    <%- include('../components/header') %>
+    <main style="max-width:700px;margin:2rem auto;">
+        <% if (exercise) { %>
+            <div style="background:#fff;padding:2rem;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                <h2 style="font-size:1.3rem; color:#ef6257; margin-bottom:1rem;"><%= exercise.title %></h2>
+                <p style="font-size:1.1rem;"><%= exercise.content %></p>
+                <% if (exercise && exercise.image) { %>
+                    <img src="/uploads/<%= exercise.image.name %>" alt="Imagem do exercício" style="max-width:100%;height:auto;margin-bottom:1rem;">
+                <% } %>
+                <form method="POST">
+                    <% if (exercise.alternatives && exercise.alternatives.length > 0) { %>
+                        <% exercise.alternatives.forEach(alt => { %>
+                            <div style="margin-bottom:10px;">
+                                <input type="radio" name="alternative" value="<%= alt.id %>" id="alt_<%= alt.id %>" required>
+                                <label for="alt_<%= alt.id %>"><%= alt.content %></label>
+                            </div>
+                        <% }) %>
+                        <button type="submit" style="margin-top:1rem;padding:10px 20px;background:#ef6257;color:#fff;border:none;border-radius:6px;font-weight:bold;">Responder</button>
+                    <% } else { %>
+                        <p>Este exercício ainda não possui alternativas cadastradas.</p>
+                    <% } %>
+                </form>
+            </div>
+        <% } else { %>
+            <p>Exercício não encontrado.</p>
+        <% } %>
+    </main>
+</body>
+</html>

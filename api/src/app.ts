@@ -7,6 +7,16 @@ import { getLogin, postLogin } from "./routes/login";
 import { postLogout } from "./routes/logout";
 import { getHome } from "./routes/home";
 import connectMySQL from 'express-mysql-session'
+import * as exercise from './routes/exercise';
+import * as adminExercise from './routes/adminExercise';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import { render } from './utils';
+import { Request, Response } from 'express';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 import { getLesson } from "./routes/lesson/lesson_view_id";
 import { getLessons } from "./routes/lesson";
 import { getCreateLesson, postCreateLesson } from "./routes/lesson/lesson_create";
@@ -40,7 +50,13 @@ class App {
 		this.app.set('view engine', 'ejs'); // Set EJS as the view engine to render dynamic templates
 		this.app.set('views', './views'); // Define the directory where the EJS template files are stored
 
-		this.app.use(express.static('./public')) // Static files 
+		this.app.use(express.static(path.join(__dirname, '../public'))); // Serve api/public como /
+
+		const imagesPath = path.join(__dirname, '../images');
+		this.app.use('/images', express.static(imagesPath));
+
+		const uploadsPath = path.join(__dirname, '../uploads');
+		this.app.use('/uploads', express.static(uploadsPath));
 
 		this.app.use(express.json()); // Middleware to parse JSON bodies
 		this.app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies
@@ -93,6 +109,21 @@ class App {
 		this.app.get('/test', (req, res) => {
 			res.send(req.session);
 		});
+
+		this.app.get('/exercises', exercise.listExercises);
+		this.app.get('/exercises/:id', exercise.getExercise);
+		this.app.post('/exercises/:id', exercise.postExercise);
+
+		this.app.get('/admin/exercises', adminExercise.adminListExercises);
+		this.app.get('/admin/exercises/create', adminExercise.getAdminCreateExercise);
+		this.app.post('/admin/exercises/create', ...adminExercise.postAdminCreateExercise);
+		const asyncHandler = (fn: any) => (req: Request, res: Response, next: any) => {
+			Promise.resolve(fn(req, res, next)).catch(next);
+		};
+
+		this.app.get('/admin/exercises/:id/edit', ...adminExercise.adminEditExercise.map(asyncHandler));
+		this.app.post('/admin/exercises/:id/edit', ...adminExercise.adminEditExercise.map(asyncHandler));
+		this.app.post('/admin/exercises/:id/delete', asyncHandler(adminExercise.adminDeleteExercise));
 	}
 
 	listen(port = this.port) {
@@ -103,3 +134,7 @@ class App {
 }
 
 export default App
+
+export const getAdminCreateExercise = (req: Request, res: Response) => {
+	render(req, res, 'admin/exercises/create.ejs', { exercise: undefined });
+};

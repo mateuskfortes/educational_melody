@@ -3,5 +3,4 @@ export type EjsRenderArgsTemplate = {
   message?: string;
   administrator_checkbox?: boolean;
   error_msg?: string;
-  is_logged_in?: boolean
 }

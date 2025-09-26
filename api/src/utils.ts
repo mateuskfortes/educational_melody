@@ -11,12 +11,10 @@ export const render = (
     error_msg = "",
     title = "",
     message = "",
-    is_logged_in
   }: EjsRenderArgsTemplate
 ) => {
 
-  if (!is_logged_in && req.session?.user) is_logged_in = true
-  else is_logged_in = false
+  const is_logged_in = !!req.session?.user
 
   return res.render(path, {
     administrator_checkbox,

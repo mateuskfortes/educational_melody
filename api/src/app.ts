@@ -47,9 +47,9 @@ class App {
 		if (mysqlStore) {
 			const MySQLStore = connectMySQL(sessionC)
 			const dbOptions = {
-				host: 'localhost',
+				host: process.env.USE_DOCKER === 'true' ? 'db' : 'localhost',
 				port: 3306,
-				user: 'prisma_user',
+				user: process.env.USE_DOCKER === 'true' ? 'root' : 'prisma_user',
 				password: '123456',
 				database: 'educational_melody'
 			};
@@ -84,7 +84,7 @@ class App {
 	}
 
 	listen(port = this.port) {
-		this.app.listen(port, () => {
+		this.app.listen(port, '0.0.0.0', () => {
 			console.log(`Server running at http://localhost:${port}`);
 		});
 	}

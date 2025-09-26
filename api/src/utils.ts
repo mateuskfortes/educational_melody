@@ -3,14 +3,16 @@ import { EjsRenderArgsTemplate } from "./types/utilsTemplate";
 
 // Render the ejs template
 export const render = (
-  req: Request, 
-  res: Response, 
-  path: string, 
+  req: Request,
+  res: Response,
+  path: string,
   {
     administrator_checkbox = req.session?.user?.is_administrator || false, // Check if the user is an administrator
     error_msg = "",
     title = "",
     message = "",
+    lesson = {},
+    lessonList = []
   }: EjsRenderArgsTemplate
 ) => {
 
@@ -22,5 +24,7 @@ export const render = (
     title,
     message,
     is_logged_in,
+    lesson,
+    lessonList
   });
 };

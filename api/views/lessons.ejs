@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/lesson.css">
+  <title>Área do Aluno</title>
+</head>
+<body>
+  <%- include('components/header') %>
+
+  <main class="student-area">
+    <section class="intro">
+      <h1>Área do Aluno</h1>
+      <p>
+        Essa área incluirá diversos tópicos e atividades que visam não apenas
+        ensinar teoria musical, mas também aprimorar e testar o conhecimento
+        do aluno de maneira dinâmica.
+      </p>
+    </section>
+
+    <section class="lesson-list">
+      <h2>01 Introdução à Teoria Musical</h2>
+      <ul>
+        <% lessonList.forEach(function(lesson) { %>
+          <li class="lesson-card-box">
+            <a href="/lesson/view/<%= lesson.id %>" class="lesson-card">
+              <span class="lesson-title"><%= lesson.title %></span>
+              <span class="lesson-time">10&nbsp;min</span>
+            </a>
+          </li>
+        <% }); %>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

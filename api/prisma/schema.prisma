@@ -21,6 +21,13 @@ create database educational_melody;
 docker exec -i educational_melody-db-1 mysql -uroot -p123456 educational_melody -e "insert into User (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);"
 */
 
+// docker
+/*
+docker exec -i educational_melody-db-1 mysql -uroot -p123456 educational_melody -e "insert into User (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);"
+*/
+
+// After prisma db push run on mysql
+//insert into user (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);
 
 datasource db {
   provider = "mysql"
@@ -72,6 +79,7 @@ model Alternative {
 
 model Material {
   id                Int                    @id @default(autoincrement())
+  title             String                 @db.VarChar(255)
   content           String                 @db.Text
   created_at        DateTime
   userMaterials     UserMaterial[]

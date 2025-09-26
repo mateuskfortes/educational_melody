@@ -3,4 +3,6 @@ export type EjsRenderArgsTemplate = {
   message?: string;
   administrator_checkbox?: boolean;
   error_msg?: string;
+  lesson?: any;
+  lessonList?: any[]
 }

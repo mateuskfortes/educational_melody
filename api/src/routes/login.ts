@@ -25,5 +25,5 @@ export const postLogin = async (req: Request, res: Response): Promise<any> => {
     return render(req, res.status(400), 'login.ejs', { error_msg: 'Invalid password' })
   }
   req.session.user = user; // Store the user in the session
-  return render(req, res.status(200), 'index.ejs', {})
+  return res.status(302).redirect('/')
 }

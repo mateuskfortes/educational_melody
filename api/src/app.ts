@@ -18,7 +18,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 import { getLesson } from "./routes/lesson/lesson_view_id";
-import { getLessons } from "./routes/lesson";
+import { getLessons } from "./routes/lesson/index";
 import { getCreateLesson, postCreateLesson } from "./routes/lesson/lesson_create";
 import { getSheetMusic } from "./routes/sheet-music";
 
@@ -72,7 +72,12 @@ class App {
 				port: 3306,
 				user: process.env.USE_DOCKER === 'true' ? 'root' : 'prisma_user',
 				password: '123456',
-				database: 'educational_melody'
+				database: 'educational_melody',
+				waitForConnections: true,
+				connectionLimit: 10,
+				maxIdle: 10,
+				idleTimeout: 60000,
+				queueLimit: 0,
 			};
 			sessionStore = new MySQLStore(dbOptions);
 		}

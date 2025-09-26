@@ -51,6 +51,7 @@ export const postRegister = async (req: Request, res: Response): Promise<any> =>
 
     if (user.is_administrator) {
       return res.status(201).send(`Administrator user created with email: ${user.email}`);
+      return res.redirect('/')
     }
     return res.status(302).redirect('/')
   }

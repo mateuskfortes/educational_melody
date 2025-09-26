@@ -151,6 +151,29 @@ function App() {
 				insertNote,
 				removeNote
 			}}>
+			<h1>Criador de Partituras</h1>
+
+			<section className="tutorial">
+				<div>
+					<h3>Instruções de Navegação:</h3>
+					<ul>
+						<li>
+							<span className="tecla">TAB</span>
+							<span>Próxima posição</span>
+						</li>
+						<li>
+							<span className="tecla">SHIFT • TAB</span>
+							<span>Posição anterior</span>
+						</li>
+						<li>
+							<span className="tecla">ENTER/ESPAÇO</span>
+							<span>Editar posição</span>
+						</li>
+					</ul>
+				</div>
+				<img src="img/mic.png" alt="" />
+				<img src="img/vinil.png" alt="" />
+			</section>
 			{sheetMusicList.map((sheetMusic: SheetMusicItem, index: number) =>
 				<SheetMusic
 					key={index}

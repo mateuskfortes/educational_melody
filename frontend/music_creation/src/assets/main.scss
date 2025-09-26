@@ -19,293 +19,445 @@ $note-stem-width: 2px;
     font-style: normal;
 }
 
+body {
+    background-color: #F9F6F1;
+}
 
-.sheet_music {
+/* Caixa principal com borda azul e fundo bege claro */
+.creator-box {
+    background-color: white;
+    max-width: 700px;
+    margin: 40px auto;
+    border: 2px solid #c1d3e0;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.creator-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    color: #231f20;
+    margin-bottom: 20px;
+}
+
+.creator-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.creator-grid label {
     display: flex;
     flex-direction: column;
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
 
-    .sheet_music_row {
+.creator-grid select,
+.creator-grid input {
+    margin-top: 4px;
+    padding: 6px 8px;
+    border: 1px solid #bfbfbf;
+    border-radius: 6px;
+    background: #fff;
+}
+
+/* Botões */
+.creator-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.btn-orange {
+    background: #e4632f;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-orange:hover {
+    background: #d45522;
+}
+
+.btn-border {
+    background: transparent;
+    color: #e4632f;
+    border: 2px solid #e4632f;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-border:hover {
+    background: #fff0e8;
+}
+
+h1 {
+    text-align: center;
+}
+
+.tutorial {
+    display: flex;
+    font-family: sans-serif;
+    justify-content: center;
+    gap: 3rem;
+
+    &>div {
         display: flex;
-        width: 100%;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column;
+        margin: auto 0;
+        background: #f9f9f9;
+        box-shadow: -4px 4px 12px 0px #231f2099;
+        padding: 16px;
+        border-radius: 6px;
+    }
 
-        .line_area {
-            position: absolute;
-            top: 0;
-            left: 0;
+    img {
+        width: 20vw;
+    }
+}
+
+.tutorial h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.tutorial ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tutorial li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+
+.tecla {
+    background: #e5e5e5;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: monospace;
+}
+
+
+.sheet_music_container {
+    max-width: 80vw;
+    margin: auto;
+
+    &>h2 {
+        margin-bottom: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .sheet_music {
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+        border: 1px solid #bfbfbf;
+        border-radius: 6px;
+
+        .sheet_music_row {
+            display: flex;
             width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            height: $measure-height;
-            justify-content: space-between;
+            align-items: center;
+            justify-content: center;
 
-            .line {
-                display: inline-flex;
-                background-color: black;
-                height: $line-height;
-                width: 100%;
-            }
-        }
-
-        .insert_bar {
-            content: "";
-            visibility: hidden;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: $insert-bar-width;
-            height: 100%;
-            background: limegreen;
-        }
-
-        .clef_area {
-            position: relative;
-            display: flex;
-            margin: $measure-margin;
-            padding-right: calc($measure-width / 6);
-            height: $measure-height;
-
-            .clef_box {
+            .line_area {
                 position: absolute;
-                height: calc($measure-height * 2);
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                height: $measure-height;
+                justify-content: space-between;
 
-                img {
-                    height: inherit;
+                .line {
+                    display: inline-flex;
+                    background-color: black;
+                    height: $line-height;
+                    width: 100%;
+                }
+            }
+
+            .insert_bar {
+                content: "";
+                visibility: hidden;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: $insert-bar-width;
+                height: 100%;
+                background: limegreen;
+            }
+
+            .clef_area {
+                position: relative;
+                display: flex;
+                margin: $measure-margin;
+                padding-right: calc($measure-width / 6);
+                height: $measure-height;
+
+                .clef_box {
+                    position: absolute;
+                    height: calc($measure-height * 2);
+
+                    img {
+                        height: inherit;
+                    }
+
                 }
 
+                .treble {
+                    top: -55%
+                }
             }
 
-            .treble {
-                top: -55%
+            .meter {
+                position: relative;
+                height: $measure-height;
+                padding-right: calc($measure-width / 16);
+
+                .top,
+                .bottom {
+                    position: absolute;
+                    top: 47%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    margin: 0;
+                    font-family: "BravuraText";
+                    font-size: xx-large;
+                    font-weight: 800;
+                }
+
+                .bottom {
+                    top: 97%;
+                }
             }
-        }
 
-        .meter {
-            position: relative;
-            height: $measure-height;
-            padding-right: calc($measure-width / 16);
-
-            .top,
-            .bottom {
+            .barline {
                 position: absolute;
-                top: 47%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                margin: 0;
-                font-family: "BravuraText";
-                font-size: xx-large;
-                font-weight: 800;
+                top: 50%;
+                left: 100%;
+                transform: translate(0, -50%);
+                display: flex;
+                width: $barline-width;
+                height: $measure-height;
+                background-color: black;
             }
-
-            .bottom {
-                top: 97%;
-            }
-        }
-
-        .barline {
-            position: absolute;
-            top: 50%;
-            left: 100%;
-            transform: translate(0, -50%);
-            display: flex;
-            width: $barline-width;
-            height: $measure-height;
-            background-color: black;
-        }
-
-        .single_barline {
-            @extend .barline;
-            position: initial;
-            transform: translate(0, 0);
-        }
-
-        .measure {
-            margin: $measure-margin;
-            display: flex;
-            position: relative;
-            width: $measure-width;
-            height: $measure-height;
 
             .single_barline {
-                @extend .barline
+                @extend .barline;
+                position: initial;
+                transform: translate(0, 0);
             }
 
-            .notes_area {
+            .measure {
+                margin: $measure-margin;
                 display: flex;
-                height: $measure-height;
+                position: relative;
                 width: $measure-width;
+                height: $measure-height;
 
-                .note_container {
-                    position: relative;
-                    height: 100%;
+                .single_barline {
+                    @extend .barline
+                }
 
-                    .sharp_box {
+                .notes_area {
+                    display: flex;
+                    height: $measure-height;
+                    width: $measure-width;
+
+                    .note_container {
                         position: relative;
-                        width: calc($measure-height / 4.7);
+                        height: 100%;
 
-                        img {
+                        .sharp_box {
+                            position: relative;
+                            width: calc($measure-height / 4.7);
+
+                            img {
+                                position: absolute;
+                                top: calc($measure-height / -2.8);
+                                width: inherit;
+                            }
+                        }
+
+                        .flat_box {
+                            @extend .sharp_box;
+
+                            img {
+                                top: calc($measure-height / -2.5);
+                            }
+                        }
+
+                        .natural_box {
+                            @extend .sharp_box;
+                        }
+
+                        .note {
                             position: absolute;
-                            top: calc($measure-height / -2.8);
-                            width: inherit;
-                        }
-                    }
-
-                    .flat_box {
-                        @extend .sharp_box;
-
-                        img {
-                            top: calc($measure-height / -2.5);
-                        }
-                    }
-
-                    .natural_box {
-                        @extend .sharp_box;
-                    }
-
-                    .note {
-                        position: absolute;
-                        left: 50%;
-                        transform: translate(-50%, -100%);
-                        display: flex;
-                        align-items: end;
-                        justify-content: center;
-                        pointer-events: none;
-
-                        .chord_aria_label {
-                            visibility: hidden;
-                        }
-
-                        .clean_note_draw {
+                            left: 50%;
+                            transform: translate(-50%, -100%);
                             display: flex;
-                            align-items: flex-end;
+                            align-items: end;
                             justify-content: center;
+                            pointer-events: none;
 
-                            .head {
-                                height: calc($measure-height / 4);
+                            .chord_aria_label {
+                                visibility: hidden;
                             }
 
-                            .body {
+                            .clean_note_draw {
                                 display: flex;
-                                height: $measure-height;
                                 align-items: flex-end;
                                 justify-content: center;
-                                margin-left: calc($measure-height / -16.63);
-                                margin-bottom: calc($measure-height / 6);
 
-                                .stem {
-                                    height: $measure-height;
-                                    width: $note-stem-width;
-                                    background-color: black;
+                                .head {
+                                    height: calc($measure-height / 4);
                                 }
 
-                                .flag_list {
-                                    margin-left: -1px;
-                                    height: 100%;
+                                .body {
+                                    display: flex;
+                                    height: $measure-height;
+                                    align-items: flex-end;
+                                    justify-content: center;
+                                    margin-left: calc($measure-height / -16.63);
+                                    margin-bottom: calc($measure-height / 6);
 
-                                    .flag_box {
-                                        height: calc($measure-height / 5.5);
+                                    .stem {
+                                        height: $measure-height;
+                                        width: $note-stem-width;
+                                        background-color: black;
+                                    }
 
-                                        .flag {
-                                            height: calc($measure-height / 1.2);
+                                    .flag_list {
+                                        margin-left: -1px;
+                                        height: 100%;
+
+                                        .flag_box {
+                                            height: calc($measure-height / 5.5);
+
+                                            .flag {
+                                                height: calc($measure-height / 1.2);
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        .note_on_remove {
-                            pointer-events: none;
+                            .note_on_remove {
+                                pointer-events: none;
 
-                            .head {
-                                pointer-events: auto
+                                .head {
+                                    pointer-events: auto
+                                }
+
+                                .head:hover {
+                                    background-color: rgba(255, 0, 0, 0.377);
+                                }
                             }
 
-                            .head:hover {
-                                background-color: rgba(255, 0, 0, 0.377);
-                            }
                         }
 
-                    }
-
-                    .ledger_line {
-                        position: absolute;
-                        top: 0;
-                        left: 50%;
-                        width: calc($measure-height / 2.7);
-                        height: $line-height;
-                        background-color: black;
-                        transform: translate(-50%, -50%);
-                    }
-
-                    .rest_note {
-                        @extend .note;
-                        display: flex;
-                        width: calc($measure-height / 2);
-
-                        * {
-                            width: inherit;
-                        }
-
-                        .QuarterRest {
-                            width: calc($measure-height / 3);
-                        }
-
-                        .EighthRest {
+                        .ledger_line {
+                            position: absolute;
+                            top: 0;
+                            left: 50%;
                             width: calc($measure-height / 2.7);
+                            height: $line-height;
+                            background-color: black;
+                            transform: translate(-50%, -50%);
                         }
 
-                        .SixteenthRest {
-                            width: calc($measure-height / 2.2);
+                        .rest_note {
+                            @extend .note;
+                            display: flex;
+                            width: calc($measure-height / 2);
+
+                            * {
+                                width: inherit;
+                            }
+
+                            .QuarterRest {
+                                width: calc($measure-height / 3);
+                            }
+
+                            .EighthRest {
+                                width: calc($measure-height / 2.7);
+                            }
+
+                            .SixteenthRest {
+                                width: calc($measure-height / 2.2);
+                            }
+                        }
+
+                    }
+
+                    .on_insert {
+                        &::before {
+                            @extend .insert_bar
+                        }
+
+                        &:hover:not(:has(.add_to_chord_box:hover))::before {
+                            visibility: visible;
                         }
                     }
 
-                }
-
-                .on_insert {
-                    &::before {
-                        @extend .insert_bar
+                    .on_remove:hover:not(:has(.note_on_remove .head:hover)):not(:has(.ledger_line:hover)) {
+                        background-color: rgba(255, 0, 0, 0.308);
                     }
 
-                    &:hover:not(:has(.add_to_chord_box:hover))::before {
-                        visibility: visible;
+                    .on_add_to_chord:hover:not(:has(.ledger_line:hover)):not(:has(.rest_note)) {
+                        background-color: rgba(71, 255, 47, 0.411);
                     }
                 }
+            }
 
-                .on_remove:hover:not(:has(.note_on_remove .head:hover)):not(:has(.ledger_line:hover)) {
-                    background-color: rgba(255, 0, 0, 0.308);
+            .end_bar_line {
+                position: relative;
+                display: flex;
+                margin: $measure-margin;
+                height: $measure-height;
+                width: calc($measure-width / 20);
+
+                .end_bar {
+                    margin-left: auto;
+                    width: $end-bar-line-width;
+                    background-color: black;
+                }
+            }
+
+            .end_bar_line_on_insert {
+                @extend .end_bar_line;
+
+                &::before {
+                    @extend .insert_bar
                 }
 
-                .on_add_to_chord:hover:not(:has(.ledger_line:hover)):not(:has(.rest_note)) {
-                    background-color: rgba(71, 255, 47, 0.411);
+                &:hover::before {
+                    visibility: visible;
                 }
-            }
-        }
-
-        .end_bar_line {
-            position: relative;
-            display: flex;
-            margin: $measure-margin;
-            height: $measure-height;
-            width: calc($measure-width / 20);
-
-            .end_bar {
-                margin-left: auto;
-                width: $end-bar-line-width;
-                background-color: black;
-            }
-        }
-
-        .end_bar_line_on_insert {
-            @extend .end_bar_line;
-
-            &::before {
-                @extend .insert_bar
-            }
-
-            &:hover::before {
-                visibility: visible;
             }
         }
     }

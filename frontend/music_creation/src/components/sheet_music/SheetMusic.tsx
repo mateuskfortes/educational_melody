@@ -90,7 +90,6 @@ const SheetMusic = ({ initMusic, setRunAndDispatch, sheetMusicIndex }: SheetMusi
 							<EndBarLine />
 						</div>
 					)}
-					<button onClick={run}>run</button>
 				</div>
 			</div>
 		</SheetMusicContext.Provider>

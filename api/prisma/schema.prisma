@@ -72,7 +72,7 @@ model Question {
 
 model Alternative {
   id           Int      @id @default(autoincrement())
-  content      String   @db.VarChar(45)
+  content      String   @db.Text
   is_correct   Boolean
   questionsId  Int
   question     Question @relation(fields: [questionsId], references: [id])

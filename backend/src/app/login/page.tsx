@@ -64,17 +64,6 @@ export default function LoginPage() {
             required
           />
 
-          <label className="checkbox-label">
-            <input
-              id="remember"
-              name="remember"
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-            />
-            Lembrar do Login
-          </label>
-
           <input
             type="submit"
             value={loading ? 'Entrando...' : 'Entrar'}

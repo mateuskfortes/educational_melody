@@ -4,10 +4,6 @@ import Link from 'next/link';
 import '@/styles/header.css';
 import { signOut, useSession } from 'next-auth/react';
 
-interface HeaderProps {
-  isLoggedIn: boolean;
-}
-
 export default function Header() {
   const { data: session } = useSession();
   return (

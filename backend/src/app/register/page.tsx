@@ -1,9 +1,11 @@
 'use client';
 
 import '@/styles/auth-form.css';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function RegisterPage() {
+  const router = useRouter()
   const [errorMsg, setErrorMsg] = useState('');
   const [administratorCheckbox] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -39,7 +41,7 @@ export default function RegisterPage() {
       if (!res.ok) {
         setErrorMsg(result.error || 'Erro ao registrar.');
       } else {
-        window.location.href = '/login';
+        router.push('/login')
       }
     } catch (err) {
       console.error(err);
@@ -101,7 +103,7 @@ export default function RegisterPage() {
             Eu concordo com os <a href="#">Termos de Uso</a>
           </div>
 
-          <input type="submit" value={loading ? 'Cadastrando...' : 'Sign Up'} />
+          <input type="submit" value={loading ? 'Cadastrando...' : 'Cadastrar'} />
         </form>
 
         <div className="separator">OU</div>

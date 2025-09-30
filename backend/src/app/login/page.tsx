@@ -4,6 +4,7 @@ import '@/styles/auth-form.css';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import GoogleSigninButton from '@/components/auth/GoogleSignInButton';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,7 +12,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [remember, setRemember] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -69,6 +69,10 @@ export default function LoginPage() {
             value={loading ? 'Entrando...' : 'Entrar'}
           />
         </form>
+
+        <div className="separator">OU</div>
+
+        <GoogleSigninButton />
 
         <div className="separator">OU</div>
 

@@ -1,5 +1,6 @@
 'use client';
 
+import GoogleSigninButton from '@/components/auth/GoogleSignInButton';
 import '@/styles/auth-form.css';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -105,6 +106,10 @@ export default function RegisterPage() {
 
           <input type="submit" value={loading ? 'Cadastrando...' : 'Cadastrar'} />
         </form>
+
+        <div className="separator">OU</div>
+
+        <GoogleSigninButton />
 
         <div className="separator">OU</div>
 

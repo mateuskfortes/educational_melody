@@ -2,12 +2,14 @@
 
 import Link from 'next/link';
 import '@/styles/header.css';
+import { useSession } from 'next-auth/react';
 
 interface HeaderProps {
   isLoggedIn: boolean;
 }
 
-export default function Header({ isLoggedIn }: HeaderProps) {
+export default function Header() {
+  const { data: session } = useSession();
   return (
     <>
       <link rel="stylesheet" href="/css/header.css" />
@@ -17,14 +19,14 @@ export default function Header({ isLoggedIn }: HeaderProps) {
         <nav className="nav">
           <ul>
             <li>
-              {!isLoggedIn && (
+              {!session && (
                 <Link href="/register" className="nav-link active">Cadastro</Link>
               )}
             </li>
             <li><a href="#">Tutorial</a></li>
             <li><a href="#">Quem somos</a></li>
             <li>
-              {isLoggedIn ? (
+              {session ? (
                 <form action="/logout" method="POST">
                   <button type="submit" className="login-button">Logout</button>
                 </form>

@@ -55,4 +55,6 @@ body {
 	background-color: #f15c4b;
 	color: white;
 	font-weight: 600;
+	cursor: pointer;
+	border: none;
 }

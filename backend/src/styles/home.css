@@ -74,7 +74,10 @@ body {
     width: 300px;
     max-width: 90%;
     margin: 2rem auto 0;
-    display: block;
+    position: relative;
+    display: flex;
+    width: 50vw;
+    height: 25vw;
 }
 
 /* FEATURES */

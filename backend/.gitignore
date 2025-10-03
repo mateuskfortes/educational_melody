@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+/cypress/e2e/1-getting-started
+/cypress/e2e/2-advanced-examples
+/cypress/fixtures/example.json

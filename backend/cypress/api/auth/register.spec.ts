@@ -1,18 +1,18 @@
 /// <reference types="cypress" />
 
-describe('Registro - API', () => {
+describe('Register - API', () => {
   function uniqueEmail() {
     return `test+${Date.now()}@example.com`;
   }
 
-  it('Deve registrar um usuário com sucesso (200/201)', () => {
+  it('Should register a user successfully (200/201)', () => {
     const payload = {
-      username: 'Teste Cypress',
+      username: 'Cypress Test',
       email: uniqueEmail(),
-      password: 'SenhaForte123!'
+      password: 'StrongPass123!'
     };
 
-    // usar comando customizado que resolve baseUrl corretamente
+    // use custom command that resolves baseUrl correctly
     cy.registerApi(payload).then((res) => {
       expect(res.status).to.be.oneOf([200, 201]);
       expect(res.body).to.have.property('user');
@@ -21,32 +21,31 @@ describe('Registro - API', () => {
     });
   });
 
-  it('Deve retornar erro de validação quando faltar campos (400/422)', () => {
+  it('Should return validation error when required fields are missing (400/422)', () => {
     const payload = {
-      // name faltando
+      // username missing
       email: uniqueEmail(),
-      // password faltando
+      // password missing
     };
 
     cy.registerApi(payload).then((res) => {
-      // registerApi usa failOnStatusCode: false, então checamos status esperado de erro
+      // registerApi uses failOnStatusCode: false, so we check for expected error status
       expect(res.status).to.be.oneOf([400, 422]);
-      // opcional: validar formato do erro em res.body
+      // optional: validate error format in res.body
     });
   });
 
-  it('Deve impedir registro com email duplicado', () => {
+  it('Should prevent registration with duplicate email', () => {
     const email = uniqueEmail();
-    const payload = { username: 'Dup Test', email, password: 'SenhaForte123!' };
+    const payload = { username: 'Dup Test', email, password: 'StrongPass123!' };
 
-    // primeiro registro deve passar
+    // first registration should pass
     cy.registerApi(payload).then((res) => {
-      console.log('\n------------\n', res);
       expect(res.status).to.be.oneOf([200, 201]);
     });
 
 
-    // segundo registro com mesmo email deve falhar (400/409/422)
+    // second registration with the same email should fail (400/409/422)
     cy.registerApi(payload).then((res) => {
       expect(res.status).to.be.oneOf([400, 409, 422]);
     });

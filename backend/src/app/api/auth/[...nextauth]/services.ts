@@ -1,8 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import { JWT } from "next-auth/jwt";
 import crypto from 'crypto';
-
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma";
 
 export async function getRefreshTokenByAccountId(provider: string, providerAccountId: string) {
   try {
@@ -11,8 +9,21 @@ export async function getRefreshTokenByAccountId(provider: string, providerAccou
     })
     return account?.refresh_token ?? undefined
   } catch (error) {
-    console.log(error)
     throw error
+  }
+}
+
+async function updateAccountTokens(provider: string, providerAccountId: string, accessToken: string, expiresAt: number) {
+  try {
+    await prisma.account.update({
+      where: { provider_providerAccountId: { provider, providerAccountId } },
+      data: {
+        access_token: accessToken,
+        expires_at: expiresAt,
+      },
+    });
+  } catch (error) {
+    throw error;
   }
 }
 
@@ -24,7 +35,7 @@ async function refreshGoogleAccessToken(token: JWT) {
       client_id: process.env.GOOGLE_CLIENT_ID ?? '',
       client_secret: process.env.GOOGLE_CLIENT_SECRET ?? '',
       grant_type: "refresh_token",
-      refresh_token: token.refreshToken ?? refreshToken ?? '',
+      refresh_token: refreshToken ?? '',
     });
 
   const response = await fetch(url, {
@@ -36,9 +47,14 @@ async function refreshGoogleAccessToken(token: JWT) {
 
   const refreshedTokens = await response.json();
 
-  if (!response.ok) {
-    throw refreshedTokens;
-  }
+  if (!response.ok) throw refreshedTokens;
+
+  await updateAccountTokens(
+    'google',
+    token.id,
+    refreshedTokens.access_token,
+    Date.now() + refreshedTokens.expires_in * 1000
+  )
 
   return {
     ...token,
@@ -49,25 +65,20 @@ async function refreshGoogleAccessToken(token: JWT) {
 
 async function refreshCredentialsAccessToken(token: JWT) {
   // Busca o refresh token no banco
-  const account = await prisma.account.findUnique({
-    where: { provider_providerAccountId: { provider: "credentials", providerAccountId: token.id } }
-  });
+  const refreshToken = await getRefreshTokenByAccountId('credentials', token.id)
 
-  if (!account?.refresh_token) {
-    throw new Error("No refresh token found in the database");
-  }
+  if (!refreshToken) throw 'No refresh token found'
 
   // Gere novo access token e atualize no banco
   const newAccessToken = crypto.randomUUID();
-  const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60; // 1 hora em segundos
+  const expiresAt = Math.floor(Date.now() / 1000) + parseInt(process.env.CREDENTIALS_ACCESS_TOKEN_MAX_AGE ?? '3600');
 
-  await prisma.account.update({
-    where: { provider_providerAccountId: { provider: "credentials", providerAccountId: token.id } },
-    data: {
-      access_token: newAccessToken,
-      expires_at: expiresAt,
-    },
-  });
+  await updateAccountTokens(
+    'credentials',
+    token.id,
+    newAccessToken,
+    expiresAt * 1000
+  )
 
   return {
     ...token,
@@ -91,7 +102,7 @@ export async function refreshAccessToken(token: JWT) {
     }
     throw 'Provider not supported'
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     return {
       ...token,

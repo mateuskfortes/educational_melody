@@ -1,18 +1,16 @@
-import NextAuth, { Awaitable, NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaClient } from "@prisma/client";
 import argon2 from "argon2";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import GoogleProvider from "next-auth/providers/google";
-import { getRefreshTokenByAccountId, refreshAccessToken } from "./services";
+import { refreshAccessToken } from "./services";
 import crypto from "crypto";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   jwt: {
-    maxAge: 5 * 60, // 5 minutes
+    maxAge: parseInt(process.env.JWT_MAX_AGE || '300'),
   },
   session: {
     strategy: "jwt",
@@ -52,10 +50,9 @@ export const authOptions: NextAuthOptions = {
         const valid = await argon2.verify(user.password, credentials.password);
         if (!valid) return null;
 
-        // Gere tokens fictícios e tempo de expiração (exemplo: 1 hora)
         const refreshToken = crypto.randomUUID();
         const accessToken = crypto.randomUUID();
-        const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60; // 1 hora em segundos
+        const expiresAt = Math.floor(Date.now() / 1000) + parseInt(process.env.CREDENTIALS_ACCESS_TOKEN_MAX_AGE ?? '3600');
 
         await prisma.account.upsert({
           where: {
@@ -95,37 +92,21 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     // https://next-auth.js.org/configuration/callbacks#jwt-callback
     // Create token
-    async jwt({ token, user, account, profile }) {
-      // console.log('toke', JSON.stringify(token, null, 2))
-      // console.log('use', JSON.stringify(user, null, 2))
-      // console.log('profi', JSON.stringify(profile, null, 2))
-      // console.log('acontiha', JSON.stringify(account, null, 2))
-      // console.log('\nvai passa \n')
+    async jwt({ token, user, account }) {
+
       if (account && user) {
         token.id = user.id;
         token.role = user.role;
         token.accessToken = account.access_token;
         token.expires_at = (account.expires_at ?? user.expires_at ?? 0) * 1000;
-        token.refreshToken = account.refresh_token ?? await getRefreshTokenByAccountId(account.provider, profile?.sub ?? '');
         token.provider = account.provider
         return token;
       }
 
-      // console.log('\n passou do if\n')
+      if (Date.now() < token.expires_at) {
+        return token
+      }
 
-      // console.log('tempo', new Date(token.expires_at))
-
-      // console.log('denhro do jwt', Date.now() < token.expires_at, token.expires_at)
-      // console.log('denhro do jwt', Date.now() < token.expires_at, Date.now())
-
-      // // Return previous token if the access token has not expired yet
-      // console.log('o date la', Date.now() < token.expires_at)
-      // if (Date.now() < token.expires_at) {
-      //   return token
-      // }
-
-      // Access token has expired, try to update it
-      // console.log('\n\n-------------\n\n', restore)
       return refreshAccessToken(token)
     },
 

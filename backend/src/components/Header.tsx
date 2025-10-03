@@ -3,9 +3,13 @@
 import Link from 'next/link';
 import '@/styles/header.css';
 import { signOut, useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 
 export default function Header() {
   const { data: session } = useSession();
+  useEffect(() => {
+    if (session?.error) signOut({callbackUrl: '/login'})
+  })
   return (
     <>
       <header className="header">

@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth, { Awaitable, NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
 import argon2 from "argon2";
@@ -17,11 +17,23 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  pages: {
+    signIn: '/login'
+  },
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+      /*
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
+      */
     }),
     CredentialsProvider({
       name: "credentials",
@@ -119,11 +131,12 @@ export const authOptions: NextAuthOptions = {
 
     // Send data in the token to the frontend
     async session({ session, token }) {
-      if (token) {
+      if (token && !token.error) {
         session.user.id = token.id
         session.user.accessToken = token.accessToken
         session.user.role = token.role
       }
+      session.error = token.error
       return session;
     },
   },

@@ -8,6 +8,7 @@ declare module "next-auth" {
       role?: string;
       accessToken?: string
     } & DefaultSession["user"];
+    error?: string
   }
 
   interface User {
@@ -24,6 +25,7 @@ declare module "next-auth/jwt" {
     role?: string;
     accessToken?: string
     refreshToken?: string
-    expires_at: number
+    expires_at: number,
+    error?: string
   }
 }

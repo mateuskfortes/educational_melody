@@ -48,14 +48,13 @@ async function refreshGoogleAccessToken(token: JWT) {
 }
 
 async function refreshCredentialsAccessToken(token: JWT) {
-  console.log('Refreshing credentials access token...');
   // Busca o refresh token no banco
   const account = await prisma.account.findUnique({
     where: { provider_providerAccountId: { provider: "credentials", providerAccountId: token.id } }
   });
 
   if (!account?.refresh_token) {
-    throw new Error("No refresh token found");
+    throw new Error("No refresh token found in the database");
   }
 
   // Gere novo access token e atualize no banco

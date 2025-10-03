@@ -14,6 +14,7 @@ declare module "next-auth" {
     id: string;
     role?: string;
     accessToken?: string
+    expires_at?: number
   }
 }
 
@@ -22,5 +23,7 @@ declare module "next-auth/jwt" {
     id: string;
     role?: string;
     accessToken?: string
+    refreshToken?: string
+    expires_at: number
   }
 }

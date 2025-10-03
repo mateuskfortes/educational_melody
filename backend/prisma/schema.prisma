@@ -59,16 +59,6 @@ model Account {
   @@map("accounts")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id")
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
 enum Role {
   USER
   ADMIN
@@ -83,7 +73,6 @@ model User {
   role          Role      @default(USER) 
   image         String?
   accounts      Account[]
-  sessions      Session[]
   userQuestions UserQuestion[]
   userMaterials UserMaterial[]
   presets       Preset[]

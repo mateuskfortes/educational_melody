@@ -10,7 +10,7 @@ export default function Header() {
     <>
       <header className="header">
         <Link href="/" className="logo">Melodia Educacional</Link>
-
+        {JSON.stringify(session, null, 2)}
         <nav className="nav">
           <ul>
             <li>

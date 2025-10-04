@@ -5,8 +5,8 @@ describe('Login - API', () => {
     return `test+${Date.now()}@example.com`;
   }
 
-  // Clean DB before each test
   beforeEach(() => {
+    cy.clearAllCookies();
     cy.task('db:clean');
   });
 
@@ -19,30 +19,9 @@ describe('Login - API', () => {
     };
 
     // create user + account directly via task (ensures account record exists)
-    cy.task('db:createUser', payload).then((user) => {
-      expect(user).to.have.property('email', payload.email);
-
-      // Get CSRF token required by NextAuth
-      cy.request('/api/auth/csrf').then((csrfRes) => {
-        const csrfToken = csrfRes.body?.csrfToken;
-        expect(csrfToken).to.be.a('string');
-
-        // Post credentials to NextAuth callback endpoint (form encoded)
-        cy.request({
-          method: 'POST',
-          url: '/api/auth/callback/credentials',
-          form: true,
-          body: {
-            csrfToken,
-            email: payload.email,
-            password
-          },
-        }).then((loginRes) => {
-          // Capture cookies from headers.
-          expect(loginRes.status).to.be.equal(200);
-
-          cy.getCookie('next-auth.session-token').should('exist');
-        });
+    cy.task('db:createUser', payload).then(() => {
+      cy.loginApi(payload).then(() => {
+        cy.getCookie('next-auth.session-token').should('exist');
       });
     });
   });
@@ -55,32 +34,9 @@ describe('Login - API', () => {
       password
     };
 
-    cy.task('db:createUser', payload).then((user) => {
-      expect(user).to.have.property('email', payload.email);
-
-
-      // Get CSRF token required by NextAuth
-      cy.request('/api/auth/csrf').then((csrfRes) => {
-        const csrfToken = csrfRes.body?.csrfToken;
-        expect(csrfToken).to.be.a('string');
-
-        // Attempt login with wrong password
-        cy.request({
-          method: 'POST',
-          url: '/api/auth/callback/credentials',
-          form: true,
-          body: {
-            csrfToken,
-            email: payload.email,
-            password: payload.password + 'x'
-          },
-        }).then((loginRes) => {
-
-          // On failure NextAuth often redirects to an error URL (302).
-          expect(loginRes.status).to.be.equal(200);
-
-          cy.getCookie('next-auth.session-token').should('not.exist');
-        });
+    cy.task('db:createUser', payload).then(() => {
+      cy.loginApi({ ...payload, password: 'wrong' }).then(() => {
+        cy.getCookie('next-auth.session-token').should('not.exist');
       });
     });
   });

@@ -38,6 +38,13 @@ declare global {
   }
 
   /**
+   * Payload for credentials-based auth
+   */  interface LoginApiPayload {
+    email: string;
+    password: string;
+  }
+
+  /**
    * Reusable user payload for tasks that create a user record.
    * All fields are required for creating a user record in tests.
    */
@@ -54,6 +61,12 @@ declare global {
        * Example: cy.registerApi({ username, email, password })
        */
       registerApi(payload: RegisterApiPayload): Cypress.Chainable<Cypress.Response<any>>;
+
+      /**
+       * Login via NextAuth credentials provider endpoint.
+       * Example: cy.loginApi(email, password)
+       */
+      loginApi(payload: LoginApiPayload): Cypress.Chainable<any>;
 
       // UI helper commands
       fillEmail(email: string): Cypress.Chainable<JQuery<HTMLElement>>;
@@ -78,6 +91,23 @@ Cypress.Commands.add('registerApi', (payload: RegisterApiPayload) => {
     body: payload,
     headers: { 'Content-Type': 'application/json' },
     failOnStatusCode: false
+  });
+});
+
+Cypress.Commands.add('loginApi', (payload: LoginApiPayload) => {
+  return cy.request('/api/auth/csrf').then((csrfRes) => {
+    const csrfToken = csrfRes.body?.csrfToken;
+
+    return cy.request({
+      method: 'POST',
+      url: '/api/auth/callback/credentials',
+      form: true,
+      body: {
+        csrfToken,
+        email: payload.email,
+        password: payload.password
+      },
+    })
   });
 });
 

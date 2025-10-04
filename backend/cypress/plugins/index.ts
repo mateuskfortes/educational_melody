@@ -29,23 +29,6 @@ export default function tasks(on: any, config: any) {
         name: user.name,
       };
     },
-
-    // Clean and then seed a user (convenience) — creates only the user
-    async 'db:resetAndSeed'(payload: { username: string; email: string; password: string }) {
-      await prisma.account.deleteMany();
-      await prisma.user.deleteMany();
-
-      const hashed = await argon2.hash(payload.password);
-      const user = await prisma.user.create({
-        data: {
-          name: payload.username,
-          email: payload.email,
-          password: hashed,
-        },
-      });
-
-      return { id: user.id, email: user.email, name: user.name };
-    },
   });
 
   return config;

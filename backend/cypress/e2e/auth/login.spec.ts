@@ -6,6 +6,7 @@ describe('Login - UI', () => {
   }
 
   beforeEach(() => {
+    cy.clearAllCookies();
     cy.task('db:clean');
   });
 

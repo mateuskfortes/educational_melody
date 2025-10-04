@@ -6,6 +6,6 @@ export default async function RegisterPage() {
   const session = await getServerSession(authOptions);
 
   return (
-    <RegisterForm administratorCheckbox={session?.user?.role !== 'ADMIN'} />
+    <RegisterForm administratorCheckbox={session?.user?.role === 'ADMIN'} />
   );
 }

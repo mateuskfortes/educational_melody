@@ -11,14 +11,20 @@ export default function tasks(on: any, config: any) {
     },
 
     // Create a user only (do NOT create an account)
-    async 'db:createUser'(payload: { username: string; email: string; password: string }) {
-      const { username, email, password } = payload;
-      const hashed = await argon2.hash(password);
+    async 'db:createUser'(payload: {
+      username?: string;
+      email?: string;
+      password?: string;
+      isAdministrator?: boolean
+    }) {
+      const { username, email, password, isAdministrator } = payload;
+      const hashed = await argon2.hash(password || '');
       const user = await prisma.user.create({
         data: {
           name: username,
           email,
           password: hashed,
+          role: isAdministrator ? 'ADMIN' : 'USER',
         },
       });
 

@@ -21,12 +21,14 @@ export default function Home() {
           <a href="#" className="btn red">Iniciar</a>
           <a href="register" className="btn outline">Cadastrar-se</a>
         </div>
-        <div className="hero-image">
+        <div className="hero-image-container">
           <Image
-            objectFit="contain"
             src="/images/hero.png"
             alt="Ilustração músico"
+            className="hero-image"
             fill
+            sizes="(max-width: 768px) 100vw, 800px"
+            priority
           />
         </div>
       </div>

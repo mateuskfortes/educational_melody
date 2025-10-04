@@ -70,7 +70,7 @@ body {
     color: #ef6257;
 }
 
-.hero-image {
+.hero-image-container {
     width: 300px;
     max-width: 90%;
     margin: 2rem auto 0;
@@ -78,6 +78,10 @@ body {
     display: flex;
     width: 50vw;
     height: 25vw;
+}
+
+.hero-image-container .hero-image {
+    object-fit: contain;
 }
 
 /* FEATURES */

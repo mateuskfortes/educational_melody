@@ -88,12 +88,6 @@ declare global {
       loginApi(payload: LoginApiPayload): Cypress.Chainable<any>;
 
       /**
-       * Create a user via a Node task and then visit the login page.
-       * Example: cy.createUserAndVisitLogin({ username, email, password })
-       */
-      createUserAndVisitLogin(payload: CreateUserPayload): Cypress.Chainable<any>;
-
-      /**
        * Submit the registration form in the UI.
        * Example: cy.submitRegisterForm({ username, email, password })
        */

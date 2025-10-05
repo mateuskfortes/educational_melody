@@ -39,9 +39,28 @@ declare global {
 
   /**
    * Payload for credentials-based auth
-   */  interface LoginApiPayload {
+   */
+  interface LoginApiPayload {
     email: string;
     password: string;
+  }
+
+  /**
+   * Payload for submitting the login form
+   */
+  interface SubmitLoginForm {
+    email: string;
+    password: string;
+  }
+
+  /**
+   * Payload for submitting the registration form
+   */
+  interface SubmitRegisterForm {
+    username?: string
+    email?: string
+    password?: string
+    is_administrator?: boolean
   }
 
   /**
@@ -68,16 +87,23 @@ declare global {
        */
       loginApi(payload: LoginApiPayload): Cypress.Chainable<any>;
 
-      // UI helper commands
-      fillEmail(email: string): Cypress.Chainable<JQuery<HTMLElement>>;
-      fillPassword(password: string): Cypress.Chainable<JQuery<HTMLElement>>;
-      submitLogin(): Cypress.Chainable<JQuery<HTMLElement>>;
-
       /**
        * Create a user via a Node task and then visit the login page.
        * Example: cy.createUserAndVisitLogin({ username, email, password })
        */
       createUserAndVisitLogin(payload: CreateUserPayload): Cypress.Chainable<any>;
+
+      /**
+       * Submit the registration form in the UI.
+       * Example: cy.submitRegisterForm({ username, email, password })
+       */
+      submitRegisterForm(payload: SubmitRegisterForm): Cypress.Chainable<any>;
+
+      /**
+       * Submit the login form in the UI.
+       * Example: cy.submitLoginForm({ email, password })
+       */
+      submitLoginForm(payload: SubmitLoginForm): Cypress.Chainable<any>;
     }
   }
 }
@@ -111,24 +137,21 @@ Cypress.Commands.add('loginApi', (payload: LoginApiPayload) => {
   });
 });
 
-Cypress.Commands.add('fillEmail', (email: string) => {
-  return cy.get('#email').clear().type(email);
-});
+Cypress.Commands.add('submitRegisterForm', (payload: SubmitRegisterForm) => {
+  if (payload.username) cy.get('#username').clear().type(payload.username);
+  if (payload.email) cy.get('#email').clear().type(payload.email);
+  if (payload.password) cy.get('#password').clear().type(payload.password);
+  cy.get('input[name="terms_of_service"]').check();
+  if (payload.is_administrator) {
+    cy.get('input[name="is_administrator"]').check();
+  }
+  return cy.get('form').submit();
+})
 
-Cypress.Commands.add('fillPassword', (password: string) => {
-  return cy.get('#password').clear().type(password);
-});
-
-Cypress.Commands.add('submitLogin', () => {
-  // clicks the input[type="submit"] used in the form
-  return cy.get('input[type="submit"]').click();
-});
-
-// Optional helper: creates a user via task and visits the login page
-Cypress.Commands.add('createUserAndVisitLogin', (payload: CreateUserPayload) => {
-  return cy.task('db:createUser', payload).then(() => {
-    cy.visit('/login');
-  });
-});
+Cypress.Commands.add('submitLoginForm', (payload: SubmitLoginForm) => {
+  if (payload.email) cy.get('#email').clear().type(payload.email);
+  if (payload.password) cy.get('#password').clear().type(payload.password);
+  return cy.get('form').submit();
+})
 
 export { };

@@ -18,11 +18,10 @@ describe('Login - UI', () => {
       password
     };
 
-    cy.createUserAndVisitLogin(payload);
+    cy.task('db:createUser', payload)
+    cy.visit('/login')
 
-    cy.fillEmail(payload.email);
-    cy.fillPassword(password);
-    cy.submitLogin();
+    cy.submitLoginForm({ email: payload.email, password: payload.password });
 
     // verify it redirected to the home page (adjust if your baseUrl/destination differs)
     cy.location('pathname').should('eq', '/');
@@ -37,18 +36,15 @@ describe('Login - UI', () => {
       password
     };
 
-    cy.task('db:createUser', payload).then(() => {
-      cy.visit('/login');
+    cy.task('db:createUser', payload)
+    cy.visit('/login');
 
-      cy.fillEmail(payload.email);
-      cy.fillPassword(password + 'x'); // wrong password
-      cy.submitLogin();
+    cy.submitLoginForm({ email: payload.email, password: 'wrong' });
 
-      // the page displays the message defined in page.tsx
-      // accept either the existing Portuguese text or an English translation
-      cy.get('.error').invoke('text').then((txt) => {
-        expect(txt).to.match(/E-mail ou senha incorretos|Incorrect email or password/);
-      });
+    // the page displays the message defined in page.tsx
+    // accept either the existing Portuguese text or an English translation
+    cy.get('.error').invoke('text').then((txt) => {
+      expect(txt).to.match(/E-mail ou senha incorretos|Incorrect email or password/);
     });
   });
 });

@@ -63,16 +63,6 @@ declare global {
     is_administrator?: boolean
   }
 
-  /**
-   * Reusable user payload for tasks that create a user record.
-   * All fields are required for creating a user record in tests.
-   */
-  interface CreateUserPayload {
-    username: string;
-    email: string;
-    password: string;
-  }
-
   namespace Cypress {
     interface Chainable {
       /**

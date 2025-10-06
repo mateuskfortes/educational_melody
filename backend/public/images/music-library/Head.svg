@@ -1,0 +1,18 @@
+<svg width="40" height="35" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <title>background</title>
+  <rect x="-1" y="-1" width="42" height="37" id="canvas_background" fill="none"/>
+ </g>
+
+ <g>
+  <title>Layer 1</title>
+  <g id="svg_1">
+   <g id="svg_2">
+    <g transform="matrix(1.281114,0,0,1.326683,-15.974798,-3.74288) " id="svg_3">
+     <path d="m42.02438,9.50495c-0.08244,8.762 -4.09152,14.51251 -12.48752,17.30851c-3.312,1.101 -6.658,1.607 -10.041,0.281c-4.613,-1.814 -6.488,-5.979 -4.783,-10.647c1.208,-3.308 3.565,-5.722 6.321,-7.752c4.238,-3.121 8.902,-4.817 14.262,-3.896c1.103,0.188 3.36107,0.84242 4.32607,1.43442" clip-rule="evenodd" fill-rule="evenodd" id="svg_4"/>
+     <path d="m39.62193,6.23387c1.35387,0.76659 2.41039,1.62586 2.40245,3.27107" clip-rule="evenodd" fill-rule="evenodd" id="svg_5"/>
+    </g>
+   </g>
+  </g>
+ </g>
+</svg>

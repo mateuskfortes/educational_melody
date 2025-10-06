@@ -61,7 +61,7 @@ export default function Home() {
             <h3>Criação Musical:</h3>
             <p>Use nossas ferramentas para compor e criar suas próprias músicas de forma simples e intuitiva.</p>
           </div>
-          <a href="/sheet-music"><span className="arrow">↗</span></a>
+          <a href="/music-library"><span className="arrow">↗</span></a>
         </div>
 
       </section>

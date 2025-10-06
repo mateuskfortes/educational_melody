@@ -18,8 +18,8 @@ export default function RootLayout({
       <body>
         <NextAuthSessionProvider>
           <Header />
+          {children}
         </NextAuthSessionProvider>
-        {children}
       </body>
     </html>
   );

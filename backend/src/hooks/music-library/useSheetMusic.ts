@@ -1,4 +1,4 @@
-import { useReducer } from "react"
+import { useReducer, useRef } from "react"
 import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload, TieNotePayload } from "@/types/music-library/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
@@ -248,27 +248,10 @@ export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction)
 
 const useSheetMusic = (initialState: MusicTemplate) => {
   const [music, dispatch] = useReducer(sheetMusicReducer, initialState)
-
-  let loaded = false
-  let running = false
-
-  const sampler: Sampler = new Tone.Sampler({
-    urls: {
-      C4: "C4.mp3",
-      "D#4": "Ds4.mp3",
-      "F#4": "Fs4.mp3",
-      A4: "A4.mp3",
-    },
-    release: 1,
-    baseUrl: "https://tonejs.github.io/audio/salamander/",
-  }).toDestination();
+  const samplerRef = useRef<Sampler | null>(null)
 
   async function run() {
-    if (!loaded) return
-
-    if (running) return
-    running = true
-
+    if (!samplerRef.current) return
     /**
      * Calculates the total extra beat duration contributed 
      * by all tied notes starting from the given note.
@@ -325,7 +308,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
           if (note.isTied) {
             extraTiedDuration = increaseBeatDuration(measureIndex, NoteIndex)
           }
-          playingNotes.addToPlay(note, sampler, now, beat, extraTiedDuration)
+          playingNotes.addToPlay(note, samplerRef.current!, now, beat, extraTiedDuration)
         }
 
         else if (note instanceof Chord) {
@@ -334,7 +317,7 @@ const useSheetMusic = (initialState: MusicTemplate) => {
             if (n.isTied) {
               extraTiedDuration = increaseBeatDuration(measureIndex, NoteIndex)
             }
-            playingNotes.addToPlay(n, sampler, now, beat, extraTiedDuration)
+            playingNotes.addToPlay(n, samplerRef.current!, now, beat, extraTiedDuration)
           })
         }
 
@@ -343,11 +326,21 @@ const useSheetMusic = (initialState: MusicTemplate) => {
     })
 
     await new Promise(resolve => setTimeout(resolve, (now - Tone.now()) * 1000));
-    running = false
   }
 
   Tone.loaded().then(() => {
-    loaded = true
+    if (typeof window === "undefined") return;
+    const sampler: Sampler = new Tone.Sampler({
+      urls: {
+        C4: "C4.mp3",
+        "D#4": "Ds4.mp3",
+        "F#4": "Fs4.mp3",
+        A4: "A4.mp3",
+      },
+      release: 1,
+      baseUrl: "https://tonejs.github.io/audio/salamander/",
+    }).toDestination();
+    samplerRef.current = sampler
   });
 
 

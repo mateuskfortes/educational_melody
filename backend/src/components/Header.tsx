@@ -8,13 +8,12 @@ import { useEffect } from 'react';
 export default function Header() {
   const { data: session } = useSession();
   useEffect(() => {
-    if (session?.error) signOut({callbackUrl: '/login'})
+    if (session?.error) signOut({ callbackUrl: '/login' })
   })
   return (
     <>
       <header className="header">
         <Link href="/" className="logo">Melodia Educacional</Link>
-        {JSON.stringify(session, null, 2)}
         <nav className="nav">
           <ul>
             <li>

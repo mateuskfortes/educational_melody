@@ -1,5 +1,5 @@
-import { Chord, NoteBase, notesConstructors, RestBase, restNotesConstructors } from "@/classes/music-library/notes";
-import { ChordTemplate, MeasureTemplate, NoteConstructorCoreArgsTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, RestTemplate } from "@/types/music-library/sheetMusicTemplates";
+import { Chord, NoteBase, notesConstructors, RestBase, restNotesConstructors } from "../../../classes/music-library/notes";
+import { ChordTemplate, MeasureTemplate, NoteConstructorCoreArgsTemplate, NoteConstructorTemplate, NotesTemplate, NoteTemplate, RestTemplate } from "../../../types/music-library/sheetMusicTemplates";
 
 /**
  * Retrieves the note that comes immediately before the given note position.

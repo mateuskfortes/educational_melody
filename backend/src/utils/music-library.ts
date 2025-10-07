@@ -1,5 +1,5 @@
-import { Chord, Eighth, Half, NoteBase, Quarter, Sixteenth, Thirtysecond, Whole } from "@/classes/music-library/notes";
-import { MeasureTemplate, MusicTemplate, NotesTemplate, NoteTemplate, CleanNoteType, NoteConstructorTemplate } from "@/types/music-library/sheetMusicTemplates";
+import { Chord, Eighth, Half, NoteBase, Quarter, Sixteenth, Thirtysecond, Whole } from "../classes/music-library/notes";
+import { MeasureTemplate, MusicTemplate, NotesTemplate, NoteTemplate, CleanNoteType, NoteConstructorTemplate } from "../types/music-library/sheetMusicTemplates";
 
 // List of note names used for vertical positioning calculations.
 // These represent the natural musical notes in ascending order.

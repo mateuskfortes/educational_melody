@@ -1,11 +1,11 @@
 import { useReducer, useRef } from "react"
-import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload, TieNotePayload } from "@/types/music-library/sheetMusicTemplates"
+import { AddNotePayload, ChordTemplate, MeasureTemplate, MusicAction, MusicTemplate, NotesTemplate, NoteTemplate, RemoveNotePayload, TieNotePayload } from "../../types/music-library/sheetMusicTemplates"
 import * as Tone from 'tone'
 import { type Sampler } from "tone"
-import { copySheetMusic, createMeasure, getConstructor, getMeasureDurationByMeter, mergeNotesToList } from "@/utils/music-library";
+import { copySheetMusic, createMeasure, getConstructor, getMeasureDurationByMeter, mergeNotesToList } from "../../utils/music-library";
 import { fillBdWithChords, fillBdWithNotes, getNextNote, getPreviousNote, mergeRestsAcrossMeasures, mergeTiesAcrossMeasures, normalizeMeasuresAcrossSheetMusic } from "./helpers/useSheetMusicFunctions";
-import { Chord, NoteBase, RestBase } from "@/classes/music-library/notes";
-import PlayingNotes from "@/classes/music-library/PlayingNotes";
+import { Chord, NoteBase, RestBase } from "../../classes/music-library/notes";
+import PlayingNotes from "../../classes/music-library/PlayingNotes";
 
 export const sheetMusicReducer = (prevState: MusicTemplate, action: MusicAction) => {
   const measureDuration = getMeasureDurationByMeter(prevState.meter.top, prevState.meter.bottom)

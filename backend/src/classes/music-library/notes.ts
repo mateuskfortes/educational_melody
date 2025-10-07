@@ -1,6 +1,18 @@
 import { Sampler } from "tone";
-import { AccidentalTemplate, ChordConstructorArgsTemplate, ChordTemplate, CleanNoteType, EqualNoteArgsTemplate, NoteConstructorArgsTemplate, NoteConstructorTemplate, NoteTemplate, OctaveType, RestConstructorTemplate, RestTemplate } from "@/types/music-library/sheetMusicTemplates";
-import { getBeatDurationWithDots, getConstructor, getRhythmicName } from "@/utils/music-library";
+import {
+  AccidentalTemplate,
+  ChordConstructorArgsTemplate,
+  ChordTemplate,
+  CleanNoteType,
+  EqualNoteArgsTemplate,
+  NoteConstructorArgsTemplate,
+  NoteConstructorTemplate,
+  NoteTemplate,
+  OctaveType,
+  RestConstructorTemplate,
+  RestTemplate
+} from "../../types/music-library/sheetMusicTemplates";
+import { getBeatDurationWithDots, getConstructor, getRhythmicName } from "../../utils/music-library"
 
 export class NoteBase implements NoteTemplate {
   cleanNote: CleanNoteType;

@@ -1,4 +1,4 @@
-import { sheetMusicReducer } from '../../../src/hooks/music-library/useSheetMusic'
+import { sheetMusicReducer } from '../../../src/app/music-library/_hooks/useSheetMusic'
 import {
   Whole,
   Quarter,
@@ -7,7 +7,7 @@ import {
   HalfRest,
   Chord,
   Eighth
-} from '../../../src/classes/music-library/notes';
+} from '../../../src/app/music-library/_classes/notes';
 import type {
   AddNoteAction,
   ChordTemplate,
@@ -15,8 +15,8 @@ import type {
   NotesTemplate,
   NoteTemplate,
   TieNoteAction
-} from '../../../src/types/music-library/sheetMusicTemplates'
-import { createMeasure } from '../../../src/utils/music-library'
+} from '../../../src/app/music-library/_types/sheetMusicTemplates'
+import { createMeasure } from '../../../src/app/music-library/utils'
 
 const createMusicTemplate = (notesPerMeasure: NotesTemplate[][]): MusicTemplate => ({
   bpm: 100,

@@ -14,13 +14,13 @@ import {
   ThirtysecondRest,
   Whole,
   WholeRest
-} from "../../../src/classes/music-library/notes";
+} from "../../../src/app/music-library/_classes/notes";
 import type {
   AccidentalTemplate,
   CleanNoteType,
   NoteTemplate,
   OctaveType
-} from '../../../src/types/music-library/sheetMusicTemplates';
+} from '../../../src/app/music-library/_types/sheetMusicTemplates';
 import {
   fillBdWithChords,
   fillBdWithNotes,
@@ -34,8 +34,8 @@ import {
   mergeTiesAcrossMeasures,
   normalizeMeasure,
   splitNote
-} from '../../../src/hooks/music-library/helpers/useSheetMusicFunctions';
-import { createMeasure } from "../../../src/utils/music-library";
+} from '../../../src/app/music-library/_hooks/helpers/useSheetMusicFunctions';
+import { createMeasure } from "../../../src/app/music-library/utils";
 
 const cleanNote: CleanNoteType = 'C';
 const octave: OctaveType = 4;

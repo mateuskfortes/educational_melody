@@ -11,7 +11,7 @@ import {
   ThirtysecondRest,
   Whole,
   WholeRest
-} from "../../../src/classes/music-library/notes";
+} from "../../../src/app/music-library/_classes/notes";
 
 describe('Test notes object', () => {
   it('Should create the note with the given params', () => {

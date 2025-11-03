@@ -1,12 +1,12 @@
 "use client"
 
-import SheetMusic from "@/components/music-library/sheet_music/SheetMusic";
+import SheetMusic from "./_components/sheet_music/SheetMusic";
 import '@/styles/music-library.scss';
-import ManageNoteForm from "@/components/music-library/ManageNoteForm";
+import ManageNoteForm from "./_components//ManageNoteForm";
 import { useState } from "react";
-import { MusicManageModeType, MusicTemplate, NotesTemplate, SheetMusicItem } from "@/types/music-library/sheetMusicTemplates";
-import { Chord, Eighth, EighthRest, NoteBase, Quarter } from "@/classes/music-library/notes";
-import SheetMusicLibraryContext from "@/hooks/music-library/useSheetMusicLibraryContext";
+import { MusicManageModeType, MusicTemplate, NotesTemplate, SheetMusicItem } from "./_types/sheetMusicTemplates";
+import { Chord, Eighth, EighthRest, NoteBase, Quarter } from "./_classes/notes";
+import SheetMusicLibraryContext from "./_hooks/useSheetMusicLibraryContext";
 
 const musicDefault: MusicTemplate = {
 	meter: {

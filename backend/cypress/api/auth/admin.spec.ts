@@ -28,7 +28,8 @@ describe('Admin creation rules - API', () => {
 
     // cria admin direto no DB e autentica
     cy.task('db:createUser', admin).then(() => {
-      cy.loginApi({ email: admin.email, password: admin.password }).then(() => {
+      cy.loginApi({ email: admin.email, password: admin.password }).then((req) => {
+        console.log('oi', req)
         cy.registerApi(newAdmin).then((res) => {
           console.log('Admin created:', res.body);
           expect(res.status).to.equal(200);

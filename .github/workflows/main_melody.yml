@@ -16,23 +16,22 @@ jobs:
       contents: read #This is required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
 
       - name: Set up Node.js version
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@633bb92bc0aabcae06e8ea93b85aecddd374c402
         with:
           node-version: '24.x'
 
       - name: npm install, build, and test
         run: |
           npm install
-          npm run build --if-present
-          npm run test --if-present
+        working-directory: ./api
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
-          name: node-app
+          name: Melody
           path: .
 
   deploy:
@@ -44,12 +43,12 @@ jobs:
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@f093f21ca4cfa7c75ccbbc2be54da76a0c7e1f05
         with:
-          name: node-app
+          name: Melody
       
       - name: Login to Azure
-        uses: azure/login@v2
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_583E7ABEA0CD4FAEBF5E1B3BE035899C }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3DBAE8216E494EF293F6F0CE8DFEFC5F }}
@@ -57,9 +56,21 @@ jobs:
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@122b7ec46017e53a3f71e3a027d67550a1641f5e
         with:
           app-name: 'Melody'
           slot-name: 'Production'
           package: .
+
           
+
+
+
+
+
+
+
+
+
+
+

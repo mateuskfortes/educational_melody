@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "../../node_modules/.prisma/client/index";
 import { UserTemplate } from "../types/authTemplate";
 
 const prisma = new PrismaClient();
@@ -8,7 +8,11 @@ export const createUser = async (
   email: string,
   password: string,
   is_administrator: boolean
-): Promise<{ user?: UserTemplate; error_msg?: string, error?: Error | unknown }> => {
+): Promise<{
+  user?: UserTemplate;
+  error_msg?: string;
+  error?: Error | unknown;
+}> => {
   try {
     const user = await prisma.user.create({
       data: {
@@ -21,23 +25,27 @@ export const createUser = async (
     return { user };
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
+      if ((error as any).code === "P2002") {
         // Error code P2002 indicates a unique constraint violation
         return { error_msg: "This email is already in use", error };
       }
-      console.log(error)
+      console.log(error);
       return { error_msg: "Erro inesperado ao criar usuário", error };
     }
     console.error(error);
     // Handle unexpected errors
-    console.log(error)
+    console.log(error);
     return { error_msg: "Erro inesperado ao criar usuário", error };
   }
-}
+};
 
 export const getUserByEmail = async (
   email: string
-): Promise<{ user?: UserTemplate; error_msg?: string; error?: Error | unknown }> => {
+): Promise<{
+  user?: UserTemplate;
+  error_msg?: string;
+  error?: Error | unknown;
+}> => {
   try {
     const user = await prisma.user.findUnique({
       where: { email },
@@ -47,4 +55,4 @@ export const getUserByEmail = async (
     // Handle unexpected errors
     return { error_msg: "Erro inesperado ao buscar usuário", error };
   }
-}
+};

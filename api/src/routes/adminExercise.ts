@@ -1,10 +1,10 @@
-import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { render } from '../utils';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
+import { Request, Response } from "express";
+import { PrismaClient } from "../../node_modules/.prisma/client/index";
+import { render } from "../utils";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 
 const prisma = new PrismaClient();
 const __filename = fileURLToPath(import.meta.url);
@@ -15,29 +15,31 @@ const mainDir = __dirname;
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      const dir = path.join(__dirname, '../../uploads');
+      const dir = path.join(__dirname, "../../uploads");
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
       cb(null, dir);
     },
     filename: (req, file, cb) => {
-      const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
       cb(null, unique + path.extname(file.originalname));
     },
   }),
 });
 
 export const adminListExercises = async (req: Request, res: Response) => {
-  const exercises = await prisma.question.findMany({ include: { image: true } });
-  console.log('Exercícios encontrados:', exercises);
-  render(req, res, 'admin/exercises/list.ejs', { exercises });
+  const exercises = await prisma.question.findMany({
+    include: { image: true },
+  });
+  console.log("Exercícios encontrados:", exercises);
+  render(req, res, "admin/exercises/list.ejs", { exercises });
 };
 
 export const getAdminCreateExercise = (req: Request, res: Response) => {
-  render(req, res, 'admin/exercises/create.ejs', {});
+  render(req, res, "admin/exercises/create.ejs", {});
 };
 
 export const postAdminCreateExercise = [
-  upload.single('image'),
+  upload.single("image"),
   async (req: Request, res: Response) => {
     try {
       const { title, content } = req.body;
@@ -46,13 +48,13 @@ export const postAdminCreateExercise = [
         alternatives = Object.values(alternatives);
       }
       alternatives = alternatives.map((alt: any) =>
-        typeof alt === 'string' ? { content: alt } : alt
+        typeof alt === "string" ? { content: alt } : alt
       );
       const correctIndex = req.body.correct;
 
       if (!content || !alternatives || alternatives.length < 2) {
-        render(req, res, 'admin/exercises/create.ejs', {
-          error_msg: 'Preencha o enunciado e pelo menos duas alternativas.',
+        render(req, res, "admin/exercises/create.ejs", {
+          error_msg: "Preencha o enunciado e pelo menos duas alternativas.",
         });
         return;
       }
@@ -85,13 +87,13 @@ export const postAdminCreateExercise = [
           },
         },
       });
-      console.log('Exercício criado com sucesso!');
+      console.log("Exercício criado com sucesso!");
 
-      res.redirect('/admin/exercises');
+      res.redirect("/admin/exercises");
     } catch (err) {
       console.error(err);
-      render(req, res, 'admin/exercises/create.ejs', {
-        error_msg: 'Erro ao criar exercício.',
+      render(req, res, "admin/exercises/create.ejs", {
+        error_msg: "Erro ao criar exercício.",
       });
     }
   },
@@ -99,33 +101,47 @@ export const postAdminCreateExercise = [
 
 // Editar exercício (GET e POST)
 export const adminEditExercise = [
-  upload.single('image'),
+  upload.single("image"),
   async (req: Request, res: Response) => {
     const id = Number(req.params.id);
-    if (req.method === 'GET') {
+    if (req.method === "GET") {
       const exercise = await prisma.question.findUnique({
         where: { id },
         include: { image: true, alternatives: true },
       });
       if (!exercise) {
-        return res.status(404).send('Exercício não encontrado');
+        return res.status(404).send("Exercício não encontrado");
       }
-      render(req, res, 'admin/exercises/edit.ejs', { exercise, editMode: true });
+      render(req, res, "admin/exercises/edit.ejs", {
+        exercise,
+        editMode: true,
+      });
       return;
     }
     // POST: atualizar exercício
     try {
-      console.log('adminEditExercise POST called', { params: req.params, bodyKeys: Object.keys(req.body || {}) });
+      console.log("adminEditExercise POST called", {
+        params: req.params,
+        bodyKeys: Object.keys(req.body || {}),
+      });
 
       // fallback to body.id if params.id missing
       const idFromParams = Number(req.params.id);
       const idFromBody = Number(req.body?.id);
-      const id = Number.isFinite(idFromParams) && idFromParams > 0 ? idFromParams : (Number.isFinite(idFromBody) ? idFromBody : NaN);
-      console.log('Using id:', id);
+      const id =
+        Number.isFinite(idFromParams) && idFromParams > 0
+          ? idFromParams
+          : Number.isFinite(idFromBody)
+          ? idFromBody
+          : NaN;
+      console.log("Using id:", id);
 
       if (!Number.isFinite(id)) {
-        console.error('Invalid id for update', { params: req.params, body: req.body });
-        return res.status(400).send('Invalid id');
+        console.error("Invalid id for update", {
+          params: req.params,
+          body: req.body,
+        });
+        return res.status(400).send("Invalid id");
       }
 
       const { title, content } = req.body;
@@ -134,7 +150,7 @@ export const adminEditExercise = [
         alternatives = Object.values(alternatives);
       }
       alternatives = alternatives.map((alt: any) =>
-        typeof alt === 'string' ? { content: alt } : alt
+        typeof alt === "string" ? { content: alt } : alt
       );
       const correctIndex = req.body.correct;
 
@@ -143,10 +159,11 @@ export const adminEditExercise = [
           where: { id },
           include: { image: true, alternatives: true },
         });
-        return render(req, res, 'admin/exercises/edit.ejs', {
+        return render(req, res, "admin/exercises/edit.ejs", {
           exercise,
           editMode: true,
-          error_msg: 'Preencha o título, enunciado e pelo menos duas alternativas.',
+          error_msg:
+            "Preencha o título, enunciado e pelo menos duas alternativas.",
         });
       }
 
@@ -165,7 +182,16 @@ export const adminEditExercise = [
       }
 
       // Antes de atualizar:
-      console.log('Updating question', { id, title, content, alternativesCount: (req.body.alternatives ? (Array.isArray(req.body.alternatives) ? req.body.alternatives.length : Object.keys(req.body.alternatives).length) : 0) });
+      console.log("Updating question", {
+        id,
+        title,
+        content,
+        alternativesCount: req.body.alternatives
+          ? Array.isArray(req.body.alternatives)
+            ? req.body.alternatives.length
+            : Object.keys(req.body.alternatives).length
+          : 0,
+      });
 
       // Atualiza questão
       const updated = await prisma.question.update({
@@ -176,7 +202,7 @@ export const adminEditExercise = [
           ...(imageId ? { imageId } : {}),
         },
       });
-      console.log('Question updated result:', updated);
+      console.log("Question updated result:", updated);
 
       // Remove alternativas antigas
       await prisma.alternative.deleteMany({ where: { questionsId: id } });
@@ -190,17 +216,17 @@ export const adminEditExercise = [
         })),
       });
 
-      res.redirect('/admin/exercises');
+      res.redirect("/admin/exercises");
     } catch (err) {
       console.error(err);
       const exercise = await prisma.question.findUnique({
         where: { id },
         include: { image: true, alternatives: true },
       });
-      render(req, res, 'admin/exercises/edit.ejs', {
+      render(req, res, "admin/exercises/edit.ejs", {
         exercise,
         editMode: true,
-        error_msg: 'Erro ao editar exercício.',
+        error_msg: "Erro ao editar exercício.",
       });
     }
   },
@@ -214,9 +240,9 @@ export const adminDeleteExercise = async (req: Request, res: Response) => {
     await prisma.alternative.deleteMany({ where: { questionsId: id } });
     // Remove a questão
     await prisma.question.delete({ where: { id } });
-    res.redirect('/admin/exercises');
+    res.redirect("/admin/exercises");
   } catch (err) {
     console.error(err);
-    res.status(500).send('Erro ao deletar exercício.');
+    res.status(500).send("Erro ao deletar exercício.");
   }
 };

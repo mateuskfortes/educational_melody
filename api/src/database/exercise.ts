@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../../node_modules/.prisma/client/index";
 
 const prisma = new PrismaClient();
 
@@ -21,7 +21,11 @@ export const getQuestionById = async (id: number) => {
   });
 };
 
-export const updateQuestion = async (id: number, content: string, imageId?: number) => {
+export const updateQuestion = async (
+  id: number,
+  content: string,
+  imageId?: number
+) => {
   return await prisma.question.update({
     where: { id },
     data: { content, imageId },

@@ -1,6 +1,6 @@
 import request from "supertest";
-import App from "../app";
-import { Prisma } from "../../node_modules/.prisma/client/index";
+import App from "../app.js";
+import { Prisma } from "../../node_modules/.prisma/client/index.js";
 
 const testUser = {
   username: "test",
@@ -252,13 +252,11 @@ describe("Auth", () => {
   });
   it("should set persistent cookie if remember is on", async () => {
     mockDB.push(testUser);
-    const res = await request(app)
-      .post("/login")
-      .send({
-        email: testUser.email,
-        password: testUser.password,
-        remember: "on",
-      });
+    const res = await request(app).post("/login").send({
+      email: testUser.email,
+      password: testUser.password,
+      remember: "on",
+    });
 
     expect(res.status).toBe(302);
 

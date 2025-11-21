@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { EjsRenderArgsTemplate } from "./types/utilsTemplate";
+import { EjsRenderArgsTemplate } from "./types/utilsTemplate.js";
 
 export const render = (
   req: Request,
@@ -15,7 +15,7 @@ export const render = (
     exercises = undefined,
     exercise = undefined, // adicione esta linha
     lesson = {},
-    lessonList = []
+    lessonList = [],
   }: EjsRenderArgsTemplate = {}
 ) => {
   const is_logged_in = !!req.session?.user;
@@ -31,6 +31,6 @@ export const render = (
     exercises,
     exercise, // adicione esta linha
     lesson,
-    lessonList
+    lessonList,
   });
 };

@@ -1,13 +1,13 @@
-import { Request, Response } from 'express';
-import { render } from '../utils';
+import { Request, Response } from "express";
+import { render } from "../utils.js";
 
 export const postLogout = (req: Request, res: Response) => {
   req.session.destroy((err) => {
     if (err) {
-      console.log(err)
-      return res.status(500).send('');
+      console.log(err);
+      return res.status(500).send("");
     }
-    res.clearCookie('connect.sid'); // Clear the session cookie
-    return render(req, res.status(200), 'index.ejs', {})
+    res.clearCookie("connect.sid"); // Clear the session cookie
+    return render(req, res.status(200), "index.ejs", {});
   });
-}
+};

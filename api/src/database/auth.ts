@@ -1,5 +1,8 @@
-import { Prisma, PrismaClient } from "../../node_modules/.prisma/client/index";
-import { UserTemplate } from "../types/authTemplate";
+import {
+  Prisma,
+  PrismaClient,
+} from "../../node_modules/.prisma/client/index.js";
+import { UserTemplate } from "../types/authTemplate.js";
 
 const prisma = new PrismaClient();
 

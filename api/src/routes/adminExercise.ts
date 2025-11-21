@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "../../node_modules/.prisma/client/index";
-import { render } from "../utils";
+import { PrismaClient } from "../../node_modules/.prisma/client/index.js";
+import { render } from "../utils.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";

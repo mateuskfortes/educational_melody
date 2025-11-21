@@ -43,7 +43,7 @@ jobs:
           name: node-app
       
       - name: Login to Azure
-        uses: azure/login@v2
+        uses: azure/login@bbcc074a232a35d7283353c18aabf0de1d557775
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_583E7ABEA0CD4FAEBF5E1B3BE035899C }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3DBAE8216E494EF293F6F0CE8DFEFC5F }}
@@ -51,13 +51,14 @@ jobs:
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@55cf31b49e675aa17be3df3f6c1c54170f250cc5
         with:
           app-name: 'Melody'
           slot-name: 'Production'
           package: .
 
           
+
 
 
 

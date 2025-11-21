@@ -16,7 +16,7 @@ jobs:
       contents: read #This is required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
 
       - name: Set up Node.js version
         uses: actions/setup-node@v3
@@ -62,4 +62,5 @@ jobs:
           app-name: 'Melody'
           slot-name: 'Production'
           package: .
+
           

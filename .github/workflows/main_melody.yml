@@ -51,13 +51,14 @@ jobs:
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@55cf31b49e675aa17be3df3f6c1c54170f250cc5
+        uses: azure/webapps-deploy@f139758d79a59cc0e7ca06bfcff087598be7df18
         with:
           app-name: 'Melody'
           slot-name: 'Production'
           package: .
 
           
+
 
 
 

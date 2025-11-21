@@ -43,7 +43,7 @@ jobs:
           name: Melody
       
       - name: Login to Azure
-        uses: azure/login@bbcc074a232a35d7283353c18aabf0de1d557775
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_583E7ABEA0CD4FAEBF5E1B3BE035899C }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3DBAE8216E494EF293F6F0CE8DFEFC5F }}
@@ -58,6 +58,7 @@ jobs:
           package: .
 
           
+
 
 
 

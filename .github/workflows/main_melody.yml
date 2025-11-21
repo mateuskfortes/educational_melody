@@ -23,9 +23,8 @@ jobs:
         with:
           node-version: '24.x'
 
-      - name: npm install, build, and test
+      - name: npm build
         run: |
-          npm install
           npm run build
         working-directory: ./api
 
@@ -47,6 +46,10 @@ jobs:
         uses: actions/download-artifact@f093f21ca4cfa7c75ccbbc2be54da76a0c7e1f05
         with:
           name: Melody
+          
+      - name: npm install
+        run: npm install --production
+        working-directory: .
       
       - name: Login to Azure
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
@@ -63,7 +66,9 @@ jobs:
           slot-name: 'Production'
           package: .
 
+
           
+
 
 
 

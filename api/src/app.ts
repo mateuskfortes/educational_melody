@@ -67,7 +67,7 @@ class App {
 
     // Disable postgres session store for testing
     if (postgresStore) {
-      const PgStore = connectPgSimple(sessionC);
+      const PgStore = connectPgSimple(session);
       sessionStore = new PgStore({
         conString:
           process.env.DATABASE_URL ||

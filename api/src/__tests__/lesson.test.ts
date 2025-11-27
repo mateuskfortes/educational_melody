@@ -4,11 +4,11 @@ import { Request } from "express";
 import { title } from "process";
 
 const appWithAdm = new App({
-  mysqlStore: false,
+  postgresStore: false,
   middleware: [mockSessionAdmin],
 }).app;
 
-const app = new App({ mysqlStore: false }).app;
+const app = new App({ postgresStore: false }).app;
 
 const createLesson = jest.fn();
 const findUniqueLesson = jest.fn();

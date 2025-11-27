@@ -1,12 +1,11 @@
 import express, { Express } from "express";
 import { DEFAULT_PORT } from "./config.js";
-import * as sessionC from "express-session";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
 import { getRegister, postRegister } from "./routes/register.js";
 import { getLogin, postLogin } from "./routes/login.js";
 import { postLogout } from "./routes/logout.js";
 import { getHome } from "./routes/home.js";
-import connectPgSimple from "connect-pg-simple";
 import * as exercise from "./routes/exercise.js";
 import * as adminExercise from "./routes/adminExercise.js";
 import { fileURLToPath } from "url";

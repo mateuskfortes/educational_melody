@@ -30,7 +30,7 @@ const requestAdminUser2 = {
   terms_of_service: "on",
 };
 
-const app = new App({ mysqlStore: false }).app;
+const app = new App({ postgresStore: false }).app;
 
 const mockDB: any[] = [];
 

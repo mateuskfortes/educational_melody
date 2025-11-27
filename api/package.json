@@ -23,6 +23,7 @@
     "multer": "^2.0.2"
   },
   "devDependencies": {
+    "@types/connect-pg-simple": "^7.0.3",
     "@types/express": "^5.0.1",
     "@types/express-mysql-session": "^3.0.6",
     "@types/express-session": "^1.18.1",

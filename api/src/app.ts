@@ -6,7 +6,7 @@ import { getRegister, postRegister } from "./routes/register.js";
 import { getLogin, postLogin } from "./routes/login.js";
 import { postLogout } from "./routes/logout.js";
 import { getHome } from "./routes/home.js";
-import connectMySQL from "express-mysql-session";
+import connectPgSimple from "connect-pg-simple";
 import * as exercise from "./routes/exercise.js";
 import * as adminExercise from "./routes/adminExercise.js";
 import { fileURLToPath } from "url";
@@ -31,12 +31,12 @@ class App {
   port: number;
 
   constructor({
-    mysqlStore = true,
+    postgresStore = true,
     warningBypass = false,
     port = DEFAULT_PORT,
     middleware = [],
   }: {
-    mysqlStore?: boolean;
+    postgresStore?: boolean;
     warningBypass?: boolean;
     port?: number;
     middleware?: any[];
@@ -44,11 +44,11 @@ class App {
     this.warningBypass = warningBypass;
     this.port = port;
     this.app = express();
-    this.config(mysqlStore, middleware);
+    this.config(postgresStore, middleware);
     this.routes();
   }
 
-  config(mysqlStore: boolean = false, middleware: any[]) {
+  config(postgresStore: boolean = false, middleware: any[]) {
     this.app.set("view engine", "ejs"); // Set EJS as the view engine to render dynamic templates
     this.app.set("views", "./views"); // Define the directory where the EJS template files are stored
 
@@ -66,22 +66,16 @@ class App {
     // Session
     let sessionStore = undefined;
 
-    // Disable mysql session store for testing
-    if (mysqlStore) {
-      const MySQLStore = connectMySQL(sessionC);
-      const dbOptions = {
-        host: process.env.DB_HOST || "localhost",
-        port: 3306,
-        user: process.env.DB_USER || "prisma_user",
-        password: process.env.DB_PASSWORD || "123456",
-        database: process.env.DB_NAME || "educational_melody",
-        waitForConnections: true,
-        connectionLimit: 10,
-        maxIdle: 10,
-        idleTimeout: 60000,
-        queueLimit: 0,
-      };
-      sessionStore = new MySQLStore(dbOptions);
+    // Disable postgres session store for testing
+    if (postgresStore) {
+      const PgStore = connectPgSimple(sessionC);
+      sessionStore = new PgStore({
+        conString:
+          process.env.DATABASE_URL ||
+          "postgresql://postgres:123456@localhost:5432/educational_melody",
+        tableName: "session",
+        createTableIfMissing: true,
+      });
     }
     this.app.use(
       session({

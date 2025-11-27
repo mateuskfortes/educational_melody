@@ -30,7 +30,7 @@ docker exec -i educational_melody-db-1 mysql -uroot -p123456 educational_melody 
 //insert into user (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 generator client {

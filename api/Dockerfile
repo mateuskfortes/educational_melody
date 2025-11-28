@@ -19,4 +19,4 @@ EXPOSE 3000
 
 USER node
 
-CMD npx prisma db push --accept-data-loss && npx tsx watch src/server.ts
+CMD npx tsx watch src/server.ts

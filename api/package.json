@@ -5,6 +5,7 @@
   "main": "src/server.ts",
   "type": "module",
   "scripts": {
+    "prestart": "prisma migrate deploy",
     "start": "node ./dist/server.js",
     "test": "jest",
     "build": "tsc",

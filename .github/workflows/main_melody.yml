@@ -56,12 +56,6 @@ jobs:
         run: npx prisma generate
         working-directory: .
 
-      - name: prisma migrate deploy
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_CONNECTION_STRING }}
-        working-directory: .
-
       - name: Login to Azure
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
         with:

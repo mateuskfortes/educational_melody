@@ -21,7 +21,7 @@ jobs:
       - name: Set up Node.js version
         uses: actions/setup-node@633bb92bc0aabcae06e8ea93b85aecddd374c402
         with:
-          node-version: '24.x'
+          node-version: "24.x"
 
       - name: npm install and build
         run: |
@@ -47,7 +47,7 @@ jobs:
         uses: actions/download-artifact@f093f21ca4cfa7c75ccbbc2be54da76a0c7e1f05
         with:
           name: Melody
-          
+
       - name: npm install
         run: npm install --production
         working-directory: .
@@ -55,7 +55,11 @@ jobs:
       - name: prisma generate
         run: npx prisma generate
         working-directory: .
-      
+
+      - name: prisma migrate deploy
+        run: npx prisma migrate deploy
+        working-directory: .
+
       - name: Login to Azure
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
         with:
@@ -63,29 +67,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3DBAE8216E494EF293F6F0CE8DFEFC5F }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_0E6D7903B6FF4212BC1E34FE5255CE10 }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: "Deploy to Azure Web App"
         id: deploy-to-webapp
         uses: azure/webapps-deploy@122b7ec46017e53a3f71e3a027d67550a1641f5e
         with:
-          app-name: 'Melody'
-          slot-name: 'Production'
+          app-name: "Melody"
+          slot-name: "Production"
           package: .
-
-
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

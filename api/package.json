@@ -5,7 +5,7 @@
   "main": "src/server.ts",
   "type": "module",
   "scripts": {
-    "prestart": "npx prisma migrate deploy",
+    "prestart": "node node_modules/prisma/build/index.js migrate deploy",
     "start": "node ./dist/server.js",
     "test": "jest",
     "build": "tsc",

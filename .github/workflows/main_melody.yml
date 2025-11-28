@@ -58,6 +58,8 @@ jobs:
 
       - name: prisma migrate deploy
         run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_CONNECTION_STRING }}
         working-directory: .
 
       - name: Login to Azure

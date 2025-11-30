@@ -191,77 +191,20 @@ exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
-};
-
-exports.Prisma.AccountOrderByRelevanceFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  type: 'type',
-  provider: 'provider',
-  providerAccountId: 'providerAccountId',
-  refresh_token: 'refresh_token',
-  access_token: 'access_token',
-  token_type: 'token_type',
-  scope: 'scope',
-  id_token: 'id_token',
-  session_state: 'session_state'
-};
-
-exports.Prisma.UserOrderByRelevanceFieldEnum = {
-  id: 'id',
-  name: 'name',
-  email: 'email',
-  password: 'password',
-  image: 'image'
-};
-
-exports.Prisma.VerificationTokenOrderByRelevanceFieldEnum = {
-  identifier: 'identifier',
-  token: 'token'
-};
-
-exports.Prisma.ImageOrderByRelevanceFieldEnum = {
-  name: 'name'
-};
-
-exports.Prisma.QuestionOrderByRelevanceFieldEnum = {
-  title: 'title',
-  content: 'content'
-};
-
-exports.Prisma.AlternativeOrderByRelevanceFieldEnum = {
-  content: 'content'
-};
-
-exports.Prisma.MaterialOrderByRelevanceFieldEnum = {
-  title: 'title',
-  content: 'content'
 };
 
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
-};
-
-exports.Prisma.QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-};
-
-exports.Prisma.PresetOrderByRelevanceFieldEnum = {
-  userId: 'userId'
-};
-
-exports.Prisma.UserQuestionOrderByRelevanceFieldEnum = {
-  userId: 'userId'
-};
-
-exports.Prisma.UserMaterialOrderByRelevanceFieldEnum = {
-  userId: 'userId'
 };
 exports.Role = exports.$Enums.Role = {
   USER: 'USER',
@@ -293,7 +236,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\Alunos\\Documents\\GitHub\\educational_melody\\backend\\src\\lib\\generated\\prisma",
+      "value": "/server/src/lib/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -302,7 +245,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "linux-musl-openssl-3.0.x",
         "native": true
       },
       {
@@ -313,11 +256,11 @@ const config = {
     "previewFeatures": [
       "views"
     ],
-    "sourceFilePath": "C:\\Users\\Alunos\\Documents\\GitHub\\educational_melody\\backend\\prisma\\schema.prisma",
+    "sourceFilePath": "/server/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../../../.env"
   },
   "relativePath": "../../../../prisma",
@@ -326,7 +269,7 @@ const config = {
   "datasourceNames": [
     "db"
   ],
-  "activeProvider": "mysql",
+  "activeProvider": "postgresql",
   "postinstall": false,
   "inlineDatasources": {
     "db": {
@@ -336,8 +279,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\n// .env \n/**\n * DATABASE_URL=mysql://prisma_user:123456@localhost:3306/educational_melody\n */\n\n// mysql\n/**\n * create user 'prisma_user'@'localhost' identified by '123456';\n * grant all privileges on *.* to 'prisma_user'@'localhost';\n * create database educational_melody;\n */\n\n// docker\n/**\n * docker exec -i educational_melody-db-1 mysql -uroot -p123456 educational_melody -e \"insert into User (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);\"\n */\n\n// docker\n/**\n * docker exec -i educational_melody-db-1 mysql -uroot -p123456 educational_melody -e \"insert into User (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);\"\n */\n\n// After prisma db push run on mysql\n//insert into user (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider        = \"prisma-client-js\"\n  previewFeatures = [\"views\"]\n  binaryTargets   = [\"native\", \"linux-musl-openssl-3.0.x\"]\n  output          = \"../src/lib/generated/prisma\"\n}\n\nmodel Account {\n  id                String  @id @default(cuid())\n  userId            String\n  type              String\n  provider          String\n  providerAccountId String\n  refresh_token     String? @db.Text\n  access_token      String? @db.Text\n  expires_at        Int?\n  token_type        String?\n  scope             String?\n  id_token          String? @db.Text\n  session_state     String?\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([provider, providerAccountId])\n  @@map(\"accounts\")\n}\n\nenum Role {\n  USER\n  ADMIN\n}\n\nmodel User {\n  id            String         @id @default(cuid())\n  name          String?\n  email         String?        @unique\n  emailVerified DateTime?      @map(\"email_verified\")\n  password      String?        @db.Text\n  role          Role           @default(USER)\n  image         String?\n  accounts      Account[]\n  userQuestions UserQuestion[]\n  userMaterials UserMaterial[]\n  presets       Preset[]\n\n  @@map(\"users\")\n}\n\nmodel VerificationToken {\n  identifier String\n  token      String   @unique\n  expires    DateTime\n\n  @@unique([identifier, token])\n  @@map(\"verificationtokens\")\n}\n\nmodel Image {\n  id         Int                @id @default(autoincrement())\n  image      Bytes\n  name       String             @db.VarChar(256)\n  created_at DateTime\n  questions  Question[]\n  materials  MaterialHasImage[]\n}\n\nmodel Question {\n  id                Int                   @id @default(autoincrement())\n  title             String                @default(\"Sem título\") @db.VarChar(128)\n  content           String                @db.Text\n  imageId           Int?\n  image             Image?                @relation(fields: [imageId], references: [id])\n  alternatives      Alternative[]\n  userQuestions     UserQuestion[]\n  questionMaterials QuestionHasMaterial[]\n}\n\nmodel Alternative {\n  id          Int      @id @default(autoincrement())\n  content     String   @db.Text\n  is_correct  Boolean\n  questionsId Int\n  question    Question @relation(fields: [questionsId], references: [id])\n}\n\nmodel Material {\n  id                Int                   @id @default(autoincrement())\n  title             String                @default(\"\") @db.VarChar(255)\n  content           String                @db.Text\n  created_at        DateTime\n  userMaterials     UserMaterial[]\n  questionMaterials QuestionHasMaterial[]\n  materialImages    MaterialHasImage[]\n}\n\nmodel Preset {\n  id         Int      @id @default(autoincrement())\n  content    Json\n  created_at DateTime\n  userId     String\n  user       User     @relation(fields: [userId], references: [id])\n}\n\nmodel UserQuestion {\n  id          Int      @id @default(autoincrement())\n  completed   Boolean\n  userId      String\n  questionsId Int\n  user        User     @relation(fields: [userId], references: [id])\n  question    Question @relation(fields: [questionsId], references: [id])\n}\n\nmodel UserMaterial {\n  id          Int      @id @default(autoincrement())\n  completed   Boolean\n  userId      String\n  materialsId Int\n  user        User     @relation(fields: [userId], references: [id])\n  material    Material @relation(fields: [materialsId], references: [id])\n}\n\nmodel QuestionHasMaterial {\n  questionId Int\n  materialId Int\n  question   Question @relation(fields: [questionId], references: [id])\n  material   Material @relation(fields: [materialId], references: [id])\n\n  @@id([questionId, materialId])\n}\n\nmodel MaterialHasImage {\n  materialId Int\n  imageId    Int\n  material   Material @relation(fields: [materialId], references: [id])\n  image      Image    @relation(fields: [imageId], references: [id])\n\n  @@id([materialId, imageId])\n}\n",
-  "inlineSchemaHash": "579992cc120e7f4178da82f0f1a34981b208a334d3dc72b16ad053b343a7f318",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\n// .env \n/**\n * DATABASE_URL=postgresql://postgres:123456@localhost:5432/educational_melody\n */\n\n// postgresql\n/**\n * CREATE USER prisma_user WITH PASSWORD '123456';\n * CREATE DATABASE educational_melody;\n * GRANT ALL PRIVILEGES ON DATABASE educational_melody TO prisma_user;\n */\n\n// docker\n/**\n * docker exec -i educational_melody-db-1 psql -U postgres -d educational_melody -c \"INSERT INTO \\\"users\\\" (id, name, email, password, role) VALUES ('admin1', 'Admin', 'admin@email.com', 'hashed_password', 'ADMIN');\"\n */\n\n// After prisma db push run on postgresql\n// INSERT INTO \"users\" (id, name, email, password, role) VALUES ('admin1', 'Admin', 'admin@email.com', 'hashed_password', 'ADMIN');\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider        = \"prisma-client-js\"\n  previewFeatures = [\"views\"]\n  binaryTargets   = [\"native\", \"linux-musl-openssl-3.0.x\"]\n  output          = \"../src/lib/generated/prisma\"\n}\n\nmodel Account {\n  id                String  @id @default(cuid())\n  userId            String\n  type              String\n  provider          String\n  providerAccountId String\n  refresh_token     String? @db.Text\n  access_token      String? @db.Text\n  expires_at        Int?\n  token_type        String?\n  scope             String?\n  id_token          String? @db.Text\n  session_state     String?\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([provider, providerAccountId])\n  @@map(\"accounts\")\n}\n\nenum Role {\n  USER\n  ADMIN\n}\n\nmodel User {\n  id            String         @id @default(cuid())\n  name          String?\n  email         String?        @unique\n  emailVerified DateTime?      @map(\"email_verified\")\n  password      String?        @db.Text\n  role          Role           @default(USER)\n  image         String?\n  accounts      Account[]\n  userQuestions UserQuestion[]\n  userMaterials UserMaterial[]\n  presets       Preset[]\n\n  @@map(\"users\")\n}\n\nmodel VerificationToken {\n  identifier String\n  token      String   @unique\n  expires    DateTime\n\n  @@unique([identifier, token])\n  @@map(\"verificationtokens\")\n}\n\nmodel Image {\n  id         Int                @id @default(autoincrement())\n  image      Bytes              @db.ByteA\n  name       String             @db.VarChar(256)\n  created_at DateTime\n  questions  Question[]\n  materials  MaterialHasImage[]\n}\n\nmodel Question {\n  id                Int                   @id @default(autoincrement())\n  title             String                @default(\"Sem título\") @db.VarChar(128)\n  content           String                @db.Text\n  imageId           Int?\n  image             Image?                @relation(fields: [imageId], references: [id])\n  alternatives      Alternative[]\n  userQuestions     UserQuestion[]\n  questionMaterials QuestionHasMaterial[]\n}\n\nmodel Alternative {\n  id          Int      @id @default(autoincrement())\n  content     String   @db.Text\n  is_correct  Boolean\n  questionsId Int\n  question    Question @relation(fields: [questionsId], references: [id])\n}\n\nmodel Material {\n  id                Int                   @id @default(autoincrement())\n  title             String                @default(\"\") @db.VarChar(255)\n  content           String                @db.Text\n  created_at        DateTime\n  userMaterials     UserMaterial[]\n  questionMaterials QuestionHasMaterial[]\n  materialImages    MaterialHasImage[]\n}\n\nmodel Preset {\n  id         Int      @id @default(autoincrement())\n  content    Json\n  created_at DateTime\n  userId     String\n  user       User     @relation(fields: [userId], references: [id])\n}\n\nmodel UserQuestion {\n  id          Int      @id @default(autoincrement())\n  completed   Boolean\n  userId      String\n  questionsId Int\n  user        User     @relation(fields: [userId], references: [id])\n  question    Question @relation(fields: [questionsId], references: [id])\n}\n\nmodel UserMaterial {\n  id          Int      @id @default(autoincrement())\n  completed   Boolean\n  userId      String\n  materialsId Int\n  user        User     @relation(fields: [userId], references: [id])\n  material    Material @relation(fields: [materialsId], references: [id])\n}\n\nmodel QuestionHasMaterial {\n  questionId Int\n  materialId Int\n  question   Question @relation(fields: [questionId], references: [id])\n  material   Material @relation(fields: [materialId], references: [id])\n\n  @@id([questionId, materialId])\n}\n\nmodel MaterialHasImage {\n  materialId Int\n  imageId    Int\n  material   Material @relation(fields: [materialId], references: [id])\n  image      Image    @relation(fields: [imageId], references: [id])\n\n  @@id([materialId, imageId])\n}\n",
+  "inlineSchemaHash": "e58c92dfc570304e3cc319486b3bbc7c8b9eac72aca5feab6f13af048bdb1feb",
   "copyEngine": true
 }
 config.dirname = '/'

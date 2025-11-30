@@ -6,31 +6,26 @@
 
 // .env 
 /**
- * DATABASE_URL=mysql://prisma_user:123456@localhost:3306/educational_melody
+ * DATABASE_URL=postgresql://postgres:123456@localhost:5432/educational_melody
  */
 
-// mysql
+// postgresql
 /**
- * create user 'prisma_user'@'localhost' identified by '123456';
- * grant all privileges on *.* to 'prisma_user'@'localhost';
- * create database educational_melody;
+ * CREATE USER prisma_user WITH PASSWORD '123456';
+ * CREATE DATABASE educational_melody;
+ * GRANT ALL PRIVILEGES ON DATABASE educational_melody TO prisma_user;
  */
 
 // docker
 /**
- * docker exec -i educational_melody-db-1 mysql -uroot -p123456 educational_melody -e "insert into User (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);"
+ * docker exec -i educational_melody-db-1 psql -U postgres -d educational_melody -c "INSERT INTO \"users\" (id, name, email, password, role) VALUES ('admin1', 'Admin', 'admin@email.com', 'hashed_password', 'ADMIN');"
  */
 
-// docker
-/**
- * docker exec -i educational_melody-db-1 mysql -uroot -p123456 educational_melody -e "insert into User (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);"
- */
-
-// After prisma db push run on mysql
-//insert into user (username, email, password, is_administrator) values ('adm1', 'adm1@email.com', 1234, true);
+// After prisma db push run on postgresql
+// INSERT INTO "users" (id, name, email, password, role) VALUES ('admin1', 'Admin', 'admin@email.com', 'hashed_password', 'ADMIN');
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -93,7 +88,7 @@ model VerificationToken {
 
 model Image {
   id         Int                @id @default(autoincrement())
-  image      Bytes
+  image      Bytes              @db.ByteA
   name       String             @db.VarChar(256)
   created_at DateTime
   questions  Question[]

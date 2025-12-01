@@ -48,6 +48,11 @@ jobs:
         with:
           name: Melody
 
+      - name: npm install and build
+        run: |
+          npm install --production
+          npm run build
+
       - name: prisma generate
         run: npx prisma generate
 

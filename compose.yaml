@@ -1,16 +1,18 @@
 services:
   server:
     build:
-      context: ./api
+      context: ./backend
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./backend:/server
+      - /server/node_modules
     environment:
       DATABASE_URL: postgresql://postgres:123456@db:5432/educational_melody
+      NEXT_ATUTH_SECRET: your_next_auth_secret
+      NEXTAUTH_URL: http://localhost:3000
     ports:
       - 3000:3000
     networks:
-      - prisma-network
+      - local-network
     depends_on:
       db:
         condition: service_healthy
@@ -19,13 +21,13 @@ services:
     image: postgres:15-alpine
     restart: always
     networks:
-      - prisma-network
+      - local-network
     environment:
       - POSTGRES_DB=educational_melody
       - POSTGRES_PASSWORD=123456
       - POSTGRES_USER=postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d educational_melody"]
       interval: 5s
@@ -39,5 +41,5 @@ volumes:
   postgres_data:
 
 networks:
-  prisma-network:
-    name: prisma-network
+  local-network:
+    name: local-network

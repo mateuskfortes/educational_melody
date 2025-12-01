@@ -1,0 +1,169 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// .env 
+/**
+ * DATABASE_URL=postgresql://postgres:123456@localhost:5432/educational_melody
+ */
+
+// postgresql
+/**
+ * CREATE USER prisma_user WITH PASSWORD '123456';
+ * CREATE DATABASE educational_melody;
+ * GRANT ALL PRIVILEGES ON DATABASE educational_melody TO prisma_user;
+ */
+
+// docker
+/**
+ * docker exec -i educational_melody-db-1 psql -U postgres -d educational_melody -c "INSERT INTO \"users\" (id, name, email, password, role) VALUES ('admin1', 'Admin', 'admin@email.com', 'hashed_password', 'ADMIN');"
+ */
+
+// After prisma db push run on postgresql
+// INSERT INTO "users" (id, name, email, password, role) VALUES ('admin1', 'Admin', 'admin@email.com', 'hashed_password', 'ADMIN');
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
+  output          = "../src/lib/generated/prisma"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?      @map("email_verified")
+  password      String?        @db.Text
+  role          Role           @default(USER)
+  image         String?
+  accounts      Account[]
+  userQuestions UserQuestion[]
+  userMaterials UserMaterial[]
+  presets       Preset[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+model Image {
+  id         Int                @id @default(autoincrement())
+  image      Bytes              @db.ByteA
+  name       String             @db.VarChar(256)
+  created_at DateTime
+  questions  Question[]
+  materials  MaterialHasImage[]
+}
+
+model Question {
+  id                Int                   @id @default(autoincrement())
+  title             String                @default("Sem título") @db.VarChar(128)
+  content           String                @db.Text
+  imageId           Int?
+  image             Image?                @relation(fields: [imageId], references: [id])
+  alternatives      Alternative[]
+  userQuestions     UserQuestion[]
+  questionMaterials QuestionHasMaterial[]
+}
+
+model Alternative {
+  id          Int      @id @default(autoincrement())
+  content     String   @db.Text
+  is_correct  Boolean
+  questionsId Int
+  question    Question @relation(fields: [questionsId], references: [id])
+}
+
+model Material {
+  id                Int                   @id @default(autoincrement())
+  title             String                @default("") @db.VarChar(255)
+  content           String                @db.Text
+  created_at        DateTime
+  userMaterials     UserMaterial[]
+  questionMaterials QuestionHasMaterial[]
+  materialImages    MaterialHasImage[]
+}
+
+model Preset {
+  id         Int      @id @default(autoincrement())
+  content    Json
+  created_at DateTime
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model UserQuestion {
+  id          Int      @id @default(autoincrement())
+  completed   Boolean
+  userId      String
+  questionsId Int
+  user        User     @relation(fields: [userId], references: [id])
+  question    Question @relation(fields: [questionsId], references: [id])
+}
+
+model UserMaterial {
+  id          Int      @id @default(autoincrement())
+  completed   Boolean
+  userId      String
+  materialsId Int
+  user        User     @relation(fields: [userId], references: [id])
+  material    Material @relation(fields: [materialsId], references: [id])
+}
+
+model QuestionHasMaterial {
+  questionId Int
+  materialId Int
+  question   Question @relation(fields: [questionId], references: [id])
+  material   Material @relation(fields: [materialId], references: [id])
+
+  @@id([questionId, materialId])
+}
+
+model MaterialHasImage {
+  materialId Int
+  imageId    Int
+  material   Material @relation(fields: [materialId], references: [id])
+  image      Image    @relation(fields: [imageId], references: [id])
+
+  @@id([materialId, imageId])
+}

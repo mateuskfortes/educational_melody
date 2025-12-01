@@ -1,0 +1,18 @@
+<svg width="90" height="64" xmlns="http://www.w3.org/2000/svg">
+ <!--
+    Half-note head (open/hollow ellipse) with transparent fill.
+    Rotated slightly to match musical engraving style.
+  -->
+
+ <g>
+  <title>background</title>
+  <rect x="-1" y="-1" width="92" height="66" id="canvas_background" fill="none"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <g transform="rotate(-18 44.31544113159181,31.001350402832017) " id="svg_1">
+   <!-- Outer stroke only, transparent inside -->
+   <ellipse cx="44.315481" cy="31.001355" rx="36" ry="22" fill="transparent" stroke="#000000" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" id="svg_2"/>
+  </g>
+ </g>
+</svg>

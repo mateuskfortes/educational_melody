@@ -8,21 +8,22 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
+  // @ts-expect-error Type instantiation is excessively deep and possibly infinite.
   adapter: PrismaAdapter(prisma),
   jwt: {
-    maxAge: parseInt(process.env.JWT_MAX_AGE || '300'),
+    maxAge: parseInt(process.env.JWT_MAX_AGE || "300"),
   },
   session: {
     strategy: "jwt",
   },
   pages: {
-    signIn: '/login'
+    signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
       /*
       authorization: {
         params: {
@@ -52,7 +53,9 @@ export const authOptions: NextAuthOptions = {
 
         const refreshToken = crypto.randomUUID();
         const accessToken = crypto.randomUUID();
-        const expiresAt = Math.floor(Date.now() / 1000) + parseInt(process.env.CREDENTIALS_ACCESS_TOKEN_MAX_AGE ?? '3600');
+        const expiresAt =
+          Math.floor(Date.now() / 1000) +
+          parseInt(process.env.CREDENTIALS_ACCESS_TOKEN_MAX_AGE ?? "3600");
 
         await prisma.account.upsert({
           where: {
@@ -93,31 +96,30 @@ export const authOptions: NextAuthOptions = {
     // https://next-auth.js.org/configuration/callbacks#jwt-callback
     // Create token
     async jwt({ token, user, account }) {
-
       if (account && user) {
         token.id = user.id;
         token.role = user.role;
         token.accessToken = account.access_token;
         token.expires_at = (account.expires_at ?? user.expires_at ?? 0) * 1000;
-        token.provider = account.provider
+        token.provider = account.provider;
         return token;
       }
 
       if (Date.now() < token.expires_at) {
-        return token
+        return token;
       }
 
-      return refreshAccessToken(token)
+      return refreshAccessToken(token);
     },
 
     // Send data in the token to the frontend
     async session({ session, token }) {
       if (token && !token.error) {
-        session.user.id = token.id
-        session.user.accessToken = token.accessToken
-        session.user.role = token.role
+        session.user.id = token.id;
+        session.user.accessToken = token.accessToken;
+        session.user.role = token.role;
       }
-      session.error = token.error
+      session.error = token.error;
       return session;
     },
   },

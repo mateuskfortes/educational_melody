@@ -1,5 +1,6 @@
 import Image from "next/image";
 import "@/styles/home.css";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -26,12 +27,12 @@ export default function Home() {
           </small>
         </p>
         <div className="cta-buttons">
-          <a href="#" className="btn red">
+          <Link href="#" className="btn red">
             Iniciar
-          </a>
-          <a href="register" className="btn outline">
+          </Link>
+          <Link href="register" className="btn outline">
             Cadastrar-se
-          </a>
+          </Link>
         </div>
         <div className="hero-image-container">
           <Image
@@ -60,9 +61,9 @@ export default function Home() {
               teoria, leitura de notas e prática musical.
             </p>
           </div>
-          <a href="/lessons">
+          <Link href="/lessons">
             <span className="arrow">↗</span>
-          </a>
+          </Link>
         </div>
 
         <div className="feature-box">
@@ -71,9 +72,9 @@ export default function Home() {
             <h3>Exercícios Interativos:</h3>
             <p>Pratique com atividades interativas como quizzes.</p>
           </div>
-          <a href="/exercises">
+          <Link href="/exercises">
             <span className="arrow">↗</span>
-          </a>
+          </Link>
         </div>
 
         <div className="feature-box">
@@ -85,9 +86,9 @@ export default function Home() {
               de forma simples e intuitiva.
             </p>
           </div>
-          <a href="/music-library">
+          <Link href="/music-library">
             <span className="arrow">↗</span>
-          </a>
+          </Link>
         </div>
       </section>
     </>

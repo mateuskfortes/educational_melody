@@ -51,7 +51,9 @@ jobs:
 
       - name: npm install
         run: npm install --production
-        working-directory: .
+
+      - name: prisma generate
+        run: npx prisma generate
 
       - name: Login to Azure
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5

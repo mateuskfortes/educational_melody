@@ -237,7 +237,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/server/src/lib/generated/prisma",
+      "value": "C:\\Users\\mateu\\Documents\\GitHub\\educational_melody\\backend\\src\\lib\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -246,7 +246,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "linux-musl-openssl-3.0.x",
+        "value": "windows",
         "native": true
       },
       {
@@ -257,7 +257,7 @@ const config = {
     "previewFeatures": [
       "views"
     ],
-    "sourceFilePath": "/server/prisma/schema.prisma",
+    "sourceFilePath": "C:\\Users\\mateu\\Documents\\GitHub\\educational_melody\\backend\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -318,6 +318,10 @@ warnEnvConflicts({
 const PrismaClient = getPrismaClient(config)
 exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "query_engine-windows.dll.node");
+path.join(process.cwd(), "src/lib/generated/prisma/query_engine-windows.dll.node")
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-linux-musl-openssl-3.0.x.so.node");

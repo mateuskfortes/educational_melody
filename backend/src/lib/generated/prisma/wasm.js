@@ -236,7 +236,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/server/src/lib/generated/prisma",
+      "value": "C:\\Users\\mateu\\Documents\\GitHub\\educational_melody\\backend\\src\\lib\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -245,7 +245,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "linux-musl-openssl-3.0.x",
+        "value": "windows",
         "native": true
       },
       {
@@ -256,7 +256,7 @@ const config = {
     "previewFeatures": [
       "views"
     ],
-    "sourceFilePath": "/server/prisma/schema.prisma",
+    "sourceFilePath": "C:\\Users\\mateu\\Documents\\GitHub\\educational_melody\\backend\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

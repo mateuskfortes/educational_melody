@@ -20,9 +20,12 @@ const eslintConfig = [
       "next-env.d.ts",
       "src/lib/generated/**",
     ],
+  },
+  {
     rules: {
       "@typescript-eslint/no-namespace": "off",
       "@typescript-eslint/no-explicit-any": "off",
+      "react-hooks/exhaustive-deps": "off",
     },
   },
 ];

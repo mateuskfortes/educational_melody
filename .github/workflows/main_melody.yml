@@ -28,7 +28,6 @@ jobs:
           npm install
           npm run build
         working-directory: ./backend
-        continue-on-error: true
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
@@ -48,9 +47,6 @@ jobs:
         uses: actions/download-artifact@f093f21ca4cfa7c75ccbbc2be54da76a0c7e1f05
         with:
           name: Melody
-
-      - name: npm install
-        run: npm install --production
 
       - name: prisma generate
         run: npx prisma generate

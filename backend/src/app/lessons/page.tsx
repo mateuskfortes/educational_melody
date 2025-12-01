@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import "@/styles/lessons.css";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function LessonPage() {
   const lessons = await prisma.material.findMany();
 

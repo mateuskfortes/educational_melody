@@ -38,6 +38,7 @@ jobs:
         with:
           name: Melody
           path: ./backend
+          include-hidden-files: true
 
   deploy:
     runs-on: ubuntu-latest

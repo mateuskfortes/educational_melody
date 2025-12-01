@@ -29,6 +29,10 @@ jobs:
           npm run build
         working-directory: ./backend
 
+      - name: prisma generate
+        run: npx prisma generate
+        working-directory: ./backend
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
@@ -48,18 +52,9 @@ jobs:
         with:
           name: Melody
 
-      - name: Fix permissions
+      - name: npm install
         run: |
-          chmod +x node_modules/.bin/* || true
-          find node_modules -name "*.node" -exec chmod +x {} \; || true
-
-      - name: npm install and build
-        run: |
-          npm install
-          npm run build
-
-      - name: prisma generate
-        run: npx prisma generate
+          npm install --production
 
       - name: Login to Azure
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5

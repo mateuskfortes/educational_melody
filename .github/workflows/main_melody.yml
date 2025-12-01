@@ -27,13 +27,13 @@ jobs:
         run: |
           npm install
           npm run build
-        working-directory: ./api
+        working-directory: ./backend
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: Melody
-          path: ./api
+          path: ./backend
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,10 +50,6 @@ jobs:
 
       - name: npm install
         run: npm install --production
-        working-directory: .
-
-      - name: prisma generate
-        run: npx prisma generate
         working-directory: .
 
       - name: Login to Azure

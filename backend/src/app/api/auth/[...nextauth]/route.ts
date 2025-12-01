@@ -8,7 +8,6 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
-  // @ts-expect-error Type instantiation is excessively deep and possibly infinite.
   adapter: PrismaAdapter(prisma),
   jwt: {
     maxAge: parseInt(process.env.JWT_MAX_AGE || "300"),
